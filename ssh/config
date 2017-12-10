@@ -1,0 +1,37 @@
+Host *
+	ForwardAgent no
+	ForwardX11 no
+	ForwardX11Trusted yes
+	Port 22
+	Protocol 2
+	ServerAliveInterval 60
+	ServerAliveCountMax 30
+	TCPKeepAlive yes
+	ControlMaster          auto
+	ControlPath            ~/.ssh/mux-%r@%h:%p
+	ControlPersist         8h
+
+Host debain
+	HostName 192.168.0.176
+	User alvin
+	IdentityFile ~/.ssh/id_rsa
+
+Host db-server
+	HostName 192.168.0.176
+	User alvin
+	LocalForward 13306 localhost:3306
+
+Host web-server
+     Hostname 192.168.0.176
+     User alvin
+     RemoteForward 13000 localhost:3000
+
+Host proxy
+	Hostname 192.168.0.176
+	User alvin
+	DynamicForward localhost:9090
+
+Host myself
+	Hostname 127.0.0.1
+	User alvin
+	ProxyCommand ssh -q -A alvin@192.168.0.176 nc %h %p

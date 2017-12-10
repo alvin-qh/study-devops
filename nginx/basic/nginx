@@ -1,0 +1,21 @@
+#!/bin/bash
+
+arg=$1
+
+case $arg in
+	'start')
+	nginx -p . -c nginx.conf
+	;;
+	'reload')
+	nginx -s reload
+	;;
+	'stop')
+	nginx -s stop
+	;;
+	'quit')
+	nginx -s quit
+	;;
+	*)
+	echo 'Invalid arguments'
+	;;
+esac
