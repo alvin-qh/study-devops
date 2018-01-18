@@ -23,6 +23,8 @@ $ echo_supervisord_conf > /etc/supervisord.conf
 
 ### 编辑配置文件
 
+[官网](http://supervisord.org/configuration.html)
+
 开启WEB服务，例如：
 
 ```ini
@@ -56,6 +58,8 @@ stdout_logfile_backups = 20     ; stdout 日志文件备份数
 stdout_logfile = logs/show-time.log 	; stdout 日志文件，需要注意当指定目录不存在时无法正常启动，所以需要手动创建目录（supervisord 会自动创建日志文件）
 stopasgroup = true
 killasgroup = true
+environment = KEY1="value1",KEY2="value2"	; 设定环境变量
+...
 ```
 
 配置进程组
@@ -64,11 +68,33 @@ killasgroup = true
 [group:work-group]
 programs=name1,name2  	; 这里的进程名是上文 [program:name] 定义的 name
 priority=999            ; the relative start priority (default 999)
+...
 ```
 
-**配置文件中所有的路径相对于启动`supervisord`时所在的路径位置**
+> 配置文件中所有的路径相对于启动`supervisord`时所在的路径位置
 
+使用环境变量
 
+```ini
+[program:example]
+command=/usr/bin/example --loglevel=%(ENV_LOGLEVEL)s
+```
+
+> `%(ENV_X)s`表示环境变量`X`的值
+
+启动多进程
+
+```ini
+[program:web]
+command = python /opt/www/site/serv.py 80%(process_num)02d
+process_name = %(program_name)s_%(process_num)02d
+numprocs=4
+numprocs_start=1
+...
+```
+
+> `%(program_name)s`   表示进程名称
+> `%(process_num)02d` 表示进程编号，例子中从为 1～4
 
 ## 基本使用
 
