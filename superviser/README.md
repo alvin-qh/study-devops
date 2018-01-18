@@ -66,6 +66,8 @@ programs=name1,name2  	; 这里的进程名是上文 [program:name] 定义的 na
 priority=999            ; the relative start priority (default 999)
 ```
 
+**配置文件中所有的路径相对于启动`supervisord`时所在的路径位置**
+
 
 
 ## 基本使用
