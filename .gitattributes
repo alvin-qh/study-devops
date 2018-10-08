@@ -8,3 +8,5 @@
 *.ttf   binary
 *.woff   binary
 *.otf   binary
+
+/**/*.html linguist-vendored
