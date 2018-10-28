@@ -6,7 +6,7 @@ Supervisor
 ## 安装
 
 ```sh
-$ pip install supervisor
+$ pip2 install supervisor
 ```
 
 
