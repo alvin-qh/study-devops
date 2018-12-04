@@ -1,0 +1,13 @@
+ext {
+    libs = [
+            main: [
+            ],
+            test: [
+                    common    : [
+                            "org.junit.platform:junit-platform-launcher:${versions.junitLauncher}",
+                            "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
+                            "org.hamcrest:hamcrest-all:${versions.hamcrest}"
+                    ]
+            ]
+    ]
+}

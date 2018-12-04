@@ -1,0 +1,4 @@
+rootProject.name = 'study-gradle'
+
+include 'checkstyle',
+    'jacoco'
