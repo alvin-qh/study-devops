@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+    id 'checkstyle'
+}
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+checkstyleMain {
+    configFile = file("${project.projectDir}/.config/checkstyle/checkstyle.xml")
+}
+
+checkstyleTest {
+    configFile = file("${project.projectDir}/.config/checkstyle/checkstyle-test.xml")
+}

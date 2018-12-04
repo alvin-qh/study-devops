@@ -1,0 +1,10 @@
+plugins {
+    id 'java'
+}
+
+/**
+ * Add more java compile options
+ */
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-Xdoclint:none', '-Xlint:none', '-nowarn']
+}

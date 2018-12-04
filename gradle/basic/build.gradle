@@ -1,0 +1,3 @@
+apply from: 'vars.gradle'
+apply from: 'properties.gradle'
+apply from: 'tasks.gradle'

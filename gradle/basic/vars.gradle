@@ -1,0 +1,10 @@
+
+task showGlobalVars() {
+    doLast {
+        println "rootProject: ${rootProject}"
+        println "rootProject.projectDir: ${rootProject.projectDir}"
+
+        println "project: ${project}"
+        println "project.projectDir: ${project.projectDir}"
+    }
+}
