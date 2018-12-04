@@ -1,0 +1,186 @@
+import java.nio.charset.StandardCharsets
+import org.apache.commons.codec.binary.Base64
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "commons-codec:commons-codec:${versions.commons.codec}"
+    }
+}
+
+/**
+ * try `./gradlew -q simpleTask`
+ */
+task simpleTask {
+    doLast {
+        println 'Simple Task'
+        2.times {
+            println "\tnumber is: ${it}"
+        }
+    }
+}
+
+
+/**
+ * - In gradle 4.x, dependsOn use like this:
+ * task dependTask(dependsOn: [beDependedTask]) ...
+ *
+ * try `./gradlew -q dependTask`
+ */
+task dependTask {
+    dependsOn 'beDependedTask'
+    doLast {
+        println 'Task depend others'
+    }
+}
+
+task beDependedTask {
+    doLast {
+        println 'Task be depended by other'
+    }
+}
+
+
+/**
+ * Dynamic tasks
+ * try `./gradlew -q dynamicTask2`
+ */
+4.times { num ->
+    task "dynamicTask${num}" {
+        doLast {
+            println "This is dynamic task ${num}"
+        }
+    }
+}
+
+
+/**
+ * Manipulating existing tasks
+ * try `./gradlew -q dynamicTask1`
+ */
+dynamicTask1.dependsOn dynamicTask0, dynamicTask3
+
+
+/**
+ * Behaviors of task
+ */
+task directlyTask {
+    // Run directly
+    println "Just run"
+
+    // run at first of task
+    doFirst {
+        println "First 3"
+    }
+
+    // run at last of task
+    doLast {
+        println "Last 1"
+    }
+
+    doFirst {
+        println "First 2"
+    }
+
+    doLast {
+        println "Last 2"
+    }
+}
+
+directlyTask.doLast {
+    println "Last 3"
+}
+
+directlyTask.doFirst {
+    println "First 1"
+}
+
+
+/**
+ * use method
+ * try `./gradlew -q fileChecksum`
+ * try `./gradlew -q fileLoadfile`
+ */
+task fileChecksum {
+    doLast {
+        fileList('./').each { file ->
+            ant.checksum(file: file, property: "cs_${file.name}")
+            println "${file.name} - checksum: ${ant.properties["cs_${file.name}"]}"
+        }
+    }
+}
+
+task fileLoadfile {
+    doLast {
+        fileList('./').each { file ->
+            ant.loadfile(srcFile: file, property: file.name)
+            println "I'm fond of ${file.name}: \n${ant.properties[file.name]}"
+        }
+    }
+}
+
+File[] fileList(String dir) {
+    file(dir).listFiles({ file -> file.isFile() } as FileFilter).sort()
+}
+
+
+/**
+ * Default tasks, can be ran without task name
+ *
+ * define `defaultTasks 'defaultTask1', 'defaultTask2'` in root `build.gradle` file
+ * try `./gradlew -q` to run default tasks
+ */
+task defaultTask {
+    doLast {
+        println "I am default task"
+    }
+}
+
+
+/**
+ * taskGraph, check which tasks should be run
+ * try `./gradlew -q distribution`
+ * or
+ * try `./gradlew -q release`
+ */
+task release {
+    dependsOn 'distribution'
+    doLast {
+        println 'We release now'
+    }
+}
+
+task distribution {
+    doLast {
+        println "We build the zip with version=${version}"
+    }
+}
+
+gradle.taskGraph.whenReady { g ->
+    if (g.hasTask(":basic:release")) {
+        version = '1.0'
+    } else {
+        version = '1.0-SNAPSHOT'
+    }
+}
+
+
+/**
+ * Use external java package
+ *
+ * 1. Add external `buildscript dependencies`
+ *    buildscript
+ *          dependencies
+ *              classpath "commons-codec:commons-codec:${versions.commons.codec}"
+ *
+ * 2. import the library `import org.apache.commons.codec.binary.Base64`
+ */
+task base64encode {
+    doLast {
+        def base64 = new Base64()
+        def encodedString = base64.encode('hello world'.getBytes(StandardCharsets.UTF_8))
+        println new String(encodedString)
+    }
+}
