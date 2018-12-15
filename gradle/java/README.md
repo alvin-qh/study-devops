@@ -85,9 +85,9 @@ task fatJar(type: Jar) {
 
     manifest {
         attributes(
-                'Implementation-Title': 'Gradle Demo',
-                'Implementation-Version': version,
-                'Main-Class': 'alvin.gradle.java.Main',
+            'Implementation-Title': 'Gradle Demo',
+            'Implementation-Version': version,
+            'Main-Class': 'alvin.gradle.java.Main',
         )
     }
 
