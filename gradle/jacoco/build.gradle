@@ -1,0 +1,96 @@
+plugins {
+    id 'idea'
+    id 'java'
+    id 'jacoco'
+}
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+test {
+    useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.2"
+    reportsDir = file("$buildDir/reports/jacoco")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+        csv.enabled false
+//        html.destination file("${buildDir}/test-report")
+    }
+    afterEvaluate {
+        classDirectories.from = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['resources/**'])
+        })
+    }
+}
+
+task coverage {
+    dependsOn 'jacocoTestReport'
+    doLast {
+        def thresholds = parseXml("${projectDir}/thresholds.xml").coverage[0]
+        def report = parseXml("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+        failIfBelowThreshold(thresholds, report, 'line')
+        failIfBelowThreshold(thresholds, report, 'branch')
+    }
+}
+
+coverage.shouldRunAfter test
+
+task preBuild {
+    dependsOn 'check', 'test', 'coverage'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    maven {
+        url 'http://maven.aliyun.com/nexus/content/groups/public/'
+    }
+    jcenter()
+}
+
+dependencies {
+    testImplementation libs.test.common
+}
+
+
+// external methods
+
+import org.gradle.internal.logging.text.StyledTextOutput.Style
+import org.gradle.internal.logging.text.StyledTextOutputFactory
+
+
+static def parseXml(path) {
+    def parser = new XmlSlurper(false, false, true)
+    parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+    parser.setFeature("http://xml.org/sax/features/namespaces", false)
+    return parser.parse(new File(path))
+}
+
+def failIfBelowThreshold(thresholds, report, type) {
+    def threshold = thresholds[type][0].text().toFloat()
+    def actual = calculateCoverage(report, type)
+    if (actual < threshold) {
+        def msg = '%1s coverage %2.1f%% below threshold %3.1f%%'
+        ant.fail(String.format(msg, type, actual * 100, threshold * 100))
+    } else {
+        def out = services.get(StyledTextOutputFactory).create("jacoco")
+        def msg = String.format('> you may increase the %1s coverage to %2.1f%%', type, actual * 100)
+        out.withStyle(Style.Info).println(msg)
+    }
+}
+
+static def calculateCoverage(report, type) {
+    def counter = report.counter.find { it.@type == type.toUpperCase() }
+    def missed = counter.@missed.toFloat()
+    def covered = counter.@covered.toFloat()
+    return covered / (covered + missed)
+}

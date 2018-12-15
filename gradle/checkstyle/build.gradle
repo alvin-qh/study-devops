@@ -7,11 +7,19 @@ plugins {
 sourceCompatibility = '11'
 targetCompatibility = '11'
 
+test {
+    useJUnitPlatform()
+}
+
 repositories {
     maven {
         url 'http://maven.aliyun.com/nexus/content/groups/public/'
     }
     jcenter()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 checkstyle {

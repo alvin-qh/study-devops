@@ -1,4 +1,4 @@
-# Gradle checkstyle plugin
+# Checkstyle plugin
 
 ## Setup
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<thresholds>
+    <coverage>
+        <line>0.8</line>
+        <branch>0.8</branch>
+    </coverage>
+</thresholds>
