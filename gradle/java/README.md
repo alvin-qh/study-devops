@@ -77,7 +77,7 @@ Finally, the target files in build/libs are:
 
 ### Fat jar
 
-Compile `.class` file of current project and all `.class` file in dependency jar files together in on `.jar` file:
+Compile `.class` file of current project and all `.class` file in dependency jar files together in one `.jar` file:
 
 ```groovy
 task fatJar(type: Jar) {
