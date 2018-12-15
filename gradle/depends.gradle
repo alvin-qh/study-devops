@@ -1,6 +1,9 @@
 ext {
     libs = [
             main: [
+                    guava: [
+                            "com.google.guava:guava:${versions.guava}"
+                    ]
             ],
             test: [
                     common: [

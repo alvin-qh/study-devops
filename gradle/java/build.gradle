@@ -1,10 +1,90 @@
 plugins {
+    id 'idea'
     id 'java'
 }
+
+group = 'alvin.gradle'
+version = "${System.getenv('CI_VERSION') ?: 1}.${System.getenv('CI_BUILD_NUM') ?: 0}"
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+test {
+    useJUnitPlatform()
+}
+
+repositories {
+    maven {
+        url 'http://maven.aliyun.com/nexus/content/groups/public/'
+    }
+    jcenter()
+}
+
+dependencies {
+    implementation libs.main.guava
+    testImplementation libs.test.common
+}
+
+task fatJar(type: Jar) {
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.MF'
+
+    manifest {
+        attributes(
+                'Implementation-Title': 'Gradle Demo',
+                'Implementation-Version': version,
+                'Main-Class': 'alvin.gradle.java.Main',
+        )
+    }
+
+    archiveName "${project.group}.${project.name}-${project.version}-fat.jar"
+
+    from {
+        configurations.compileClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
+
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': 'Gradle Demo',
+                'Implementation-Version': version,
+                'Main-Class': 'alvin.gradle.java.Main',
+                "Class-Path": makeClassPath()
+        )
+    }
+    archiveName "${project.group}.${project.name}-${project.version}.jar"
+
+    from "${buildDir}/libs/libs"
+}
+
+task copyJarsToLib {
+    def toDir = "${buildDir}/libs/libs"
+    doLast {
+        copy {
+            from configurations.compileClasspath
+            into toDir
+        }
+    }
+}
+
+jar.dependsOn copyJarsToLib
 
 /**
  * Add more java compile options
  */
 tasks.withType(JavaCompile) {
     options.compilerArgs += ['-Xdoclint:none', '-Xlint:none', '-nowarn']
+}
+
+
+// methods
+
+def makeClassPath() {
+    def jarNames = configurations.compileClasspath.collect {
+        it.getName()
+    }
+    return '. libs/' + jarNames.join(' libs/')
 }
