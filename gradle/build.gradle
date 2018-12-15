@@ -16,6 +16,7 @@ buildscript {
                 ],
 
                 junit        : '5.3.2',
+                hamcrest     : '1.3',
                 junitLauncher: '1.3.2'
         ]
     }
@@ -30,7 +31,6 @@ buildscript {
 
 allprojects {
     // - common settings for all project (include current)
-
     // common plugins define:
     /*
      apply plugin: 'java'

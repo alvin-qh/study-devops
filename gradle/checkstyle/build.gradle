@@ -1,4 +1,5 @@
 plugins {
+    id 'idea'
     id 'java'
     id 'checkstyle'
 }
@@ -6,10 +7,28 @@ plugins {
 sourceCompatibility = '11'
 targetCompatibility = '11'
 
+repositories {
+    maven {
+        url 'http://maven.aliyun.com/nexus/content/groups/public/'
+    }
+    jcenter()
+}
+
+checkstyle {
+    toolVersion = '8.15'
+    showViolations true
+}
+
 checkstyleMain {
-    configFile = file("${project.projectDir}/.config/checkstyle/checkstyle.xml")
+    outputs.upToDateWhen { false }
+    configFile = file("${project.projectDir}/config/checkstyle.xml")
 }
 
 checkstyleTest {
-    configFile = file("${project.projectDir}/.config/checkstyle/checkstyle-test.xml")
+    outputs.upToDateWhen { false }
+    configFile = file("${project.projectDir}/config/checkstyle-test.xml")
+}
+
+dependencies {
+    testImplementation libs.test.common
 }
