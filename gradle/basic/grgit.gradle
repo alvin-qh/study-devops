@@ -1,0 +1,11 @@
+
+task showGitVersion {
+    doLast {
+        println "Current git version is: ${grgit.head().getAbbreviatedId()}"
+
+        def logs = grgit.log()
+        if (logs.size() > 1) {
+            println "Latest git version is: ${logs[1].getAbbreviatedId()}"
+        }
+    }
+}
