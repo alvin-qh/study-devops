@@ -25,6 +25,31 @@ dependencies {
     testImplementation libs.test.common
 }
 
+task showProjectDir {
+    doLast {
+        println rootProject.projectDir
+        println project.projectDir
+        allprojects { println it}
+    }
+}
+
+task showSourceSets {
+    doLast {
+        println sourceSets
+        println sourceSets.main
+        println sourceSets.main.java
+        println sourceSets.main.resources
+        println sourceSets.main.runtimeClasspath
+        println sourceSets.main.output
+
+        println sourceSets.test
+        println sourceSets.test.java
+        println sourceSets.test.resources
+        println sourceSets.test.runtimeClasspath
+        println sourceSets.test.output
+    }
+}
+
 task fatJar(type: Jar) {
     exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.MF'
 
@@ -71,6 +96,14 @@ task copyJarsToLib {
 }
 
 jar.dependsOn copyJarsToLib
+
+
+task runMain(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'alvin.gradle.java.Main'
+    args 'A', 'B', 'C'
+}
+
 
 /**
  * Add more java compile options

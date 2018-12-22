@@ -4,11 +4,16 @@ import com.google.common.base.Joiner;
 
 public final class Main {
 
-    private void run(String args) {
-        System.out.printf("Main class is running, arguments is %s ...%n", args);
+    String format(String[] args) {
+        final String joined = Joiner.on(",").join(args);
+        return String.format("Main class is running, arguments is %s ...", joined);
+    }
+
+    private void run(String[] args) {
+        System.out.println(format(args));
     }
 
     public static void main(String[] args) {
-        new Main().run(Joiner.on(",").join(args));
+        new Main().run(args);
     }
 }
