@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+p="$(dirname $0)/.venv"
+
+if [ ! -d $p ]; then
+    mkdir $p
+fi
+
+pip install pipenv && pipenv install
+pipenv run locust -f ./test1.py -P 8001
