@@ -1,8 +1,0 @@
-192.168.50.11 ansible_connection=ssh ansible_ssh_user=alvin ansible_sudo=yes
-vm ansible_host=192.168.50.11
-
-[test_server]
-192.168.50.11
-
-[test_server:vars]
-ansible_sudo=yes
