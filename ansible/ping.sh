@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-source .virtualenv/bin/activate
-
 # 利用ansible执行ping命令，测试远程主机是否可以连通
 # ansible <主机名> -m ping
 # 主机名在'inventory'文件中定义，参见'hosts'文件
@@ -10,13 +8,13 @@ source .virtualenv/bin/activate
 
 # 以缺省用户执行命令
 # 缺省用户在'inventory'文件中定义，参见'hosts'文件'ansible_ssh_user'配置
-ansible vm -m ping
+.venv/bin/ansible vm -m ping
 
 
 # 利用sudo方式执行ping命令
 expect -c "
 set timeout -1;
-spawn ansible vm -m ping -b --ask-become-pass
+spawn .venv/bin/ansible vm -m ping -b --ask-become-pass
 expect {
     "SUDO*password*" {send "kkmouse"\r}
 }
