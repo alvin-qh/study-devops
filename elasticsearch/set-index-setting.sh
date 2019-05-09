@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# close index before
 curl -X POST http://localhost:9200/study/_close;
 
 curl -X PUT http://localhost:9200/study/_settings?pretty            \
@@ -46,8 +47,22 @@ curl -X PUT http://localhost:9200/study/_settings?pretty            \
                         ]
                     }
                 }
-            },
-            ""
+            }
         }';
 
+# reopen index after
 curl -X POST http://localhost:9200/study/_open;
+
+curl -X PUT http://localhost:9200/study/books/_mapping?pretty       \
+     -H 'Cache-Control: no-cache' 						            \
+     -H 'Content-Type: application/json'                            \
+     -d '{
+            "properties": {
+                "publication_date": {
+                    "type": "date"
+                },
+                "author": {
+                    "type": "keyword"
+                }
+            }
+        }';

@@ -18,5 +18,6 @@ curl -X POST http://localhost:9200/study/books/think-in-java?pretty	\
 				"软件开发",
 				"编程语言",
 				"Java语言"
-			]
+			],
+			"publication_date": "2007-06-01"
 		}'
