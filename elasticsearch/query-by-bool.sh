@@ -9,7 +9,30 @@ curl -X GET http://localhost:9200/study/_search?pretty              \
                     "must": [
                         {
                             "term": {
-                                "author": "bruce"
+                                "author": "Bruce Eckel"
+                            }
+                        }
+                    ],
+                    "filter": [
+                        {
+                            "range": {
+                                "publication_date": {
+                                    "gte": "2007-01-01"
+                                }
+                            }
+                        }
+                    ],
+                    "must_not": [
+                        {
+                            "match": {
+                                "intro": "C++"
+                            }
+                        }
+                    ],
+                    "should": [
+                        {
+                            "match": {
+                                "intro": "java"
                             }
                         }
                     ]

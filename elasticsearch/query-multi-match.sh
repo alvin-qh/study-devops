@@ -11,4 +11,4 @@ curl -X GET http://localhost:9200/study/_search?pretty              \
                     "fields": ["name", "intro"]
                 }
             }
-         }'
+         }';
