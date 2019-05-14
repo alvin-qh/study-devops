@@ -1,0 +1,28 @@
+{
+    "properties": {
+        "name": {
+            "type": "keyword",
+            "copy_to": "all"
+        },
+        "press": {
+            "type": "object",
+            "copy_to": "all"
+        },
+        "intro": {
+            "type": "text",
+            "copy_to": "all"
+        },
+        "author": {
+            "type": "keyword",
+            "copy_to": "all"
+        },
+        "category": {
+            "type": "keyword",
+            "copy_to": "all"
+        },
+        "publication_date": {
+            "type": "date",
+            "copy_to": "all"
+        }
+    }
+}
