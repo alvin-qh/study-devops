@@ -32,16 +32,16 @@ Install extension
 
 ```bash
 $ pip install jupyter_contrib_nbextensions
-$ .venv/bin/jupyter contrib nbextension install --user
+$ jupyter contrib nbextension install --user
 
-$pip install jupyter_nbextensions_configurator
-$ .venv/bin/jupyter nbextensions_configurator enable --user
+$ pip install jupyter_nbextensions_configurator
+$ jupyter nbextensions_configurator enable --user
 ```
 
 ### 1.3 Start jupyter
 
 ```bash
-$ .venv/bin/jupyter notebook
+$ jupyter notebook
 ```
 
 Open `Nbextensions` menu, enable `Hinterland` option
