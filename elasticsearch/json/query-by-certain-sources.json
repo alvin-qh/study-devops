@@ -5,7 +5,7 @@
     ],
     "query": {
         "match": {
-            "intro": {
+            "all": {
                 "query": "java"
             }
         }

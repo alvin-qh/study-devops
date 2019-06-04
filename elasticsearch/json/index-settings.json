@@ -45,14 +45,20 @@
                     ":=>\\u0020"
                 ]
             }
-        }
-    },
-    "analyzer": {
-        "plain": {
-            "filter": [
-                "smartcn_stop",
-                "icu_normalizer"
-            ]
+        },
+        "analyzer": {
+            "plain_search_analyzer": {
+                "filter": [
+                    "lowercase",
+                    "smartcn_stop",
+                    "icu_normalizer"
+                ],
+                "char_filter": [
+                    "word_break_helper_source_text"
+                ],
+                "type": "custom",
+                "tokenizer": "icu_tokenizer"
+            }
         }
     }
 }
