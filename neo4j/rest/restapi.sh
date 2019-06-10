@@ -2,4 +2,4 @@
 
 curl -H 'Cache-Control: no-cache' -H 'Content-Type: application/json' \
      -u 'neo4j:neo4j_'  \
-     -X POST 'http://localhost:7474/db/data/transaction/commit' -d '@statements/node_create.json';
+     -X POST 'http://localhost:7474/db/data/transaction/commit' -d '@statements/restapi.json';

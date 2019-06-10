@@ -1,7 +1,0 @@
-{
-    "statements": [
-        {
-            "statement": "MATCH (persons:Person) DELETE (persons)"
-        }
-    ]
-}
