@@ -22,9 +22,9 @@ Host db-server
 	LocalForward 13306 localhost:3306
 
 Host web-server
-     Hostname 192.168.0.176
-     User alvin
-     RemoteForward 13000 localhost:3000
+	Hostname 192.168.0.176
+	User alvin
+	RemoteForward 13000 localhost:3000
 
 Host proxy
 	Hostname 192.168.0.176
