@@ -1,8 +1,8 @@
 ext {
     libs = [
             main: [
-                    guava             : ["com.google.guava:guava:${versions.guava}"],
-                    springBoot        : [
+                    guava     : ["com.google.guava:guava:${versions.guava}"],
+                    springBoot: [
                             "org.springframework.boot:spring-boot-starter:${versions.springBoot}",
                             "org.springframework.boot:spring-boot-starter-data-jpa:${versions.springBoot}",
                             "org.springframework.boot:spring-boot-starter-validation:${versions.springBoot}",
@@ -11,8 +11,9 @@ ext {
                             "org.springframework.boot:spring-boot-starter-webflux:${versions.springBoot}",
                             "javax.inject:javax.inject:1"
                     ],
-                    h2db               : [
-                            "com.h2database:h2:${versions.h2db}"
+                    db        : [
+                            "h2"       : ["com.h2database:h2:${versions.h2db}"],
+                            "migration": ["org.flywaydb:flyway-core:${versions.flyway}"]
                     ]
             ],
             test: [

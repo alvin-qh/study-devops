@@ -1,5 +1,7 @@
 package alvin.docker;
 
+import lombok.val;
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -18,6 +20,8 @@ import org.springframework.web.servlet.resource.EncodedResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 
+import java.util.Properties;
+
 @Configuration
 @PropertySource("classpath:application.yml")
 @SpringBootApplication
@@ -26,17 +30,34 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 @EnableJpaAuditing
 @EnableAsync
 public class Application implements WebMvcConfigurer {
-
+    private static final String TABLE_SCHEMA_VERSION = "schema_version";
     private static final int STATIC_RESOURCE_CACHE_PERIOD = 3600;
 
     public static void main(String[] args) {
-        final SpringApplication application = new SpringApplication(Application.class);
+        val application = new SpringApplication(Application.class);
+
+        application.setBannerMode(Banner.Mode.OFF);
+
+        val props = new Properties();
+        props.put("spring.datasource.hikari.pool-name", "cp-wg.microservice.workflow");
+        props.put("spring.datasource.hikari.auto-commit", "true");
+
+        props.put("spring.jpa.show-sql", "false");
+        props.put("spring.jpa.open-in-view", "false");
+        props.put("spring.jpa.hibernate.ddl-auto", "none");
+        props.put("spring.jpa.properties.hibernate.enable_lazy_load_no_trans", "true");
+        props.put("spring.jpa.properties.hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+
+        props.put("spring.flyway.locations", "classpath:migrations");
+        props.put("spring.flyway.table", TABLE_SCHEMA_VERSION);
+
+        application.setDefaultProperties(props);
         application.run(args);
     }
 
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
-        final SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
+        val templateResolver = new SpringResourceTemplateResolver();
 
         templateResolver.setPrefix("classpath:/templates/");
         templateResolver.setSuffix(".html");
@@ -58,7 +79,7 @@ public class Application implements WebMvcConfigurer {
 
     @Bean
     public MessageSource messageSource() {
-        final ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+        val messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasename("classpath:/i18n/messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
@@ -66,7 +87,7 @@ public class Application implements WebMvcConfigurer {
 
     @Bean
     public LocalValidatorFactoryBean getValidator() {
-        final LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+        val bean = new LocalValidatorFactoryBean();
         bean.setValidationMessageSource(messageSource());
         return bean;
     }

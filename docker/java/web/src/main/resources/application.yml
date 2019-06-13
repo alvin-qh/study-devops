@@ -28,3 +28,9 @@ application:
   version: '@version@'
   revision: '@revision@'
   zone: 'Asia/Shanghai'
+  cross-domain:
+    enabled: true
+    allow-origin: '*'
+    allow-headers: '*'
+    allow-methods: 'PUT,POST,GET,DELETE,OPTIONS,PATCH'
+    max-age: 1728000

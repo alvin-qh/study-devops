@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Error Page</title>
+</head>
+<body>
+<div class="main">
+    <header>
+        <h2 th:text="${status}">HTTP CODE here</h2>
+    </header>
+    <main>
+        <p th:text="${message}">Error message here</p>
+    </main>
+</div>
+</body>
+</html>

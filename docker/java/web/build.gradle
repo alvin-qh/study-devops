@@ -10,7 +10,8 @@ dependencies {
     compileOnly "org.springframework.boot:spring-boot-configuration-processor:${versions.springBoot}"
 
     implementation libs.main.springBoot,
-        libs.main.h2db
+            libs.main.db.h2,
+            libs.main.db.migration
 
     testImplementation libs.test.common,
             libs.test.springBoot
