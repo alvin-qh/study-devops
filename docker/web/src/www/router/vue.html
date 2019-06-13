@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html" charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="robots" content="index, follow">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>Vue Router</title>
+</head>
+
+<body>
+    <div id="app" role="main" app:name="router.vue-router">
+        <header>
+            <breadcrumb :previous="[
+                {name:'Home', href:'/'},
+                {name:'Router', href:'/router/'}
+                ]">
+            </breadcrumb>
+        </header>
+
+        <main class="container">
+            <ul class="nav nav-tabs" role="tablist">
+                <li v-for="r in routes" class="nav-item">
+                    <router-link class="nav-link" role="presentation" :to="r.path" active-class="active">
+                        {{ r.name }}
+                    </router-link>
+                </li>
+            </ul>
+            <div class="card no-top-border">
+                <div class="card-body">
+                    <router-view name="default"></router-view>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

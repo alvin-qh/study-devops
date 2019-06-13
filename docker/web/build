@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+docker build -t study/web:1.0 .
+docker run -it \
+    -p80:80 \
+    -v logs:/logs/ \
+    study/web:1.0
