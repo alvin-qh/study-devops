@@ -1,0 +1,30 @@
+---
+logging:
+  config: 'classpath:logback-spring.xml'
+  path: 'log'
+
+server:
+  port: 8080
+  servlet:
+    context-path: '/'
+
+spring:
+  application:
+    name: 'alvin.docker.java'
+
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+      connection-timeout: 30000
+      idle-timeout: 30000
+      max-lifetime: 590000
+      minimum-idle: 5
+      connection-test-query: "select 1"
+    url: 'jdbc:h2:file:/data/data'
+    username: 'sa'
+    password: 'sa~'
+
+application:
+  version: '@version@'
+  revision: '@revision@'
+  zone: 'Asia/Shanghai'
