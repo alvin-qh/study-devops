@@ -8,6 +8,7 @@ COPY . .
 RUN set -ex;            \
     npm config set registry https://registry.npm.taobao.org;  \
     npm run setup;      \
+    npm audit fix;		\
     npm run package
 
 # Product
