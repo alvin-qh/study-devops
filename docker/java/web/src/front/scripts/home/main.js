@@ -12,7 +12,7 @@ Vue.use(VueRouter);
 Vue.use(VueI18n);
 Vue.use(ElementUI);
 
-const vue = new Vue({
+new Vue({
     el: '#main',
     components: {
         Root

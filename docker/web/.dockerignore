@@ -2,8 +2,11 @@
 /out/
 /build/
 /logs/
+.vscode
+.git
 
 .gitignore
 Dockerfile
 package-lock.json
 docker-compose.yaml
+build.sh

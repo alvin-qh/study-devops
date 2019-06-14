@@ -1,0 +1,5 @@
+.gradle
+.gitignore
+build.sh
+Dockerfile
+.git

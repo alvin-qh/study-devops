@@ -47,7 +47,7 @@ task(versionize) {
         copy {
             from 'src/main/resources/application.yml'
             into sourceSets.main.java.outputDir
-            filter(ReplaceTokens, tokens: [version: projectVersion.version, revision: projectVersion.revision])
+            filter(ReplaceTokens, tokens: [version: projectVersion.version])
         }
     }
 }

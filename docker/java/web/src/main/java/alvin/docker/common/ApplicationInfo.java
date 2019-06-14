@@ -14,10 +14,6 @@ public class ApplicationInfo {
 
     @Getter
     @Setter
-    private String revision;
-
-    @Getter
-    @Setter
     private String zone;
 
     @Getter

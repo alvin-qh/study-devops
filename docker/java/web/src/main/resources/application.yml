@@ -1,7 +1,7 @@
 ---
 logging:
   config: 'classpath:logback-spring.xml'
-  path: 'log'
+  path: '/logs'
 
 server:
   port: 8080
@@ -26,7 +26,6 @@ spring:
 
 application:
   version: '@version@'
-  revision: '@revision@'
   zone: 'Asia/Shanghai'
   cross-domain:
     enabled: true

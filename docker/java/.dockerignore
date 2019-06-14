@@ -6,13 +6,17 @@
 .vscode
 .settings
 .project
+.config
+.git
 
-build
-out
-dataSources
+docker-compose.yaml
+.gitignore
+build.sh
 
-/data
-/logs
+docker-gradle
+/**/build
+/**/out
+/**/dataSources
 
 *.ipr
 *.iws

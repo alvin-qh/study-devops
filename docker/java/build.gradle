@@ -2,11 +2,6 @@ apply from: 'depends.gradle'
 apply plugin: 'idea'
 
 import org.gradle.internal.logging.text.StyledTextOutputFactory
-apply plugin: "org.ajoberstar.grgit"
-
-ext {
-    git = org.ajoberstar.grgit.Grgit.open(file('../..'))
-}
 
 idea {
     project {
@@ -55,8 +50,7 @@ allprojects {
     ext {
         out = services.get(StyledTextOutputFactory).create("dockerjava")
         projectVersion = [
-                version : "0.1.${System.getenv("GO_PIPELINE_COUNTER") ?: '0'}".toString(),
-                revision: git.head().getAbbreviatedId()
+                version : "0.1.${System.getenv("GO_PIPELINE_COUNTER") ?: '0'}".toString()
         ]
     }
 

@@ -17,4 +17,5 @@ WORKDIR /app/
 COPY --from=build /usr/lib/*.so /usr/lib/
 COPY --from=build /usr/lib/*.so.* /usr/lib/
 COPY --from=build /build/make/docker-cpp .
-CMD ["./docker-cpp"]
+
+ENTRYPOINT [ "./docker-cpp" ]

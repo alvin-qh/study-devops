@@ -1,0 +1,11 @@
+# docker run -it -p8080:8080 -v logs:/logs/ study/java:1.0
+---
+version: "3.3"
+services:
+  java:
+    image: study/java:1.0
+    volumes:
+      - ./logs:/logs
+      - ./data:/data
+    ports:
+      - "8080:8080"
