@@ -2,3 +2,4 @@
 .cp/*.*
 __pycache__
 .vscode
+.id_rsa
