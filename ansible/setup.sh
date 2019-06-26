@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-virtualenv -p `which python3` --always-copy .venv && source .venv/bin/activate
-pip install -r requirement.txt
+python -m venv .venv --prompt ansible && source .venv/bin/activate
+pip install -r requirements.txt
