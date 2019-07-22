@@ -38,6 +38,10 @@ $ pip install jupyter_nbextensions_configurator
 $ jupyter nbextensions_configurator enable --user
 ```
 
+Change default font famliy
+
+Edit `~/.jupyter/custom/custom.css` file, change all `monospaced` into any other font name
+
 ### 1.3 Start jupyter
 
 ```bash
