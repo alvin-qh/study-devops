@@ -1,6 +1,5 @@
-# docker run -it -p80:80 -v logs:/logs/ study/web:1.0
 ---
-version: "3.3"
+version: "3"
 services:
   nginx:
     image: study/web:1.0

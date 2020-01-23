@@ -1,12 +1,15 @@
-FROM alpine:3.9.4
+FROM alpine:latest
 
 LABEL author="alvin" email="quhao317@163.com"
 
 WORKDIR /opt
 
-COPY ./hello.sh .
+COPY project .
+
 RUN set -ex;	\
 	chmod +x ./hello.sh
+    
+ENV USER_NAME=alvin
 
 ENTRYPOINT ["./hello.sh"]
 

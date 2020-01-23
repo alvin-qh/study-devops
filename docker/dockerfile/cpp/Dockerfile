@@ -1,7 +1,7 @@
-# 
-FROM spritsail/alpine-cmake:3.9 as build
+# Step A
+FROM spritsail/alpine-cmake:latest as build
 
-COPY . /build
+COPY project /build
 WORKDIR /build/make
 
 RUN set -ex;    \
@@ -9,8 +9,8 @@ RUN set -ex;    \
     make
 
 
-# B
-FROM alpine:3.9.4 as prod
+# Step B
+FROM alpine:latest as prod
 
 WORKDIR /app/
 
