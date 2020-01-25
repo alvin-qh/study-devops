@@ -22,6 +22,6 @@ RUN set -ex;        \
 
 WORKDIR /web
 
-COPY --from=build /build/out .
+COPY --from=build /build/dist .
 
 EXPOSE 80
