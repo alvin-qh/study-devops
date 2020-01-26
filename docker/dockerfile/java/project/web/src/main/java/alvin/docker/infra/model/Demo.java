@@ -1,4 +1,4 @@
-package alvin.docker.domain.models;
+package alvin.docker.infra.model;
 
 import lombok.Getter;
 import lombok.Setter;

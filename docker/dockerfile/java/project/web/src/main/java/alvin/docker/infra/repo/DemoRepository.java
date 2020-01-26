@@ -1,6 +1,6 @@
-package alvin.docker.domain.repos;
+package alvin.docker.infra.repo;
 
-import alvin.docker.domain.models.Demo;
+import alvin.docker.infra.model.Demo;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

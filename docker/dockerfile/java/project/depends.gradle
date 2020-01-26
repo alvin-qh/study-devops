@@ -1,0 +1,42 @@
+ext {
+    libs = [
+            main: [
+                    guava     : ["com.google.guava:guava:${versions.guava}"],
+                    springBoot: [
+                            "org.springframework.boot:spring-boot-starter:${versions.springBoot}",
+                            "org.springframework.boot:spring-boot-starter-data-jpa:${versions.springBoot}",
+                            "org.springframework.boot:spring-boot-starter-validation:${versions.springBoot}",
+                            "org.springframework.boot:spring-boot-starter-web:${versions.springBoot}",
+                            "org.springframework.boot:spring-boot-starter-thymeleaf:${versions.springBoot}",
+                            "org.springframework.boot:spring-boot-starter-webflux:${versions.springBoot}",
+                            "javax.inject:javax.inject:1"
+                    ],
+                    db        : [
+                            "h2"       : ["com.h2database:h2:${versions.h2db}"],
+                            "migration": ["org.flywaydb:flyway-core:${versions.flyway}"]
+                    ],
+                    jackson   : [
+                            "com.fasterxml.jackson.core:jackson-core:${versions.jackson}",
+                            "com.fasterxml.jackson.core:jackson-annotations:${versions.jackson}",
+                            "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}",
+                    ]
+            ],
+            test: [
+                    common    : [
+                            "org.junit.platform:junit-platform-launcher:${versions.junitLauncher}",
+                            "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
+                            "org.hamcrest:hamcrest-all:${versions.hamcrest}"
+                    ],
+                    guava     : [
+                            dependencies.create("com.google.guava:guava-testlib:${versions.guava}") {
+                                exclude group: 'junit'
+                            }
+                    ],
+                    springBoot: [
+                            dependencies.create("org.springframework.boot:spring-boot-starter-test:${versions.springBoot}") {
+                                exclude group: 'junit'
+                            }
+                    ]
+            ]
+    ]
+}
