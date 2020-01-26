@@ -21,7 +21,7 @@ import java.util.Properties;
 @PropertySource("classpath:application.yml")
 @SpringBootApplication
 @EnableTransactionManagement
-@EntityScan(basePackages = {"alvin.docker.domain"})
+@EntityScan(basePackages = {"alvin.docker.infra.model"})
 @EnableJpaAuditing
 @EnableAsync
 public class Main implements WebMvcConfigurer {
@@ -34,7 +34,7 @@ public class Main implements WebMvcConfigurer {
         application.setBannerMode(Banner.Mode.OFF);
 
         val props = new Properties();
-        props.put("spring.datasource.hikari.pool-name", "cp-wg.microservice.workflow");
+        props.put("spring.datasource.hikari.pool-name", "demo.docker.alvin");
         props.put("spring.datasource.hikari.auto-commit", "true");
 
         props.put("spring.jpa.show-sql", "false");

@@ -24,9 +24,12 @@ const plugins = (() => {
         new VueLoaderPlugin(),
         new ProvidePlugin({}),
         extractCss,
-        new CleanupPlugin(),
+        new CleanupPlugin({
+            exclude: ['i18n/**/*', 'migrations/**/*', 'application.yml', 'logback-spring.xml']
+        }),
         new HtmlPlugin({
-            template: './src/template/template.html'
+            filename: 'templates/index.html',
+            template: './template/template.html'
         })
     ];
 
@@ -51,17 +54,17 @@ export default {
     mode: IS_PROD ? 'production' : 'development',
     entry: {
         vendor: ['vue', 'common'],
-        index: ['./src/script/index.ts']
+        index: ['./script/index.ts']
     },
     output: {
-        path: path.resolve('./dist'),
+        path: path.resolve('../main/resources'),
         filename: IS_PROD ? 'static/script/[name]-[chunkhash:8].js' : 'static/script/[name].js',
         publicPath: "/",
         chunkFilename: IS_PROD ? 'static/script/[name]-[chunkhash:8].js' : 'static/script/[name].js',
     },
     resolve: {
         alias: {
-            common: './src/script/common.ts',
+            common: './script/common.ts',
             vue: IS_PROD ? 'vue/dist/vue.min.js' : 'vue/dist/vue.js'
         },
         extensions: ['.js', '.ts', '.vue', '.json']

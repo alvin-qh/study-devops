@@ -13,6 +13,8 @@ dataSources
 
 /data
 /logs
+/web/src/main/resources/static
+/web/src/main/resources/templates
 
 *.ipr
 *.iws
