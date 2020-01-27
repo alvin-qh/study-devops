@@ -25,7 +25,6 @@ docker-gradle
 *.pyc
 *.log
 /**/node_modules/
-/**/package-lock.json
 /**/log/
 /**/resources/static/
 /**/resources/templates/

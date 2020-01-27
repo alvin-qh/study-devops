@@ -4,7 +4,12 @@ import alvin.docker.core.Context;
 import alvin.docker.core.I18nProvider;
 import alvin.docker.core.web.ContextImpl;
 import alvin.docker.utils.Times;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.val;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +34,17 @@ public class MainConfig {
     @Bean
     public I18nProvider i18nProver(Context context) {
         return new I18nProvider(context);
+    }
+
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer addCustomBigDecimalDeserialization() {
+        return builder -> {
+            builder.serializationInclusion(JsonInclude.Include.NON_NULL);
+
+            builder.featuresToDisable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+            builder.featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            builder.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        };
     }
 
     @Bean

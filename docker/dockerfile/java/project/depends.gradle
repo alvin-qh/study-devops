@@ -9,6 +9,8 @@ ext {
                             "org.springframework.boot:spring-boot-starter-web:${versions.springBoot}",
                             "org.springframework.boot:spring-boot-starter-thymeleaf:${versions.springBoot}",
                             "org.springframework.boot:spring-boot-starter-webflux:${versions.springBoot}",
+                            "org.springframework.boot:spring-boot-devtools:${versions.springBoot}",
+                            "org.springframework:springloaded:${versions.springLoaded}",
                             "javax.inject:javax.inject:1"
                     ],
                     db        : [
@@ -23,7 +25,7 @@ ext {
             ],
             test: [
                     common    : [
-                            "org.junit.platform:junit-platform-launcher:${versions.junitLauncher}",
+                            "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
                             "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
                             "org.hamcrest:hamcrest-all:${versions.hamcrest}"
                     ],

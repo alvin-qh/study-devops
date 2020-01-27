@@ -8,7 +8,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/")
-public class HomeController {
+class HomeController {
+
     @GetMapping
     ModelAndView index() {
         return new ModelAndView("index.html");

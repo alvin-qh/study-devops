@@ -11,7 +11,7 @@ import VueLoaderPlugin from "vue-loader/lib/plugin";
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 const extractCss = new ExtractTextPlugin({
-    filename: IS_PROD ? 'static/css/[name]-[chunkhash:8].css' : 'static/css/[name].css',
+    filename: 'static/css/[name]-[hash:8].css',
     disable: false,
     allChunks: true,
 });
@@ -53,14 +53,14 @@ const plugins = (() => {
 export default {
     mode: IS_PROD ? 'production' : 'development',
     entry: {
-        vendor: ['vue', 'common'],
+        vendor: ['vue', 'axios', 'moment', 'common'],
         index: ['./script/index.ts']
     },
     output: {
         path: path.resolve('../main/resources'),
-        filename: IS_PROD ? 'static/script/[name]-[chunkhash:8].js' : 'static/script/[name].js',
+        filename: 'static/script/[name]-[hash:8].js',
         publicPath: "/",
-        chunkFilename: IS_PROD ? 'static/script/[name]-[chunkhash:8].js' : 'static/script/[name].js',
+        chunkFilename: 'static/script/[name]-[hash:8].js',
     },
     resolve: {
         alias: {
@@ -124,7 +124,7 @@ export default {
                 loader: 'file-loader',
                 options: {
                     limit: 10240,
-                    name: IS_PROD ? 'static/fonts/[name]-[hash:8].[ext]' : 'static/fonts/[name].[ext]',
+                    name: 'static/fonts/[name]-[hash:8].[ext]',
                     publicPath: '/'
                 }
             }]
@@ -134,7 +134,7 @@ export default {
                 loader: 'file-loader',
                 options: {
                     limit: 10240,
-                    name: IS_PROD ? 'static/images/[name]-[hash:8].[ext]' : 'static/images/[name].[ext]',
+                    name: 'static/images/[name]-[hash:8].[ext]',
                     publicPath: '/'
                 }
             }]

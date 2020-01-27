@@ -5,8 +5,9 @@ WORKDIR /build
 COPY files .
 
 RUN set -ex;    \
-    ./gradlew build
-
+    ./gradlew build;  \
+    ./gradlew --stop
+    
 WORKDIR /
 
 RUN set -ex;    \

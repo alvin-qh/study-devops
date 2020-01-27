@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 @Controller
 @RequestMapping("/d")
-public class MiscController {
+class MiscController {
 
     private final ApplicationInfo applicationInfo;
 
@@ -23,7 +23,7 @@ public class MiscController {
 
     @ResponseBody
     @GetMapping(path = "/version")
-    Version index() {
+    Version version() {
         return new Version(applicationInfo.getVersion(), applicationInfo.getZone());
     }
 }

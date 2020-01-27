@@ -1,30 +1,31 @@
 # Javascript build
-FROM node:8.16.0-alpine AS js-build
+FROM node:latest AS js-build
 
-WORKDIR /build
-COPY . .
+WORKDIR /build/src
+COPY project/web/src/front .
 
-WORKDIR /build/web
+WORKDIR /build/src
 
 RUN set -ex;    \
     npm config set registry https://registry.npm.taobao.org;    \
-    npm install;    \
-    npm audit fix;  \
+    npm run setup;    \
     npm run package
 
 
 # Java build
-FROM study/gradlew:5.2.1 AS java-build
+FROM study/gradlew:6.1.1 AS java-build
 
 WORKDIR /build
-COPY --from=js-build /build/ .
+
+COPY project .
+COPY --from=js-build /build/main /build/web/src/main
 
 RUN set -ex;    \
     ./gradlew bootjar
 
 
 # Production
-FROM mcr.microsoft.com/java/jdk:8u212-zulu-alpine AS product
+FROM openjdk:8 AS product
 
 RUN set -ex;    \
     mkdir -p /logs /data;   \
@@ -33,7 +34,8 @@ RUN set -ex;    \
 WORKDIR /app
 
 COPY --from=java-build /build/web/build/libs/alvin.docker*.jar ./alvin.docker.jar
+COPY application.yml .
 
-ENTRYPOINT ["java", "-jar", "alvin.docker.jar"]
+ENTRYPOINT ["java", "-jar", "alvin.docker.jar", "--spring.config.location=classpath:/application.yml,./application.yml"]
 
 EXPOSE 8080

@@ -25,7 +25,7 @@ import java.util.Properties;
 @EnableJpaAuditing
 @EnableAsync
 public class Main implements WebMvcConfigurer {
-    private static final String TABLE_SCHEMA_VERSION = "schema_version";
+    public static final String TABLE_SCHEMA_VERSION = "schema_version";
     private static final int STATIC_RESOURCE_CACHE_PERIOD = 3600;
 
     public static void main(String[] args) {
@@ -41,7 +41,7 @@ public class Main implements WebMvcConfigurer {
         props.put("spring.jpa.open-in-view", "false");
         props.put("spring.jpa.hibernate.ddl-auto", "none");
         props.put("spring.jpa.properties.hibernate.enable_lazy_load_no_trans", "true");
-        props.put("spring.jpa.properties.hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+        props.put("spring.jpa.properties.hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
 
         props.put("spring.flyway.locations", "classpath:migrations");
         props.put("spring.flyway.table", TABLE_SCHEMA_VERSION);

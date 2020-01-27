@@ -12,6 +12,11 @@ server:
 spring:
   application:
     name: 'alvin.docker.java'
+  devtools:
+    restart:
+      enabled: true
+  thymeleaf:
+    cache: true
 
   datasource:
     hikari:
@@ -21,9 +26,14 @@ spring:
       max-lifetime: 590000
       minimum-idle: 5
       connection-test-query: "select 1"
-    url: 'jdbc:h2:file:./data/data'
+    url: 'jdbc:h2:file:./data/data;mode=mysql'
     username: 'sa'
     password: 'sa~'
+
+  h2:
+    console:
+      path: /_mgr/h2
+      enabled: true
 
 application:
   version: '@version@'
