@@ -1,7 +1,7 @@
 {
     "statements": [
         {
-            "statement": "MERGE (person:Person { id: {id}, name: {name}, gender: {gender} }) RETURN person",
+            "statement": "MERGE (person:Person { id: $id, name: $name, gender: $gender }) RETURN person",
             "parameters": {
                 "id": 1,
                 "name": "Alvin",
@@ -9,7 +9,7 @@
             }
         },
         {
-            "statement": "MERGE (person:Person { id: {id}, name: {name}, gender: {gender} }) RETURN person",
+            "statement": "MERGE (person:Person { id: $id, name: $name, gender: $gender }) RETURN person",
             "parameters": {
                 "id": 2,
                 "name": "Emma",
