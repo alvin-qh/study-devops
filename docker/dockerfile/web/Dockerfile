@@ -16,12 +16,10 @@ FROM nginx:latest as prod
 COPY project/nginx.conf /etc/nginx/nginx.conf
 COPY project/web.conf /etc/nginx/conf.d/default.conf
 
-RUN set -ex;        \
-    mkdir /logs;    \
-    chmod 777 /logs
-
 WORKDIR /web
 
 COPY --from=build /build/dist .
+
+WORKDIR /
 
 EXPOSE 80

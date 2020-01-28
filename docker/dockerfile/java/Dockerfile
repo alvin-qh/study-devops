@@ -21,20 +21,18 @@ COPY project .
 COPY --from=js-build /build/main /build/web/src/main
 
 RUN set -ex;    \
-    ./gradlew bootjar
+    ./gradlew bootjar --no-daemon
 
 
 # Production
 FROM openjdk:8 AS product
 
-RUN set -ex;    \
-    mkdir -p /logs /data;   \
-    chmod 777 /logs /data
-
 WORKDIR /app
 
 COPY --from=java-build /build/web/build/libs/alvin.docker*.jar ./alvin.docker.jar
 COPY application.yml .
+
+WORKDIR /
 
 ENTRYPOINT ["java", "-jar", "alvin.docker.jar", "--spring.config.location=classpath:/application.yml,./application.yml"]
 

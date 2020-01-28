@@ -11,5 +11,7 @@ RUN set -ex;	\
     
 ENV USER_NAME=alvin
 
-ENTRYPOINT ["./hello.sh"]
+WORKDIR /
+
+ENTRYPOINT ["/opt/hello.sh"]
 

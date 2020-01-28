@@ -7,6 +7,4 @@
 
 .gitignore
 Dockerfile
-package-lock.json
 docker-compose.yaml
-build.sh

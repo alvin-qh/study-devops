@@ -18,4 +18,6 @@ COPY --from=build /usr/lib/*.so /usr/lib/
 COPY --from=build /usr/lib/*.so.* /usr/lib/
 COPY --from=build /build/make/docker-cpp .
 
-ENTRYPOINT [ "./docker-cpp" ]
+WORKDIR /
+
+ENTRYPOINT [ "/app/docker-cpp" ]
