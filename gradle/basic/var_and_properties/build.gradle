@@ -1,6 +1,13 @@
-/**
- * ORG_GRADLE_PROJECT_systemEnvironmentProp=systemEnvironmentValue ./gradlew -q -PcommandLineProp=commandLineValue -Dorg.gradle.project.systemCommandLineProp=systemCommandLineValue showProps
- */
+task showGlobalVars() {
+    doLast {
+        println "rootProject: ${rootProject}"
+        println "rootProject.projectDir: ${rootProject.projectDir}"
+
+        println "project: ${project}"
+        println "project.projectDir: ${project.projectDir}"
+    }
+}
+
 task showProps() {
     doLast {
 
@@ -19,8 +26,7 @@ task showProps() {
         // define system properties for JVM
         // use `-Dorg.gradle.project.systemCommandLineProp=systemCommandLineValue` in command line to set this prop
         println "systemCommandLineProp: ${systemCommandLineProp}"
-        // use `systemProp.org.gradle.project.systemPropertiesProp` in `gradle.properties` at root project to set this prop
-        println "systemPropertiesProp: ${systemPropertiesProp}"
+
         // also can set `ORG_GRADLE_PROJECT_systemEnvironmentProp` environment variables to set this prop
         println "systemEnvironmentProp: ${systemEnvironmentProp}"
 

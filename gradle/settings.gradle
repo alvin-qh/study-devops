@@ -1,6 +1,0 @@
-rootProject.name = 'study-gradle'
-
-include 'basic',
-        'java',
-        'checkstyle',
-        'jacoco'

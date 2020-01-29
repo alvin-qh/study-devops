@@ -1,73 +1,32 @@
-# Gradle projects
+# GRADLE
 
-## Plugins
+## 1. Setup
 
-### Use plugin
+### 1.1. Install jupyter bash extension
 
-```groovy
-apply plugin: 'id of plugin'
-```
-or
-```groovy
-plugins {
-    id 'id of plugin'
-    id 'id of plugin'
-}
+#### 1.1.1. Install pip package
+
+```bash
+$ pip install bash_kernel
 ```
 
-### Plugin repositories
+#### 1.1.2. Build and install extension
 
-```groovy
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-}
+```bash
+$ python -m bash_kernel.install
 ```
 
-## Modularization
+## Run neo4j
 
-Include other `.gradle` file
+### With docker
 
-```groovy
-apply from: 'depends.gradle'
-```
-
-## IDEA Plugin
-
-The `idea plugin` bring the `idea` and `cleanIdea` tasks
-- `idea` task can create `project.ipr`, can open in IDE directly
-- `cleanIdea` task can clean the effects what `idea` task was banged
-
-### In root build.gradle file
-
-```groovy
-apply plugin: 'idea'
-
-idea {
-    project {
-        jdkName = '11'
-        languageLevel = '11'
-    }
-}
-```
-
-### In every sub-project build.gradle file
-
-```groovy
-plugins {
-    // ...
-    id 'idea'
-}
-```
-
-## Unit test with JUnit 5
-
-```groovy
-test {
-   useJUnitPlatform()
-}
+```bash
+docker run \
+    -p 7474:7474 \
+    -p 7687:7687 \
+    -v $(pwd)/import:/var/lib/neo4j/import
+    -v $(pwd)/data:/data \
+    -v $(pwd)/logs:/logs \
+    -v $(pwd)/plugins:/plugins
+    neo4j
 ```

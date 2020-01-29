@@ -1,14 +1,6 @@
 plugins {
-    id 'idea'
     id 'java'
     id 'checkstyle'
-}
-
-sourceCompatibility = '11'
-targetCompatibility = '11'
-
-test {
-    useJUnitPlatform()
 }
 
 repositories {
@@ -18,12 +10,19 @@ repositories {
     jcenter()
 }
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+test {
+    useJUnitPlatform()
+}
+
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
 checkstyle {
-    toolVersion = '8.15'
+    toolVersion = '8.29'
     showViolations true
 }
 
@@ -38,5 +37,10 @@ checkstyleTest {
 }
 
 dependencies {
-    testImplementation libs.test.common
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.0",
+                       "org.junit.jupiter:junit-jupiter-engine:5.6.0",
+                       "org.hamcrest:hamcrest-all:1.3"
+}
+
+task checkstyle(dependsOn: [checkstyleMain, checkstyleTest]) {
 }

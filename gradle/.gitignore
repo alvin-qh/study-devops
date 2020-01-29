@@ -6,6 +6,11 @@
 .vscode
 .settings
 .project
+.venv
+.ipynb_checkpoints
+gradle/
+gradlew
+gradlew.bat
 
 build
 bin

@@ -1,9 +1,0 @@
-plugins {
-    id 'org.ajoberstar.grgit'
-}
-
-apply from: 'vars.gradle'
-apply from: 'properties.gradle'
-apply from: 'tasks.gradle'
-apply from: 'token.gradle'
-apply from: 'grgit.gradle'

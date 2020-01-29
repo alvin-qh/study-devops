@@ -1,15 +1,18 @@
 plugins {
-    id 'idea'
     id 'java'
     id 'jacoco'
 }
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
-
 test {
     useJUnitPlatform()
 }
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 repositories {
     maven {
@@ -19,11 +22,13 @@ repositories {
 }
 
 dependencies {
-    testImplementation libs.test.common
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.0",
+                       "org.junit.jupiter:junit-jupiter-engine:5.6.0",
+                       "org.hamcrest:hamcrest-all:1.3"
 }
 
 jacoco {
-    toolVersion = "0.8.2"
+    toolVersion = "0.8.5"
     reportsDir = file("$buildDir/reports/jacoco")
 }
 
@@ -32,7 +37,7 @@ jacocoTestReport {
         xml.enabled true
         html.enabled true
         csv.enabled false
-//        html.destination file("${buildDir}/test-report")
+//      html.destination file("${buildDir}/test-report")
     }
     afterEvaluate {
         classDirectories.from = files(classDirectories.files.collect {
@@ -53,12 +58,8 @@ task coverage {
 
 coverage.shouldRunAfter jacocoTestReport
 
-task preBuild {
+task prebuild {
     dependsOn 'check', 'test', 'coverage'
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
 }
 
 
