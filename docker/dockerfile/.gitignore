@@ -1,0 +1,10 @@
+.code
+*.ipr
+*.iws
+*.iml
+*.idea
+*.ids
+
+.DS_Store
+
+/**/node_modules/
