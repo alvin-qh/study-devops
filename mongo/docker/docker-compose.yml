@@ -1,0 +1,17 @@
+version: '3'
+services:
+  redis:
+    image: "mongo:latest"
+    container_name: "mongo"
+    ports:
+      - "27017:27017"
+    volumes:
+      - "mongo_volume:/data/db"
+      - "mongo_volume:/data/configdb/"
+    networks: 
+      - "docker_default"
+networks: 
+  docker_default:
+    external: true
+volumes: 
+  mongo_volume: 
