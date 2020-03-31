@@ -8,11 +8,12 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - "mongo:/data/db"
-      - "mongo:/data/configdb/"
+      - "mongo_v_db:/data/db"
+      - "mongo_v_configdb:/data/configdb"
     networks: 
-      - "mongo"
+      - "mongo_n"
 networks: 
-  mongo:
+  mongo_n:
 volumes: 
-  mongo:
+  mongo_v_db:
+  mongo_v_configdb:
