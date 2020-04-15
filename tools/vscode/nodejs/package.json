@@ -4,7 +4,8 @@
   "description": "The demo of using nodejs with vscode",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "exec": "node index.js",
+    "test": "./node_modules/.bin/mocha ./test/**/*.js"
   },
   "devDependencies": {
     "chai": "^4.2.0",
