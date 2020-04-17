@@ -1,6 +1,13 @@
-# Neo4J
+# Study Neo4J
 
 ## Setup
+
+### Install python virtualenv
+
+```bash
+$ python -m venv .venv --prompt='study-devops-neo4j'
+$ source .venv/bin/activate
+```
 
 ### Install jupyter bash extension
 
