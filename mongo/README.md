@@ -5,7 +5,7 @@
 ### Install python virtualenv
 
 ```bash
-$ python -m venv .venv --prompt='study-mongo'
+$ python -m venv .venv --prompt='study-devops-mongo'
 $ source .venv/bin/activate
 ```
 
