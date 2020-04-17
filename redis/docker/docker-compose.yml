@@ -1,5 +1,4 @@
 ---
-
 version: '3'
 services:
   redis:
@@ -8,9 +7,11 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - "./data:/data"
+      - "redis_v:/data"
     command: "redis-server"
     networks: 
-      - "redis"
+      - "redis_n"
 networks: 
-  redis:
+  redis_n:
+volumes: 
+  redis_v:
