@@ -8,8 +8,7 @@
 .project
 .venv
 .ipynb_checkpoints
-*/gradle/
-*/*/gradle/
+*/**/gradle/
 gradlew
 gradlew.bat
 
