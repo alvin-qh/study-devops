@@ -1,7 +1,5 @@
 # Nginx
 
-
-
 ## Install and setup
 
 ### macOS
@@ -36,8 +34,6 @@ Start with path and config
 ```bash
 $ nginx -p <base path> -c <config file>
 ```
-
-
 
 ### Debian
 
@@ -85,6 +81,3 @@ Startup by user define path and config:
 ```bash
 $ /usr/sbin/nginx -p <base path> -c <config file>
 ```
-
-
-
