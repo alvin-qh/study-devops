@@ -1,9 +1,0 @@
-{
-    "query": {
-        "match": {
-            "intro": {
-                "query": "java"
-            }
-        }
-    }
-}
