@@ -4,13 +4,13 @@ services:
     image: neo4j:latest
     container_name: "neo4j"
     volumes:
-      - "neo4j_v:/data"
+      - "neo4j_v:/var/lib/neo4j/data"
       - "./logs:/logs"
       - "./import:/var/lib/neo4j/import"
       - "./plugins:/plugins"
     environment:
       - NEO4J_AUTH=neo4j/neo4j_
-    networks: 
+    networks:
       - "neo4j_n"
     ports:
       - "7474:7474"
