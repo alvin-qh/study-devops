@@ -1,0 +1,60 @@
+---
+version: "3"
+services:
+  es01:
+    image: "elasticsearch:7.6.2"
+    container_name: "elastic_01"
+    environment:
+      - "node.name=es01"
+      - "discovery.seed_hosts=es02"
+      - "cluster.initial_master_nodes=es01,es02"
+      - "cluster.name=docker-cluster"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - "elk_n"
+    volumes:
+      - "./es01/logs:/usr/share/elasticsearch/logs/"
+      - "./plugins:/usr/share/elasticsearch/plugins/"
+      - "elk_01_v:/usr/share/elasticsearch/data"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    restart: "always"
+  es02:
+    image: "elasticsearch:7.6.2"
+    container_name: "elastic_02"
+    environment:
+      - "node.name=es02"
+      - "discovery.seed_hosts=es01"
+      - "cluster.initial_master_nodes=es01,es02"
+      - "cluster.name=docker-cluster"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - "elk_n"
+    volumes:
+      - "./es02/logs:/usr/share/elasticsearch/logs/"
+      - "./plugins:/usr/share/elasticsearch/plugins/"
+      - "elk_02_v:/usr/share/elasticsearch/data"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    restart: "always"
+networks:
+  elk_n:
+    driver: "bridge"
+volumes:
+  elk_01_v:
+  elk_02_v:
