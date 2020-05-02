@@ -21,4 +21,3 @@ $ python -m bash_kernel.install
 ```bash
 $ jupyter lab
 ```
-
