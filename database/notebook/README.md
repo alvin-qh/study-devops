@@ -7,6 +7,7 @@
 ```bash
 $ python -m venv .venv --prompt='study-devops-database'
 $ source .venv/bin/activate
+$ pip install -r requirements.txt
 ```
 
 ### 1.2. Install bash extention
