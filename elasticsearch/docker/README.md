@@ -7,8 +7,7 @@
 #### 1.1.1. Failed to start Elasticsearch. Error opening log file '/gc.log': Permission denied
 
 ```bash
-$ chmod -R 755 ./logs
-$ chmod -R 755 ./plugins
+$ chmod -R 755 ./logs ./plugins
 ```
 
 #### 1.1.2. Max virtual memory areas vm.max_map_count [65530] likely too low, increase to at least [262144]

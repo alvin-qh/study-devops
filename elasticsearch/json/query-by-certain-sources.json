@@ -1,0 +1,13 @@
+{
+    "_source": [
+        "name",
+        "author"
+    ],
+    "query": {
+        "match": {
+            "all": {
+                "query": "java"
+            }
+        }
+    }
+}
