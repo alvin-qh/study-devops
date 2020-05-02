@@ -1,11 +1,4 @@
-.DS_Store
-.idea
-.ideaDataSources
 .gradle
-.classpath
-.vscode
-.settings
-.project
 
 build
 out
@@ -13,17 +6,8 @@ dataSources
 
 /data
 /logs
-/web/src/main/resources/static
-/web/src/main/resources/templates
 
-*.ipr
-*.iws
-*.iml
-*.ids
-*.pyc
-*.log
-/**/node_modules/
-/**/package-lock.json
-/**/log/
-/**/resources/static/
-/**/resources/templates/
+node_modules
+log
+resources/static
+resources/templates
