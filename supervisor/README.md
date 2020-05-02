@@ -101,7 +101,7 @@ numprocs_start=1
 
 ## 3. Usage
 
-### Start service
+### 3.1. Start service
 
 Start by specific config file
 
@@ -117,15 +117,15 @@ Check `supervisord` service is startup
 $ ps aux | grep supervisord
 ```
 
-### Shutdown supervisor
+### 3.2. Shutdown supervisor
 
 ```bash
 $ supervisorctl shutdown
 ```
 
-### Manage process
+### 3.3. Manage process
 
-#### by commands
+#### 3.3.1. by commands
 
 ```bash
 # Show status of all processes
@@ -154,7 +154,7 @@ $ supervisorctl update
 # Note: Reload or update will not automatically restart the process which When stopped with stop
 ```
 
-#### Interactive
+#### 3.3.2. Interactive
 
 Run `supervisorctl` without any arguments, enter the interactive mode：
 
@@ -172,6 +172,3 @@ supervisor> restart show-time
 show-time: stopped
 show-time: started
 ```
-
-
-
