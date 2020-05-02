@@ -1,40 +1,59 @@
-# Study MySQL
+# Database
 
-## Setup environment
+## 1. Setup environment
 
-### Install python virtualenv
+### 1.1. Install docker
 
-```bash
-$ python -m venv .venv --prompt='study-devops-database'
-$ source .venv/bin/activate
-```
-
-### Install and enable python code format extention
+- Install docker
 
 ```bash
-$ jupyter labextension install @ryantam626/jupyterlab_code_formatter
-$ jupyter serverextension enable --py jupyterlab_code_formatter
+$ sudo apt install docker-ce docker-ce-cli containerd.io
 ```
 
-### Install bash extention
+- Add current user into docker group
 
 ```bash
-$ python -m bash_kernel.install
+$ sudo usermod -aG docker $(whoami)
 ```
 
-## Start
+### 1.2. Install python
 
-### Start
+#### 1.2.1. Install pyenv
 
-In `docker` folder:
+- Download and install pyenv
 
 ```bash
-$ docker-compose up
+$ curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
 ```
 
-## Start jupyter lab notebook
+- Set shell enviroment: modify `~/.bashrc` (or `~/.zshrc` or `~/.bash_profile`), and add the following content
 
 ```bash
-$ jupyter lab
+export PATH="~/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 ```
 
+#### 1.2.2. Install python
+
+```bash
+$ pyenv install 3.7.5
+```
+
+#### 1.2.3. Use python
+
+In notebook folder: 
+
+```bash
+$ pyenv local 3.7.5 
+```
+
+## 2. Install databases
+
+### 2.1. Install percona-server
+
+[Install percona-server with docker](./docker/percona/README.md)
+
+## 3. Setup notebook
+
+[Use jupyter notebook](./notebook/README.md)

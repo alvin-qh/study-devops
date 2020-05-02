@@ -1,5 +1,0 @@
-# 定义一个 inventory, 其中:
-# 	vm 					inventory名称
-# 	ansible_host		主机地址, 可以为主机IP，域名或者SSH配置名(参见"ssh_config"文件)
-# 	ansible_ssh_user	ssh登录名称
-vm ansible_host=remote-server ansible_ssh_user=alvin

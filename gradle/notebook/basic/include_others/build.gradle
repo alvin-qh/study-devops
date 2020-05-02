@@ -1,7 +1,0 @@
-apply from: 'others.gradle'
-
-task showName {
-    doLast {
-        println "My name is ${user.name}"
-    }
-}

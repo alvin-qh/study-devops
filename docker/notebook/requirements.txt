@@ -1,3 +1,0 @@
-jupyterlab
-jupyter_nbextensions_configurator
-bash_kernel

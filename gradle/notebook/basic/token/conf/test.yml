@@ -1,4 +1,0 @@
-global:
-  test:
-    name: '@name@'
-    value: '@value@'
