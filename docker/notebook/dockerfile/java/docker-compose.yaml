@@ -1,11 +1,11 @@
 ---
 version: "3"
 services:
-  java:
-    image: study/java:1.0
-    container_name: 'java'
-    volumes:
-      - ./logs:/logs
-      - ./data:/data
-    ports:
-      - "8080:8080"
+    java:
+        image: study/java:1.0
+        container_name: "java"
+        volumes:
+            - ./logs:/logs
+            - ./data:/data
+        ports:
+            - "8080:8080"

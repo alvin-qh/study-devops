@@ -8,7 +8,7 @@ COPY project .
 
 RUN set -ex;	\
 	chmod +x ./hello.sh
-    
+
 ENV USER_NAME=alvin
 
 WORKDIR /
