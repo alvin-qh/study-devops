@@ -4,7 +4,7 @@
 
 ### 1.1. Install linux Virtual Machines
 
-4 Debain VM need be installed:
+3 Debain VM need be installed:
 - The VM IPs are: 192.168.100.[2, 3, 4]
 - The user with sudoers name is: `alvin`, password is: `kkmoue`
 
