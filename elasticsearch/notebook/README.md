@@ -7,6 +7,7 @@
 ```bash
 $ python -m venv .venv --prompt='study-devops-elasticsearch'
 $ source .venv/bin/activate
+$ pip install -r requirements.txt
 ```
 
 ### 1.2. Install jupyter bash extension
