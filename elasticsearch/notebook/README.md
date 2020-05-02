@@ -74,3 +74,9 @@ $ jupyter serverextension enable --py jupyterlab_code_formatter
     ]
 }
 ```
+
+## 2. Startup
+
+```bash
+$ jupyter lab
+```
