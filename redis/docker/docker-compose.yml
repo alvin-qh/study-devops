@@ -1,0 +1,18 @@
+---
+version: '3'
+services:
+  redis:
+    image: "redis:latest"
+    container_name: "redis"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis_v:/data"
+    command: "redis-server"
+    networks: 
+      - "redis_n"
+networks: 
+  redis_n:
+volumes: 
+  redis_v:
+
