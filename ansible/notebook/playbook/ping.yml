@@ -4,4 +4,4 @@
   remote_user: alvin
   tasks:
     - name: test connection
-      ping:  
+      ping:
