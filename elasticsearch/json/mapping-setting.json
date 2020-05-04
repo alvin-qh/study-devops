@@ -1,71 +1,71 @@
 {
-    "dynamic": false,
-    "properties": {
-        "name": {
-            "properties": {
-                "zh": {
-                    "type": "keyword",
-                    "copy_to": "all"
-                },
-                "en": {
-                    "type": "keyword",
-                    "copy_to": "all"
-                }
-            }
+  "dynamic": false,
+  "properties": {
+    "name": {
+      "properties": {
+        "zh": {
+          "type": "keyword",
+          "copy_to": "all"
         },
-        "intro": {
-            "type": "text",
-            "index_options": "offsets",
-            "similarity": "BM25",
-            "analyzer": "plain_search_analyzer",
-            "position_increment_gap": 10,
-            "fields": {
-                "word_count": {
-                    "type": "token_count",
-                    "store": true,
-                    "analyzer": "plain_search_analyzer"
-                }
-            },
-            "copy_to": "all"
-        },
-        "author": {
-            "type": "keyword",
-            "copy_to": "all"
-        },
-        "category": {
-            "type": "keyword",
-            "copy_to": "all"
-        },
-        "publication_date": {
-            "type": "date",
-            "copy_to": "all"
-        },
-        "press": {
-            "properties": {
-                "zh": {
-                    "type": "keyword",
-                    "copy_to": "all"
-                },
-                "en": {
-                    "type": "keyword",
-                    "copy_to": "all"
-                }
-            }
-        },
-        "all": {
-            "type": "text",
-            "index_options": "offsets",
-            "similarity": "BM25",
-            "analyzer": "plain_search_analyzer",
-            "search_analyzer": "plain_search_analyzer",
-            "position_increment_gap": 10,
-            "fields": {
-                "word_count": {
-                    "type": "token_count",
-                    "store": true,
-                    "analyzer": "plain_search_analyzer"
-                }
-            }
+        "en": {
+          "type": "keyword",
+          "copy_to": "all"
         }
+      }
+    },
+    "intro": {
+      "type": "text",
+      "index_options": "offsets",
+      "similarity": "BM25",
+      "analyzer": "plain_search_analyzer",
+      "position_increment_gap": 10,
+      "fields": {
+        "word_count": {
+          "type": "token_count",
+          "store": true,
+          "analyzer": "plain_search_analyzer"
+        }
+      },
+      "copy_to": "all"
+    },
+    "author": {
+      "type": "keyword",
+      "copy_to": "all"
+    },
+    "category": {
+      "type": "keyword",
+      "copy_to": "all"
+    },
+    "publication_date": {
+      "type": "date",
+      "copy_to": "all"
+    },
+    "press": {
+      "properties": {
+        "zh": {
+          "type": "keyword",
+          "copy_to": "all"
+        },
+        "en": {
+          "type": "keyword",
+          "copy_to": "all"
+        }
+      }
+    },
+    "all": {
+      "type": "text",
+      "index_options": "offsets",
+      "similarity": "BM25",
+      "analyzer": "plain_search_analyzer",
+      "search_analyzer": "plain_search_analyzer",
+      "position_increment_gap": 10,
+      "fields": {
+        "word_count": {
+          "type": "token_count",
+          "store": true,
+          "analyzer": "plain_search_analyzer"
+        }
+      }
     }
+  }
 }

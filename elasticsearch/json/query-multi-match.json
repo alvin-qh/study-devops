@@ -1,12 +1,12 @@
 {
-    "query": {
-        "multi_match": {
-            "query": "化学",
-            "type": "best_fields",
-            "fields": [
-                "name",
-                "intro"
-            ]
-        }
+  "query": {
+    "multi_match": {
+      "query": "化学",
+      "type": "best_fields",
+      "fields": [
+        "name",
+        "intro"
+      ]
     }
+  }
 }

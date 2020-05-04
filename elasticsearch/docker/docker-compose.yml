@@ -1,49 +1,49 @@
 ---
 version: "3"
 services:
-    elastic:
-        image: "elasticsearch:7.6.2"
-        container_name: "elastic"
-        environment:
-            - "node.name=elastic"
-            - "cluster.initial_master_nodes=elastic"
-            - "cluster.name=docker-cluster"
-            - "bootstrap.memory_lock=true"
-            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-        ports:
-            - "9200:9200"
-            - "9300:9300"
-        networks:
-            - "elk_n"
-        volumes:
-            - "./logs:/usr/share/elasticsearch/logs/"
-            - "./plugins:/usr/share/elasticsearch/plugins/"
-            #   - "./config:/usr/share/elasticsearch/config"
-            - "elk_v:/usr/share/elasticsearch/data"
-        ulimits:
-            memlock:
-                soft: -1
-                hard: -1
-            nofile:
-                soft: 65536
-                hard: 65536
-        restart: "always"
-    kibana:
-        image: "kibana:7.6.2"
-        container_name: "kibana"
-        depends_on:
-            - "elastic"
-        environment:
-            SERVER_NAME: "kibana"
-            ELASTICSEARCH_HOSTS: "http://elastic:9200"
-        ports:
-            - "5601:5601"
-        networks:
-            - "elk_n"
-        # volumes:
-        #   - "./kibana.yml:/usr/share/kibana/config/kibana.yml:rw"
-        restart: "always"
+  elastic:
+    image: "elasticsearch:7.6.2"
+    container_name: "elastic"
+    environment:
+      - "node.name=elastic"
+      - "cluster.initial_master_nodes=elastic"
+      - "cluster.name=docker-cluster"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - "elk_n"
+    volumes:
+      - "./logs:/usr/share/elasticsearch/logs/"
+      - "./plugins:/usr/share/elasticsearch/plugins/"
+      #   - "./config:/usr/share/elasticsearch/config"
+      - "elk_v:/usr/share/elasticsearch/data"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    restart: "always"
+  kibana:
+    image: "kibana:7.6.2"
+    container_name: "kibana"
+    depends_on:
+      - "elastic"
+    environment:
+      SERVER_NAME: "kibana"
+      ELASTICSEARCH_HOSTS: "http://elastic:9200"
+    ports:
+      - "5601:5601"
+    networks:
+      - "elk_n"
+    # volumes:
+    #   - "./kibana.yml:/usr/share/kibana/config/kibana.yml:rw"
+    restart: "always"
 networks:
-    elk_n:
+  elk_n:
 volumes:
-    elk_v:
+  elk_v:

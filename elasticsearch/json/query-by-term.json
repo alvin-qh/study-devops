@@ -1,7 +1,7 @@
 {
-    "query": {
-        "term": {
-            "author": "Bruce Eckel"
-        }
+  "query": {
+    "term": {
+      "author": "Bruce Eckel"
     }
+  }
 }
