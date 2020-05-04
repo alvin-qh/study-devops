@@ -1,21 +1,21 @@
 ---
 version: "3"
 services:
-    percona:
-        image: "percona:latest"
-        container_name: "percona"
-        restart: "always"
-        environment:
-            MYSQL_ROOT_PASSWORD: "root"
-        ports:
-            - "3306:3306"
-        volumes:
-            - "percona_v:/var/lib/mysql"
-            - "./log:/var/log/mysql"
-            - "./my.cnf:/etc/my.cnf:rw"
-        networks:
-            - "percona_n"
+  percona:
+    image: "percona:latest"
+    container_name: "percona"
+    restart: "always"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+    ports:
+      - "3306:3306"
+    volumes:
+      - "percona_v:/var/lib/mysql"
+      - "./log:/var/log/mysql"
+      - "./my.cnf:/etc/my.cnf:rw"
+    networks:
+      - "percona_n"
 networks:
-    percona_n:
+  percona_n:
 volumes:
-    percona_v:
+  percona_v:
