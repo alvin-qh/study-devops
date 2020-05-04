@@ -23,7 +23,8 @@ class TestTasks(TaskSet):
 
         def on_start(self):
             self._failure_rate = random.randint(1, 10)
-            print("sub tasks started, failure rate is: {}".format(self._failure_rate / 10 * 100))
+            print("sub tasks started, failure rate is: {}".format(
+                self._failure_rate / 10 * 100))
 
         def on_stop(self):
             print("sub tasks stop")

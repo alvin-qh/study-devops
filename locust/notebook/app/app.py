@@ -67,7 +67,8 @@ def login():
     form = LoginForm(request.form)
 
     with app.app_context():
-        user_ids = query_db('SELECT id FROM users WHERE username = ?', (form.username.data,))
+        user_ids = query_db(
+            'SELECT id FROM users WHERE username = ?', (form.username.data,))
 
     if not user_ids:
         with app.app_context():
@@ -87,7 +88,7 @@ def hello():
     user_id = session.get('user_id')
     if not user_id:
         return redirect('/login')
-        
+
     return render_template('index.html', ts=datetime.now().isoformat(), content='Hello')
 
 
