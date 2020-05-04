@@ -4,6 +4,8 @@ __pycache__
 
 .gradle
 .settings
+.project
+.classpath
 
 build
 bin
