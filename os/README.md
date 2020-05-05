@@ -1,4 +1,4 @@
-# Elasticsearch
+# OS
 
 ## 1. Setup environment
 
@@ -28,10 +28,10 @@ $ pyenv install 3.7.5
 
 #### 1.1.3. Use python
 
-In notebook folder: 
+In notebook folder:
 
 ```bash
-$ pyenv local 3.7.5 
+$ pyenv local 3.7.5
 ```
 
 ## 2. Setup notebook
