@@ -194,7 +194,7 @@ Install the following plugins:
 - cmake-format
 
 Restart vscode, then some "cmake tools" would dock on status bar
-![vscode-status-bar](/assets/vscode-status-bar.png)
+![vscode-status-bar](./assets/vscode-status-bar.png)
 
 Press "Build" label can build project by "CMakeLists.txt";
 
