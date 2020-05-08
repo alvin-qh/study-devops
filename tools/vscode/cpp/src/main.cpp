@@ -1,7 +1,11 @@
 #include <iostream>
+#include "text.h"
 
 int main(int argc, char const *argv[])
 {
-    std::cout<<"Hello World"<<std::endl;
+    char buf[128] = "";
+    get_string(buf, 128);
+
+    std::cout<<buf<<std::endl;
     return 0;
 }

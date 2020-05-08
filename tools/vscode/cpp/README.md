@@ -49,11 +49,19 @@ $ yum groupinstall "Development Tools"
 $ sudo apt install gdb
 ```
 
+### 1.5. Install CMAKE
+
+```bash
+$ sudo apt install cmake
+```
+
 ## 2. Config vscode
+
+### 2.1. Run single c/cpp file
 
 If json config file not generate automate, add the following files into `.vscode` folder
 
-### 2.1. `launcher.json`
+#### 2.1.1. `launcher.json`
 
 ```json
 {
@@ -63,7 +71,7 @@ If json config file not generate automate, add the following files into `.vscode
             "name": "g++ - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${fileDirname}/build/${fileBasenameNoExtension}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -99,7 +107,7 @@ Fields:
 - `miDebuggerPath`: the path of debug tools;
 - `preLaunchTask`: value of `label` field in `task.json`, how to build file;
 
-### 2.2. `tasks.json`
+#### 2.1.2. `tasks.json`
 
 ```json
 {
@@ -112,7 +120,7 @@ Fields:
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/build/${fileBasenameNoExtension}"
             ],
             "options": {
                 "cwd": "/usr/bin"
@@ -139,7 +147,7 @@ Fields:
   - `focus`: `true` allows the focus to focus on the terminal when executing the task;
   - `panel`: `shared` if the Compilation information of different files information sharing a terminal panel;
 
-### 2.3. `c_cpp_properties.json`
+#### 2.1.3. `c_cpp_properties.json`
 
 ```json
 {
@@ -160,7 +168,7 @@ Fields:
 }
 ```
 
-### 2.4. Setup "code runner" plugin
+#### 2.1.4. Setup "code runner" plugin
 
 Edit `settings.json` in `.vscode` folder, add "code runner" settings:
 
@@ -169,12 +177,29 @@ Edit `settings.json` in `.vscode` folder, add "code runner" settings:
     ...,
     "code-runner.clearPreviousOutput": true,
     "code-runner.executorMap": {
-        "cpp": "mkdir $workspaceRoot/out -p && g++ $fullFileName -o $workspaceRoot/out/$fileNameWithoutExt && $workspaceRoot/out/$fileNameWithoutExt"
+        "cpp": "mkdir $workspaceRoot/build -p && g++ $fullFileName -o $workspaceRoot/build/$fileNameWithoutExt && $workspaceRoot/build/$fileNameWithoutExt"
     }
 }
 ```
 
 See also [Offical document](https://github.com/formulahendry/vscode-code-runner/blob/master/README.md)
+
+
+### 2.2. Run with "CMakeLists.txt"
+
+Install the following plugins:
+- CMake
+- CMake Tools
+- CMake Integration
+- cmake-format
+
+Restart vscode, then some "cmake tools" would dock on status bar
+![vscode-status-bar](/assets/vscode-status-bar.png)
+
+Press "Build" label can build project by "CMakeLists.txt";
+
+Press "Debug" label can start debug after build;
+
 
 
 ## 3. Todo
