@@ -70,25 +70,22 @@ If json config file not generate automate, add the following files into `.vscode
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "g++ - Build and debug active file",
+            "name": "Launch main",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/build/${fileBasenameNoExtension}",
+            "program": "${workspaceFolder}/build/app",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "g++ build active file",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "launchCompleteCommand": "exec-run",
+            "linux": {
+                "MIMode": "gdb",
+            },
+            "osx": {
+                "MIMode": "lldb"
+            }
         }
     ]
 }
@@ -166,6 +163,21 @@ Fields:
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
+        },
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "configurationProvider": "vector-of-bool.cmake-tools"
         }
     ],
     "version": 4
@@ -176,15 +188,30 @@ Fields:
 
 Edit `settings.json` in `.vscode` folder, add "code runner" settings:
 
-```json
-{
-    ...,
-    "code-runner.clearPreviousOutput": true,
-    "code-runner.executorMap": {
-        "cpp": "mkdir $workspaceRoot/build -p && g++ $fullFileName -o $workspaceRoot/build/$fileNameWithoutExt && $workspaceRoot/build/$fileNameWithoutExt"
+- Compile and run:
+
+    ```json
+    {
+        ...,
+        "code-runner.clearPreviousOutput": true,
+        "code-runner.executorMap": {
+            "cpp": "mkdir $workspaceRoot/build -p && g++ $fullFileName -o $workspaceRoot/build/$fileNameWithoutExt && $workspaceRoot/build/$fileNameWithoutExt"
+        }
     }
-}
-```
+    ```
+- Or just run directly:
+
+    ```json
+    {
+        ...,
+        "code-runner.clearPreviousOutput": true,
+        "code-runner.executorMap": {
+            "cpp": "$workspaceRoot/build/app"
+        }
+    }
+    ```
+
+
 
 See also [Offical document](https://github.com/formulahendry/vscode-code-runner/blob/master/README.md)
 

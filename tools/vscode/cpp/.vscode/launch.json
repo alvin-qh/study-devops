@@ -17,8 +17,6 @@
             "launchCompleteCommand": "exec-run",
             "linux": {
                 "MIMode": "gdb",
-                "miDebuggerPath": "/usr/bin/gdb",
-                "preLaunchTask": "g++ build active file"
             },
             "osx": {
                 "MIMode": "lldb"

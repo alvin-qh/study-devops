@@ -42,6 +42,6 @@
     },
     "code-runner.clearPreviousOutput": true,
     "code-runner.executorMap": {
-        "cpp": "mkdir $workspaceRoot/out -p && g++ $fullFileName -o $workspaceRoot/build/$fileNameWithoutExt && $workspaceRoot/build/$fileNameWithoutExt"
+        "cpp": "$workspaceRoot/build/app"
     }
 }
