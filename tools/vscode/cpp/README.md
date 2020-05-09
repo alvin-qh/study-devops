@@ -26,12 +26,14 @@ $ yum groupinstall "Development Tools"
 1. Download lastest version of LLVM from [Offical](https://releases.llvm.org/download.html)(eg: `xz -d clang+llvm-10.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz`);
 
 2. Unpackage downloaded `.tar.xz` file;
+
    ```bash
    $ xz -d clang+llvm-10.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
    $ tar xvf clang+llvm-10.0.0-x86_64-linux-gnu-ubuntu-18.04.tar
    ```
 
 3. Add LLVM bin folder into $PATH enviroment
+
    ```bash
    $ sudo mv clang+llvm-10.0.0-x86_64-linux-gnu-ubuntu-18.04 /usr/lib/llvm
    ```
@@ -93,6 +95,7 @@ If json config file not generate automate, add the following files into `.vscode
 ```
 
 Fields:
+
 - `name`: name of config;
 - `type`: `cppdbg`, use cpptools debug tools;
 - `request`: `launch` or `attach`;
@@ -132,6 +135,7 @@ Fields:
 ```
 
 Fields:
+
 - `type`: `process` is vsc to pass the predefined variables and escape slyly all directly to command; the `shell` is equivalent to opening the shell and then entering the command, so the args will be resolved again through the shell;
 - `label`: Corresponding to the `preLaunchTask` field in the `launcher.json` file;
 - `command`: The compiler to use (gcc for clang and g++ for cpp);
