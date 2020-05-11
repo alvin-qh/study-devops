@@ -18,7 +18,7 @@ services:
     volumes:
       - "./logs:/usr/share/elasticsearch/logs/"
       - "./plugins:/usr/share/elasticsearch/plugins/"
-      #   - "./config:/usr/share/elasticsearch/config"
+      #   - "./config:/usr/share/elasticsearch/config:ro"
       - "elk_v:/usr/share/elasticsearch/data"
     ulimits:
       memlock:
@@ -41,7 +41,7 @@ services:
     networks:
       - "elk_n"
     # volumes:
-    #   - "./kibana.yml:/usr/share/kibana/config/kibana.yml:rw"
+    #   - "./kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
     restart: "always"
 networks:
   elk_n:

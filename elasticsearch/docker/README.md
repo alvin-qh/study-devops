@@ -17,6 +17,7 @@ $ chmod -R 755 ./logs ./plugins
   2. Flush with `sudo sysctl -p`
 
 - Or
+
     ```bash
     $ sudo sysctl -w vm.max_map_count=262144
     ```
