@@ -4,4 +4,6 @@ jupyterlab_code_formatter
 jupyter_nbextensions_configurator
 autopep8
 bash_kernel
+redis-kernel
 redis
+hiredis
