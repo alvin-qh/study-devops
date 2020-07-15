@@ -6,4 +6,3 @@ autopep8
 bash_kernel
 redis
 hiredis
-jupyter-tabnine
