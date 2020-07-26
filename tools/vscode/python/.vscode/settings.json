@@ -1,3 +1,9 @@
 {
-    "python.pythonPath": ".venv/bin/python"
+    "python.pythonPath": "/home/alvin/Workspaces/Study/study-devops/tools/vscode/python/.venv/bin/python3",
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": true
 }
