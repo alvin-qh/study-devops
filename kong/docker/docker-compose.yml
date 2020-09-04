@@ -1,5 +1,6 @@
-version: "3"
+---
 
+version: "3"
 services:
   kong-database:
     image: "postgres:9.6"
@@ -23,8 +24,6 @@ services:
     networks:
       - "kong_n"
   kong-db-migration:
-    links:
-      - "kong-database:kong-database"
     image: "kong:2.1.3"
     container_name: "kong-db-migration"
     depends_on:
@@ -39,8 +38,6 @@ services:
       - "kong_n"
     command: "/usr/local/bin/kong migrations bootstrap"
   kong-migrations-up:
-    links:
-      - "kong-database:kong-database"
     image: "kong:2.1.3"
     container_name: "kong-migrations-up"
     depends_on:
@@ -55,8 +52,6 @@ services:
       - "kong_n"
     command: "/usr/local/bin/kong migrations up && /usr/local/bin/kong migrations finish"
   kong:
-    links:
-      - "kong-database:kong-database"
     image: "kong:2.1.3"
     container_name: "kong"
     depends_on:

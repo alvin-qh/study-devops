@@ -1,0 +1,38 @@
+---
+version: "3"
+services:
+  percona-master:
+    image: "percona:latest"
+    container_name: "percona-master"
+    restart: "always"
+    environment:
+      MYSQL_USER: "root"
+      MYSQL_ROOT_PASSWORD: "root"
+    ports:
+      - "13306:3306"
+    volumes:
+      - "percona_master_v:/var/lib/mysql"
+      - "./log-master:/var/log/mysql"
+      - "./master.cnf:/etc/my.cnf:ro"
+    networks:
+      - "percona_n"
+  percona-slave:
+    image: "percona:latest"
+    container_name: "percona-slave"
+    restart: "always"
+    environment:
+      MYSQL_USER: "root"
+      MYSQL_ROOT_PASSWORD: "root"
+    ports:
+      - "23306:3306"
+    volumes:
+      - "percona_slave_v:/var/lib/mysql"
+      - "./log-slave:/var/log/mysql"
+      - "./slave.cnf:/etc/my.cnf:ro"
+    networks:
+      - "percona_n"
+networks:
+  percona_n:
+volumes:
+  percona_master_v:
+  percona_slave_v:
