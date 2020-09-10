@@ -1,0 +1,136 @@
+# file proxysql.cfg
+
+datadir = "/var/lib/proxysql"
+
+admin_variables =
+{
+  # cluster1:secret1pass主要用于cluster访问
+  admin_credentials="admin:admin;cluster1:secret1pass"
+  mysql_ifaces="0.0.0.0:6032"
+
+  # 以下配置只有需要实现 proxysql-cluster 时才需要
+  cluster_username="cluster1"
+  cluster_password="secret1pass"
+  cluster_check_interval_ms=200
+  cluster_check_status_frequency=100
+  cluster_mysql_query_rules_save_to_disk=true
+  cluster_mysql_servers_save_to_disk=true
+  cluster_mysql_users_save_to_disk=true
+  cluster_proxysql_servers_save_to_disk=true
+  cluster_mysql_query_rules_diffs_before_sync=3
+  cluster_mysql_servers_diffs_before_sync=3
+  cluster_mysql_users_diffs_before_sync=3
+  cluster_proxysql_servers_diffs_before_sync=3
+}
+
+# 若要实现proxysql-cluster,则proxysql_servers必须在配置文件中进行配置
+proxysql_servers =
+(
+	{
+		hostname="192.168.100.231"
+		port=6032
+		comment="proxysql_231"
+	},
+	{
+		hostname="192.168.100.232"
+		port=6032
+		comment="proxysql_232"
+	}
+)
+
+mysql_variables=
+{
+  threads=4
+  max_connections=2048
+  default_query_delay=0
+  default_query_timeout=36000000
+  have_compress=true
+  poll_timeout=2000
+  interfaces="0.0.0.0:6033"
+  default_schema="information_schema"
+  stacksize=1048576
+  server_version="5.5.30"
+  connect_timeout_server=3000
+  monitor_username="monitor"
+  monitor_password="monitor"
+  monitor_history=600000
+  monitor_connect_interval=60000
+  monitor_ping_interval=10000
+  monitor_read_only_interval=1500
+  monitor_read_only_timeout=500
+  ping_interval_server_msec=120000
+  ping_timeout_server=500
+  commands_stats=true
+  sessions_sort=true
+  connect_retries_on_failure=10
+}
+
+# defines all the MySQL servers
+mysql_servers =
+(
+  { address="192.168.100.241" , port=3306 , hostgroup=1 },
+  { address="192.168.100.242" , port=3306 , hostgroup=2 }
+)
+
+# defines all the MySQL users
+mysql_users:
+(
+  {
+    username = "msandbox"
+    password = "msandbox"
+    default_hostgroup = 1
+    active = 1
+  }
+)
+
+#defines MySQL Query Rules
+mysql_query_rules:
+(
+ {
+   rule_id=100
+   active=1
+   schemaname=test_db
+   username=msandbox
+   match_digest="(?i)^SELECT.*$"
+   destination_hostgroup=2
+   apply=1
+ },
+ {
+   rule_id=200
+   active=1
+   schemaname=test_db
+   username=msandbox
+   match_digest="(?i)^(?!SELECT).*$"
+   destination_hostgroup=1
+   apply=1
+ }
+)
+
+scheduler=
+(
+#  {
+#    id=1
+#    active=0
+#    interval_ms=10000
+#    filename="/var/lib/proxysql/proxysql_galera_checker.sh"
+#    arg1="0"
+#    arg2="0"
+#    arg3="0"
+#    arg4="1"
+#    arg5="/var/lib/proxysql/proxysql_galera_checker.log"
+#  }
+)
+
+mysql_replication_hostgroups=
+(
+#  {
+#    writer_hostgroup=30
+#    reader_hostgroup=40
+#    comment="test repl 1"
+#  },
+#  {
+#    writer_hostgroup=50
+#    reader_hostgroup=60
+#    comment="test repl 2"
+#  }
+)
