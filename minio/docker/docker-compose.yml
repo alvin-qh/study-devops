@@ -1,0 +1,65 @@
+---
+version: "3"
+services:
+  minio_01:
+    image: "minio/minio:latest"
+    container_name: "minio_01"
+    ports:
+      - "9001:9000"
+    volumes:
+      - "./data_01:/data"
+      - "./config:/etc/minio"
+    environment:
+      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
+      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
+    command: "minio server --config-dir /etc/minio --address :9000 http://minio_01/data http://minio_02/data http://minio_03/data http://minio_04/data"
+    restart: "always"
+    networks:
+      - "minio_n"
+  minio_02:
+    image: "minio/minio:latest"
+    container_name: "minio_02"
+    ports:
+      - "9002:9000"
+    volumes:
+      - "./data_02:/data"
+      - "./config:/etc/minio"
+    environment:
+      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
+      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
+    command: "minio server --config-dir /etc/minio --address :9000 http://minio_01/data http://minio_02/data http://minio_03/data http://minio_04/data"
+    restart: "always"
+    networks:
+      - "minio_n"
+  minio_03:
+    image: "minio/minio:latest"
+    container_name: "minio_03"
+    ports:
+      - "9003:9000"
+    volumes:
+      - "./data_03:/data"
+      - "./config:/etc/minio"
+    environment:
+      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
+      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
+    command: "minio server --config-dir /etc/minio --address :9000 http://minio_01/data http://minio_02/data http://minio_03/data http://minio_04/data"
+    restart: "always"
+    networks:
+      - "minio_n"
+  minio_04:
+    image: "minio/minio:latest"
+    container_name: "minio_04"
+    ports:
+      - "9004:9000"
+    volumes:
+      - "./data_04:/data"
+      - "./config:/etc/minio"
+    environment:
+      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
+      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
+    command: "minio server --config-dir /etc/minio --address :9000 http://minio_01/data http://minio_02/data http://minio_03/data http://minio_04/data"
+    restart: "always"
+    networks:
+      - "minio_n"
+networks:
+  minio_n:
