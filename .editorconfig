@@ -12,7 +12,7 @@ insert_final_newline = true
 charset = utf-8
 end_of_line = crlf
 
-[*.{ipynb,json,yml}]
+[*.{ipynb,json,yml,cnf,conf}]
 charset = utf-8
 end_of_line = lf
 indent_size = 2

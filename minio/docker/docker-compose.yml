@@ -1,65 +1,101 @@
----
 version: "3"
 services:
-  minio_01:
+  minio1:
     image: "minio/minio:latest"
-    container_name: "minio_01"
+    volumes:
+      - "data1:/data"
+    expose:
+      - "9000"
     ports:
       - "9001:9000"
-    volumes:
-      - "./data_01:/data"
-      - "./config:/etc/minio"
     environment:
-      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
-      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
-    command: "minio server --config-dir /etc/minio --address :9000 http://minio_01/data http://minio_02/data http://minio_03/data http://minio_04/data"
-    restart: "always"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+    command: "server http://minio{1...4}/data"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: "30s"
+      timeout: "20s"
+      retries: 3
     networks:
-      - "minio_n"
-  minio_02:
+      - "net"
+  minio2:
     image: "minio/minio:latest"
-    container_name: "minio_02"
+    volumes:
+      - "data2:/data"
+    expose:
+      - "9000"
     ports:
       - "9002:9000"
-    volumes:
-      - "./data_02:/data"
-      - "./config:/etc/minio"
     environment:
-      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
-      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
-    command: "minio server --config-dir /etc/minio --address :9000 http://minio_01/data http://minio_02/data http://minio_03/data http://minio_04/data"
-    restart: "always"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+    command: "server http://minio{1...4}/data"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: "30s"
+      timeout: "20s"
+      retries: 3
     networks:
-      - "minio_n"
-  minio_03:
+      - "net"
+  minio3:
     image: "minio/minio:latest"
-    container_name: "minio_03"
+    volumes:
+      - "data3:/data"
+    expose:
+      - "9000"
     ports:
       - "9003:9000"
-    volumes:
-      - "./data_03:/data"
-      - "./config:/etc/minio"
     environment:
-      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
-      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
-    command: "minio server --config-dir /etc/minio --address :9000 http://minio_01/data http://minio_02/data http://minio_03/data http://minio_04/data"
-    restart: "always"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+    command: "server http://minio{1...4}/data"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: "30s"
+      timeout: "20s"
+      retries: 3
     networks:
-      - "minio_n"
-  minio_04:
+      - "net"
+  minio4:
     image: "minio/minio:latest"
-    container_name: "minio_04"
+    volumes:
+      - "data4:/data"
+      - "./minio_access1.log:/logs/access.log"
+    expose:
+      - "9000"
     ports:
       - "9004:9000"
-    volumes:
-      - "./data_04:/data"
-      - "./config:/etc/minio"
     environment:
-      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
-      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
-    command: "minio server --config-dir /etc/minio --address :9000 http://minio_01/data http://minio_02/data http://minio_03/data http://minio_04/data"
-    restart: "always"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+      MINIO_HTTP_TRACE: "/logs/access.log"
+    command: "server http://minio{1...4}/data"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: "30s"
+      timeout: "20s"
+      retries: 3
     networks:
-      - "minio_n"
+      - "net"
+  nginx:
+    image: "nginx:latest"
+    volumes:
+      - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./nginx_log:/var/log/nginx"
+    ports:
+      - "9000:9000"
+    depends_on:
+      - "minio1"
+      - "minio2"
+      - "minio3"
+      - "minio4"
+    networks:
+      - "net"
 networks:
-  minio_n:
+  net:
+volumes:
+  data1:
+  data2:
+  data3:
+  data4:
