@@ -11,6 +11,9 @@ services:
     environment:
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+      # MINIO_CACHE_DRIVES: "/mnt/driver1"
+      # MINIO_CACHE_EXPIRY: 90
+      # MINIO_CACHE_EXCLUDE: "*.pdf,mybucket/*"
     command: "server http://minio{1...4}/data"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -30,6 +33,9 @@ services:
     environment:
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+      # MINIO_CACHE_DRIVES: "/mnt/driver1"
+      # MINIO_CACHE_EXPIRY: 90
+      # MINIO_CACHE_EXCLUDE: "*.pdf,mybucket/*"
     command: "server http://minio{1...4}/data"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -49,6 +55,9 @@ services:
     environment:
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+      # MINIO_CACHE_DRIVES: "/mnt/driver1"
+      # MINIO_CACHE_EXPIRY: 90
+      # MINIO_CACHE_EXCLUDE: "*.pdf,mybucket/*"
     command: "server http://minio{1...4}/data"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -61,7 +70,7 @@ services:
     image: "minio/minio:latest"
     volumes:
       - "data4:/data"
-      - "./minio_access1.log:/logs/access.log"
+      # - "./minio_access1.log:/logs/access.log"
     expose:
       - "9000"
     ports:
@@ -69,7 +78,9 @@ services:
     environment:
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
-      MINIO_HTTP_TRACE: "/logs/access.log"
+      # MINIO_CACHE_DRIVES: "/mnt/driver1"
+      # MINIO_CACHE_EXPIRY: 90
+      # MINIO_CACHE_EXCLUDE: "*.pdf,mybucket/*"
     command: "server http://minio{1...4}/data"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
