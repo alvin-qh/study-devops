@@ -1,1 +1,3 @@
-es0*
+cluster/es*
+standalone/logs
+standalone/plugins

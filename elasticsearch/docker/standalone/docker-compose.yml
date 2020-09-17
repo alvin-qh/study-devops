@@ -1,12 +1,11 @@
----
-version: "3"
+version: "3.7"
 services:
-  elastic:
+  es:
     image: "elasticsearch:7.6.2"
-    container_name: "elastic"
+    container_name: "es"
     environment:
-      - "node.name=elastic"
-      - "cluster.initial_master_nodes=elastic"
+      - "node.name=es"
+      - "cluster.initial_master_nodes=es"
       - "cluster.name=docker-cluster"
       - "bootstrap.memory_lock=true"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -14,12 +13,12 @@ services:
       - "9200:9200"
       - "9300:9300"
     networks:
-      - "elk_n"
+      - "network"
     volumes:
       - "./logs:/usr/share/elasticsearch/logs/"
       - "./plugins:/usr/share/elasticsearch/plugins/"
       #   - "./config:/usr/share/elasticsearch/config:ro"
-      - "elk_v:/usr/share/elasticsearch/data"
+      - "data:/usr/share/elasticsearch/data"
     ulimits:
       memlock:
         soft: -1
@@ -32,18 +31,20 @@ services:
     image: "kibana:7.6.2"
     container_name: "kibana"
     depends_on:
-      - "elastic"
+      - "es"
     environment:
-      SERVER_NAME: "kibana"
-      ELASTICSEARCH_HOSTS: "http://elastic:9200"
+      - "SERVER_NAME=kibana"
+      - "ELASTICSEARCH_HOSTS=http://es:9200"
     ports:
       - "5601:5601"
     networks:
-      - "elk_n"
+      - "network"
     # volumes:
     #   - "./kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
     restart: "always"
 networks:
-  elk_n:
+  network:
+    driver: "bridge"
 volumes:
-  elk_v:
+  data:
+    name: "study-devops-es-standalone-data"

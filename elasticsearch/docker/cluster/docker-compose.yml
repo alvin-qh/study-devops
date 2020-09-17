@@ -1,0 +1,106 @@
+version: "3.7"
+services:
+  es1:
+    image: "elasticsearch:7.6.2"
+    container_name: "es1"
+    environment:
+      - "node.name=es1"
+      - "network.host=es1"
+      - "discovery.seed_hosts=es1,es2,es3"
+      - "cluster.initial_master_nodes=es1,es2"
+      - "cluster.name=docker-cluster"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Des.transport.cname_in_publish_address=true"  # disable warning
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - "network"
+    volumes:
+      - "./es1/logs:/usr/share/elasticsearch/logs/"
+      - "./plugins:/usr/share/elasticsearch/plugins/"
+      - "data1:/usr/share/elasticsearch/data"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    restart: "always"
+  es2:
+    image: "elasticsearch:7.6.2"
+    container_name: "es2"
+    environment:
+      - "node.name=es2"
+      - "discovery.seed_hosts=es1,es2,es3"
+      - "cluster.initial_master_nodes=es1,es2"
+      - "cluster.name=docker-cluster"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - "network"
+    volumes:
+      - "./es2/logs:/usr/share/elasticsearch/logs/"
+      - "./plugins:/usr/share/elasticsearch/plugins/"
+      - "data2:/usr/share/elasticsearch/data"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    restart: "always"
+  es3:
+    image: "elasticsearch:7.6.2"
+    container_name: "es3"
+    environment:
+      - "node.name=es3"
+      - "discovery.seed_hosts=es1,es2,es3"
+      - "cluster.initial_master_nodes=es1,es2"
+      - "cluster.name=docker-cluster"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - "network"
+    volumes:
+      - "./es3/logs:/usr/share/elasticsearch/logs/"
+      - "./plugins:/usr/share/elasticsearch/plugins/"
+      - "data3:/usr/share/elasticsearch/data"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    restart: "always"
+  kibana:
+    image: "kibana:7.6.2"
+    container_name: "kibana"
+    depends_on:
+      - "es1"
+      - "es2"
+      - "es3"
+    environment:
+      - "SERVER_NAME=kibana"
+      - "ELASTICSEARCH_HOSTS=http://es1:9200"
+    ports:
+      - "5601:5601"
+    networks:
+      - "network"
+    # volumes:
+    #   - "./kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
+    restart: "always"
+networks:
+  network:
+    driver: "bridge"
+volumes:
+  data1:
+    name: "study-devops-es-cluster-data1"
+  data2:
+    name: "study-devops-es-cluster-data2"
+  data3:
+    name: "study-devops-es-cluster-data3"
