@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 services:
   minio1:
     image: "minio/minio:latest"
@@ -107,6 +107,10 @@ networks:
   net:
 volumes:
   data1:
+    name: "study-devops-minio-data1"
   data2:
+    name: "study-devops-minio-data2"
   data3:
+    name: "study-devops-minio-data3"
   data4:
+    name: "study-devops-minio-data4"
