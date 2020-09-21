@@ -11,7 +11,7 @@ services:
       - "./import:/var/lib/neo4j/import"
       - "./plugins:/plugins"
     environment:
-      - "NEO4J_AUTH=neo4j/neo4j_"
+      - "NEO4J_auth=neo4j/neo4j_"
       - "NEO4J_dbms.security.auth_enabled=false"
     networks:
       - "newtork"
