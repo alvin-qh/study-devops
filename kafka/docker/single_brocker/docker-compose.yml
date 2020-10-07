@@ -1,0 +1,17 @@
+version: "3"
+services: 
+  zookeeper:
+    image: "wurstmeister/zookeeper:lastest"
+    container_name: "zookeeper"
+    networks: 
+      - "kafka_n"
+  kafka:
+    image: "wurstmeister/kafka:lastest"
+    depends_on:
+      - "zookeeper"
+    ports:
+      - "9092:9092"
+    networks: 
+      - "kafka_n"
+networks: 
+  kafka_n:
