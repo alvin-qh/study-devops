@@ -1,17 +1,23 @@
-version: "3"
-services: 
+version: "3.7"
+services:
   zookeeper:
     image: "wurstmeister/zookeeper:lastest"
     container_name: "zookeeper"
-    networks: 
-      - "kafka_n"
+    networks:
+      - "kafka_net"
   kafka:
     image: "wurstmeister/kafka:lastest"
+    container_name: "kafka"
+    volumes:
+      - "data:/kafka"
     depends_on:
       - "zookeeper"
     ports:
       - "9092:9092"
-    networks: 
-      - "kafka_n"
-networks: 
-  kafka_n:
+    networks:
+      - "kafka_net"
+networks:
+  kafka_net:
+volumes:
+  data:
+    name: "study-devops-kafka-data"
