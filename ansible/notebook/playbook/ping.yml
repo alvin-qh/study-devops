@@ -1,7 +1,6 @@
----
-- hosts: vm
-  vars:
-  remote_user: alvin
-  tasks:
-    - name: test connection
-      ping:
+hosts: vm
+vars:
+remote_user: alvin
+tasks:
+    name: test connection
+     ping:

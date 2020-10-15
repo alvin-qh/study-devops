@@ -5,4 +5,4 @@ Host remote-server
 Host *
 	ControlPersist yes
 	ControlMaster auto
-	ControlPath .checkpoints/master-%r@%h:%p
+	ControlPath ../.cp/master-%r@%h:%p
