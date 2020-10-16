@@ -5,6 +5,7 @@
 ### 1.1. Install linux Virtual Machines
 
 3 Debain VM need be installed:
+
 - The VM IPs are: 192.168.100.[2, 3, 4]
 - The user with sudoers name is: `alvin`, password is: `kkmoue`
 
@@ -70,10 +71,10 @@ $ pyenv install 3.7.5
 
 #### 1.2.3. Use python
 
-In notebook folder: 
+In notebook folder:
 
 ```bash
-$ pyenv local 3.7.5 
+$ pyenv local 3.7.5
 ```
 
 ## 2. Setup notebook

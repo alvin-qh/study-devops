@@ -11,17 +11,19 @@
 # remote-server ansible_ssh_user=alvin
 
 # Form3
+[vm]
+server1
+
+# "[xxx:vars]"用于设定"[xxx]"中所列server的参数，例如"[vm:vars]"用于为"server1"设定参数
+# 只要server是一样的，则应用的参数均是一致的
 [vm:vars]
 ansible_ssh_user=alvin
 
-[vm]
-remote-server
+[vm_vault]
+server2
 
 [vm_vault:vars]
 ansible_ssh_user=alvin
 ansible_become=yes
 ansible_become_method=sudo 
-ansible_become_pass='{{ sudo_pass }}'
-
-[vm_vault]
-remote-server
+ansible_become_pass="{{ sudo_pass | default('none') }}"
