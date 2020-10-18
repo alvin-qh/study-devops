@@ -1,9 +1,21 @@
-Host server1
+Host debian1
 	HostName 192.168.100.2
 	User alvin
     
-Host server2
+Host debian1_1
 	HostName 192.168.100.2
+	User alvin
+    
+Host debian2
+	HostName 192.168.100.3
+	User alvin
+    
+Host debian3
+	HostName 192.168.100.4
+	User alvin
+    
+Host centos
+	HostName 192.168.100.5
 	User alvin
 
 Host *
