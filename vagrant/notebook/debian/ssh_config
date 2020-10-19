@@ -1,0 +1,22 @@
+Host vsrv1
+    Hostname        192.168.100.2
+    User            alvin
+
+Host vsrv2
+    Hostname        192.168.100.3
+    User            alvin
+
+Host vsrv3
+    Hostname        192.168.100.4
+    User            alvin
+
+Host vsrv4
+    Hostname        192.168.100.5
+    User            alvin
+
+Host vsrv*
+    IdentitiesOnly  yes
+    IdentityFile    ~/.ssh/id_rsa
+    ControlMaster   auto
+    ControlPath     ~/.ssh/vsrv-mux-%r@%h:%p
+    ControlPersist  8h
