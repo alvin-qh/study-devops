@@ -1,27 +1,28 @@
 Vagrant.configure("2") do |config|
-	config.vm.provider "virtualbox" do |box|
-		box.memory = 256
-		box.cpus = 1
-	end
+  (0..2).each do |i|
+    config.vm.define "debian#{i + 1}" do |machine|
+      machine.vm.provider "virtualbox" do |vb|
+        vb.name = "debian#{i + 1}"
+        vb.memory = 256
+        vb.cpus = 1
+      end
 
-	config.vm.define "debian_buster1" do |debian_buster1|
-		debian_buster1.vm.hostname = 'debian01'
-		debian_buster1.vm.box = '../debian_buster.box'
-		debian_buster1.vm.network 'private_network', ip: '192.168.100.2'
-		debian_buster1.vm.network 'private_network', type: 'dhcp'
-	end
+      machine.vm.hostname = "debian#{i + 1}"
+      machine.vm.box = "debian_buster"
 
-	config.vm.define "debian_buster2" do |debian_buster2|
-		debian_buster2.vm.hostname = 'debian02'
-		debian_buster2.vm.box = '../debian_buster.box'
-		debian_buster2.vm.network 'private_network', ip: '192.168.100.3'
-		debian_buster2.vm.network 'private_network', type: 'dhcp'
-	end
+      machine.vm.network "forwarded_port", guest: 80, host: 8080 + i
+      machine.vm.network "private_network", ip: "192.168.100.#{i + 2}"
+      machine.vm.network "private_network", type: "dhcp"
 
-	config.vm.define "debian_buster3" do |debian_buster3|
-		debian_buster3.vm.hostname = 'debian03'
-		debian_buster3.vm.box = '../debian_buster.box'
-		debian_buster3.vm.network 'private_network', ip: '192.168.100.4'
-		debian_buster3.vm.network 'private_network', type: 'dhcp'
-	end
+      machine.vm.provision "shell", inline: <<-SHELL
+        cp /vagrant/sshd_config /etc/ssh/
+        cp /vagrant/sources.list /etc/apt/
+        cp /vagrant/sudoers /etc/
+        chmod -R 440 /etc/sudoers
+
+        useradd -d /home/alvin -m -s /bin/bash -G sudo alvin
+        (echo 'kkmouse'; echo 'kkmouse') | passwd alvin
+      SHELL
+    end
+  end
 end
