@@ -1,0 +1,38 @@
+Vagrant.configure("2") do |config|
+
+  (0..2).each do |i|
+    config.vm.define "centos#{i + 1}" do |machine|
+      machine.vm.provider "virtualbox" do |vb|
+        vb.name = "centos#{i + 1}"
+        vb.memory = 256
+        vb.cpus = 1
+      end
+
+      machine.vm.hostname = "centos1"
+      machine.vm.box = "centos_8"
+
+      machine.vm.network "forwarded_port", guest: 80, host: (8083 + i)
+      machine.vm.network "private_network", ip: "192.168.100.#{i + 3}"
+      machine.vm.network "private_network", type: "dhcp"
+      machine.vm.synced_folder ".", "/vagrant"
+
+      config.vm.provision "shell", inline: <<-SHELL
+        cp /vagrant/sshd_config /etc/ssh/
+        systemctl restart sshd
+
+        mv /etc/yum.repos.d/CentOS-AppStream.repo /etc/yum.repos.d/CentOS-AppStream.repo.bak
+        mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bak
+        mv /etc/yum.repos.d/CentOS-centosplus.repo /etc/yum.repos.d/CentOS-centosplus.repo.bak
+        mv /etc/yum.repos.d/CentOS-Extras.repo /etc/yum.repos.d/CentOS-Extras.repo.bak
+        mv /etc/yum.repos.d/CentOS-PowerTools.repo /etc/yum.repos.d/CentOS-PowerTools.repo.bak
+        cp /vagrant/CentOS-Base.repo /etc/yum.repos.d/
+
+        useradd -d /home/alvin -m -s /bin/bash alvin
+        (echo 'kkmouse'; echo 'kkmouse') | passwd alvin
+
+        echo "alvin	 ALL=(ALL) ALL" > /etc/sudoers.d/alvin
+        chmod -R 440 /etc/sudoers.d/alvin
+      SHELL
+    end
+  end
+end
