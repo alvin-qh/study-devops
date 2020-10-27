@@ -1,4 +1,4 @@
-* text eol=lf
+* text  eol=lf
 *.bat   text eol=crlf
 *.cmd   text eol=crlf
 
@@ -8,7 +8,8 @@
 
 *.eot   binary
 *.ttf   binary
-*.woff   binary
+*.woff  binary
 *.otf   binary
+*.zip   binary
 
 /**/*.html linguist-vendored
