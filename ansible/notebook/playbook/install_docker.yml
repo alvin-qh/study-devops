@@ -1,0 +1,12 @@
+---
+
+# Install docker on remote servers
+
+- name: "Install docker to all service"
+  hosts: "group_all"
+  tasks:
+    - name: "Remove old "
+      ping:
+      register: "ping_result"
+    - debug:
+        msg: "Result of ping remote server is: {{ ping_result }}"

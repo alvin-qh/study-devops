@@ -25,25 +25,10 @@ centos1
 [group_centos1:vars]
 ansible_ssh_user=alvin
 
-[group_debian1_vault]
-debian1_1
-
-[group_debian1_vault:vars]
-ansible_ssh_user=alvin
-ansible_become=yes
-ansible_become_method=sudo
-ansible_become_pass="{{ sudo_pass | default('none') }}"
-
-[group_centos1_vault]
-centos1_1
-
-[group_centos1_vault:vars]
-ansible_ssh_user=alvin
-ansible_become=yes
-ansible_become_method=sudo
-ansible_become_pass="{{ sudo_pass | default('none') }}"
-
 [group_debian]
 debian1
 debian2
 debian3
+
+[group_debian:vars]
+ansible_ssh_user=alvin

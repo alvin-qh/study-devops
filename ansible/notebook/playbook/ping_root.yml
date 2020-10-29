@@ -5,22 +5,13 @@
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
+# become: "yes"  # All task with become
   tasks:
     - name: "Ping remote server"
       ping:
       register: "ping_result"
+      become: "yes"  # Current task with become
     - name: "Show ping result"
       debug:
 #       var: "ping_result"
-        msg: "Result of ping remote server is: {{ ping_result }}"
-
-# Test ping for all remote servers
-- name: "Test availability of remote servers"
-  hosts: "group_all"
-  tasks:
-    - name: "Ping remote server"
-      ping:
-      register: "ping_result"
-    - name: "Show ping results"
-      debug:
         msg: "Result of ping remote server is: {{ ping_result }}"
