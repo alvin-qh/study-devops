@@ -13,5 +13,4 @@
       become: "yes"  # Current task with become
     - name: "Show ping result"
       debug:
-#       var: "ping_result"
-        msg: "Result of ping remote server is: {{ ping_result }}"
+        msg: "{{ ping_result.ping | default('None') }}"

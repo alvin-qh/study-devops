@@ -22,8 +22,8 @@
     - name: "Show result"
       debug:
         msg: 
-          - "{{ debian_uname }}"
-          - "{{ centos_uname }}"
+          - "{{ debian_uname.stdout | default('None') }}"
+          - "{{ centos_uname.stdout | default('None') }}"
           
 - name: "Conditionals based on ansible_facts"
   hosts: 
@@ -36,27 +36,27 @@
     - name: "Run uname on 'Debian' version 10"
       shell: "uname -sa"
       register: "debian10_uname"
-      when: "ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '10'"
+      when: "ansible_facts['distribution'] == 'Debian' and (ansible_facts['distribution_major_version'] | int) >= 10"
       
     - name: "Run uname on 'Debian' version 9"
       shell: "uname -sa"
       register: "debian9_uname"
-      when: "ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '9'"
+      when: "ansible_facts['distribution'] == 'Debian' and (ansible_facts['distribution_major_version'] | int) < 10"
       
     - name: "Run uname on 'CentOS' version 8"
       shell: "uname -sa"
       register: "centos8_uname"
-      when: "ansible_facts['distribution'] == 'CentOS' and ansible_facts['distribution_major_version'] == '8'"
+      when: "ansible_facts['distribution'] == 'CentOS' and (ansible_facts['distribution_major_version'] | int) >= 8"
       
     - name: "Run uname on 'CentOS' version 7"
       shell: "uname -sa"
       register: "centos7_uname"
-      when: "ansible_facts['distribution'] == 'CentOS' and ansible_facts['distribution_major_version'] == '7'"
+      when: "ansible_facts['distribution'] == 'CentOS' and (ansible_facts['distribution_major_version'] | int) < 8"
       
     - name: "Show result"
       debug:
         msg: 
-          - "{{ debian10_uname }}"
-          - "{{ centos8_uname }}"
-          - "{{ debian9_uname }}"
-          - "{{ centos7_uname }}"
+          - "{{ debian10_uname.stdout | default('None') }}"
+          - "{{ centos8_uname.stdout | default('None') }}"
+          - "{{ debian9_uname.stdout | default('None') }}"
+          - "{{ centos7_uname.stdout | default('None') }}"

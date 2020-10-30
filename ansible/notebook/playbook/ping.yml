@@ -12,7 +12,7 @@
     - name: "Show ping result"
       debug:
 #       var: "ping_result"
-        msg: "Result of ping remote server is: {{ ping_result }}"
+        msg: "{{ ping_result.ping | default('None') }}"
 
 # Test ping for all remote servers
 - name: "Test availability of remote servers"
@@ -23,4 +23,4 @@
       register: "ping_result"
     - name: "Show ping results"
       debug:
-        msg: "Result of ping remote server is: {{ ping_result }}"
+        msg: "{{ ping_result.ping | default('None') }}"
