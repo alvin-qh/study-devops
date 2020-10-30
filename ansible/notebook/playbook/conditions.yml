@@ -7,7 +7,7 @@
     - "group_centos1"
   user: "alvin"
   connection: "ssh"
-  tags: "T1"
+  tags: "G1"
   tasks:
     - name: "Run uname on 'Debian'"
       shell: "uname -sa"
@@ -31,7 +31,7 @@
     - "group_centos1"
   user: "alvin"
   connection: "ssh"
-  tags: "T2"
+  tags: "G2"
   tasks:
     - name: "Run uname on 'Debian' version 10"
       shell: "uname -sa"
@@ -60,3 +60,54 @@
           - "{{ centos8_uname.stdout | default('None') }}"
           - "{{ debian9_uname.stdout | default('None') }}"
           - "{{ centos7_uname.stdout | default('None') }}"
+          
+- name: "Conditions based on registered variables"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G3"
+  tasks:
+    - name: "Get 'uname -sa' result as register variable"
+      shell: "uname -sa"
+      register: "uname_result"
+      
+    - name: "Show register variable"
+      debug:
+        msg: "{{ uname_result }}"
+        
+    - name: "Show register variable 'stdout' propertiy"
+      debug:
+        msg: "{{ uname_result.stdout }}"
+        
+    - name: "Do operation on register variable"
+      debug:
+        msg: "Find 'Debian': {{ uname_result.stdout.find('Debian') >= 0 }}"
+
+- name: "Condition base on operation result"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G4"
+  vars:
+    cmd: "{{ lookup('env', 'CMD') or 'empty' }}"
+  tasks:
+    - name: "Get '{{ cmd }}' result as register variable"
+      command: "{{ cmd }}"
+      register: "cmd_result"
+      ignore_errors: true
+      when: "cmd != 'empty'"
+      
+    - name: "Get '{{ cmd }}' operation was skipped"
+      debug: 
+        msg: "command {{ cmd }} is skipped"
+      when: "cmd_result is skipped"
+      
+    - name: "Show '{{ cmd }}' result if it run failed"
+      debug: 
+        msg: "{{ cmd_result.msg }}"
+      when: "cmd_result is failed"
+      
+    - name: "Show '{{ cmd }}' result if it run succeeded"
+      debug: 
+        msg: "{{ cmd_result.stdout_lines }}"
+      when: "cmd_result is succeeded and cmd_result.stdout_lines is defined"

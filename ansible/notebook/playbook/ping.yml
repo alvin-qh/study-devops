@@ -1,10 +1,11 @@
 ---
 
 # Test ping for one remote server
-- name: "Test availability of remote server"
+- name: "Test ping for single-server"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
+  tags: "G1"
   tasks:
     - name: "Ping remote server"
       ping:
@@ -15,12 +16,31 @@
         msg: "{{ ping_result.ping | default('None') }}"
 
 # Test ping for all remote servers
-- name: "Test availability of remote servers"
+- name: "Test ping of multi-servers"
   hosts: "group_all"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G1"
   tasks:
     - name: "Ping remote server"
       ping:
       register: "ping_result"
     - name: "Show ping results"
+      debug:
+        msg: "{{ ping_result.ping | default('None') }}"
+        
+# Test ping for one remote server
+- name: "Test ping as root user"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G2"
+# become: "yes"  # All task with become
+  tasks:
+    - name: "Ping remote server"
+      ping:
+      register: "ping_result"
+      become: "yes"  # Current task with become
+    - name: "Show ping result"
       debug:
         msg: "{{ ping_result.ping | default('None') }}"

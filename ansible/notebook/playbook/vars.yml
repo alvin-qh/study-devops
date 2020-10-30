@@ -2,23 +2,28 @@
 
 # Test ansible variables
 
-- name: "Test ansible variables"
+- name: "Ansible builtin variables"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
-  
-  vars:
-    - user_name: "Alvin"
-    - home_page: "https://www.alvin.edu/ansible/playbook"
-    
+  tags: "G1"
   tasks:
-    - name: "Show some ansible variables"
+    - name: "Show ansible builtin variables"
       debug:
         msg:
           - "Default IPV4: {{ ansible_default_ipv4 }}"
           - "Architecture: {{ ansible_architecture }}"
           - "Distribution: {{ ansible_distribution }}"
-          
+
+- name: "User define variables"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G2"
+  vars:
+    - user_name: "Alvin"
+    - home_page: "https://www.alvin.edu/ansible/playbook"
+  tasks:
     - name: "Show user define variables"
       debug:
         msg:
@@ -26,10 +31,10 @@
           - "Home page: {{ home_page }}"
           - "Variable A: {{ var_a | default('Unknown') }}"
           - "Variable B: {{ var_b | default('Unknown') }}"
-          
+
     - name: "Include vars from file"
       include_vars: "vars/test_var.yml"
-      
+
     - name: "Show user define variables again"
       debug:
         msg:
@@ -37,24 +42,37 @@
           - "Home page: {{ home_page }}"
           - "Variable A: {{ var_a | default('Unknown') }}"
           - "Variable B: {{ var_b | default('Unknown') }}"
-          
-    - name: "Show environment variables"
+
+- name: "Environment variables"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G3"
+  tasks:
+    - name: "Show global environment variable named 'USER'"
       debug:
         msg:
-          - "Environment ENV_VAR: {{ lookup('env', 'ENV_VAR') }}"
+          - "{{ ansible_env.USER }}"
           
+    - name: "Show exported environment variable named 'ENV_VAR'"
+      debug:
+        msg:
+          - "{{ lookup('env', 'ENV_VAR') }}"
+
+- name: "All variables"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G4"
+  tasks:
     - name: "Run setup module"
       setup:
       register: "ansbile_variables"
-      when: "lookup('env', 'SHOW_ALL') == 'true'"
       
-    - name: "Show all nest ansible variables"
+    - name: "Show ansible builtin ansible variables"
       debug:
         msg: "{{ ansbile_variables }}"
-      when: "lookup('env', 'SHOW_ALL') == 'true'"
-        
+
     - name: "Show ansible facts variables"
       debug:
         msg: "{{ ansible_facts }}"
-      when: "lookup('env', 'SHOW_ALL') == 'true'"
-  
