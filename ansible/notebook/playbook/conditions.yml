@@ -1,0 +1,62 @@
+---
+
+# Demo of condition statements
+- name: "Basic conditionals with when"
+  hosts: 
+    - "group_debian1"
+    - "group_centos1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "T1"
+  tasks:
+    - name: "Run uname on 'Debian'"
+      shell: "uname -sa"
+      register: "debian_uname"
+      when: "ansible_distribution == 'Debian'"
+      
+    - name: "Run uname on 'CentOS'"
+      shell: "uname -sa"
+      register: "centos_uname"
+      when: "ansible_distribution == 'CentOS'"
+      
+    - name: "Show result"
+      debug:
+        msg: 
+          - "{{ debian_uname }}"
+          - "{{ centos_uname }}"
+          
+- name: "Conditionals based on ansible_facts"
+  hosts: 
+    - "group_debian1"
+    - "group_centos1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "T2"
+  tasks:
+    - name: "Run uname on 'Debian' version 10"
+      shell: "uname -sa"
+      register: "debian10_uname"
+      when: "ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '10'"
+      
+    - name: "Run uname on 'Debian' version 9"
+      shell: "uname -sa"
+      register: "debian9_uname"
+      when: "ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '9'"
+      
+    - name: "Run uname on 'CentOS' version 8"
+      shell: "uname -sa"
+      register: "centos8_uname"
+      when: "ansible_facts['distribution'] == 'CentOS' and ansible_facts['distribution_major_version'] == '8'"
+      
+    - name: "Run uname on 'CentOS' version 7"
+      shell: "uname -sa"
+      register: "centos7_uname"
+      when: "ansible_facts['distribution'] == 'CentOS' and ansible_facts['distribution_major_version'] == '7'"
+      
+    - name: "Show result"
+      debug:
+        msg: 
+          - "{{ debian10_uname }}"
+          - "{{ centos8_uname }}"
+          - "{{ debian9_uname }}"
+          - "{{ centos7_uname }}"

@@ -38,15 +38,23 @@
           - "Variable A: {{ var_a | default('Unknown') }}"
           - "Variable B: {{ var_b | default('Unknown') }}"
           
+    - name: "Show environment variables"
+      debug:
+        msg:
+          - "Environment ENV_VAR: {{ lookup('env', 'ENV_VAR') }}"
+          
     - name: "Run setup module"
       setup:
       register: "ansbile_variables"
+      when: "lookup('env', 'SHOW_ALL') == 'true'"
       
     - name: "Show all nest ansible variables"
       debug:
         msg: "{{ ansbile_variables }}"
+      when: "lookup('env', 'SHOW_ALL') == 'true'"
         
     - name: "Show ansible facts variables"
       debug:
         msg: "{{ ansible_facts }}"
+      when: "lookup('env', 'SHOW_ALL') == 'true'"
   
