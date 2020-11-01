@@ -1,0 +1,90 @@
+---
+
+- name: "Standard loop"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G1"
+  vars:
+    items: ['a', 'b', 'c']
+  tasks:
+    - name: "Loop by with_items"
+      debug:
+        msg: "item is: {{ item }}"
+      with_items: 
+        - "a"
+        - "b"
+        - "c"
+        - "d"
+        
+    - name: "Loop by list variable"
+      debug:
+        msg: "item is: {{ item }}"
+      with_items: "{{ items }}"
+
+- name: "Nested loop"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G2"
+  vars:
+    list1: ['a', 'b', 'c']
+    list2: ['x', 'y']
+  tasks:
+    - name: "Loop by with_nested"
+      debug:
+        msg: "item[0] is: {{ item[0] }} and item[1] is: {{ item[1] }}"
+      with_nested:
+        - ['a', 'b', 'c']
+        - ['x', 'y']
+        
+    - name: "Show items in nest loop"
+      debug:
+        msg: "item[0] is: {{ item[0] }} and item[1] is: {{ item[1] }}"
+      with_nested:
+        - "{{ list1 }}"
+        - "{{ list2 }}"
+        
+- name: "Loop with task results"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G3"
+  tasks:
+    - name: "List files in root"
+      shell:
+        cmd: "ls -al"
+        chdir: "/"
+      register: "ls_result"
+      
+    - name: "Loop by task result"
+      debug:
+        msg: "Item is: {{ item }}"
+      with_items: "{{ ls_result.stdout_lines }}"
+      
+- name: "Loop in dictionary"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G4"
+  vars:
+    map: 
+      a: 100
+      b: 200
+  tasks:
+    - name: "Loop in dictionary with key and value"
+      debug:
+        msg: "{{ item.key }}: {{ item.value }}"
+      with_dict: "{{ map }}"
+      
+- name: "Loop in file list"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G5"
+  tasks:
+    - name: "Loop in file list"
+      debug:
+        msg: "{{ item }}"
+      with_fileglob: 
+        - "./*.yml"

@@ -76,3 +76,20 @@
     - name: "Show ansible facts variables"
       debug:
         msg: "{{ ansible_facts }}"
+
+- name: "Set variables in task"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G5"
+  tasks:
+    - name: "Set variables 'a' and 'b'"
+      set_fact:
+        a: "var_a"
+        b: "var_b"
+      
+    - name: "Show variable name 'a' and 'b'"
+      debug:
+        msg: 
+          - "var 'a' is: {{ a }}"
+          - "var 'b' is: {{ b }}"
