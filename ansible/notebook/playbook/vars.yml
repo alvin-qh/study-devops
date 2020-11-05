@@ -1,7 +1,7 @@
 ---
-
 # Test ansible variables
 
+# Show some ansible builtin variables
 - name: "Ansible builtin variables"
   hosts: "group_debian1"
   user: "alvin"
@@ -11,59 +11,75 @@
     - name: "Show ansible builtin variables"
       debug:
         msg:
-          - "Default IPV4: {{ ansible_default_ipv4 }}"
-          - "Architecture: {{ ansible_architecture }}"
-          - "Distribution: {{ ansible_distribution }}"
+          - "Default IPV4: {{ ansible_default_ipv4 }}"   # get default ipv4 information
+          - "Architecture: {{ ansible_architecture }}"   # get architecture (X86 or ARM) of remote server
+          - "Distribution: {{ ansible_distribution }}"   # get distribution (name of OS) of remote server
 
+# Show user defined variables
 - name: "User define variables"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
+  gather_facts: "no"
   tags: "G2"
-  vars:
-    - user_name: "Alvin"
-    - home_page: "https://www.alvin.edu/ansible/playbook"
+  vars: # Define variables as dictional
+    user_name: "Alvin"
+    home_page: "https://www.alvin.edu/ansible/playbook"
   tasks:
     - name: "Show user define variables"
       debug:
         msg:
-          - "User name: {{ user_name }}"
-          - "Home page: {{ home_page }}"
-          - "Variable A: {{ var_a | default('Unknown') }}"
-          - "Variable B: {{ var_b | default('Unknown') }}"
+          - "User name: {{ user_name | default('Unknown') }}"  # Get variables or default value
+          - "User age: {{ user_age | default('Unknown') }}"
+          - "Home page: {{ home_page | default('Unknown') }}"
 
-    - name: "Include vars from file"
-      include_vars: "vars/test_var.yml"
-
-    - name: "Show user define variables again"
+# Show variables defined in file
+- name: "Include variables file"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  gather_facts: "no"
+  tags: "G3"
+  tasks:
+    - name: "Show variables before include file"
       debug:
         msg:
-          - "User name: {{ user_name }}"
-          - "Home page: {{ home_page }}"
+          - "Variable A: {{ var_a | default('Unknown') }}"
+          - "Variable B: {{ var_b | default('Unknown') }}"
+          
+    - name: "Include vars from file"
+      include_vars: "vars/test_var.yml"  # Include 'yaml' or 'json' file, include user define variables
+
+    - name: "Show variables after include file"
+      debug:
+        msg:
           - "Variable A: {{ var_a | default('Unknown') }}"
           - "Variable B: {{ var_b | default('Unknown') }}"
 
+# Show environment variables
 - name: "Environment variables"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
-  tags: "G3"
+  tags: "G4"
   tasks:
-    - name: "Show global environment variable named 'USER'"
+    - name: "Show global environment variable"
       debug:
         msg:
-          - "{{ ansible_env.USER }}"
+          - "All: {{ ansible_env }}"  # 'ansible_env' include all global environment variables on remote server
+          - "ansible_env.USER: {{ ansible_env.USER }}"
           
     - name: "Show exported environment variable named 'ENV_VAR'"
       debug:
         msg:
-          - "{{ lookup('env', 'ENV_VAR') }}"
+          - "{{ lookup('env', 'ENV_VAR') }}"  # Find environment variable by given name defined on local machine
 
+# Show all variables
 - name: "All variables"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
-  tags: "G4"
+  tags: "G5"
   tasks:
     - name: "Run setup module"
       setup:
@@ -71,20 +87,26 @@
       
     - name: "Show ansible builtin ansible variables"
       debug:
-        msg: "{{ ansbile_variables }}"
+        msg: 
+#         - "All: {{ ansbile_variables }}"  # Show all variables prefix by 'ansible_'
+          - "Architecture: {{ ansible_architecture }}"
 
     - name: "Show ansible facts variables"
       debug:
-        msg: "{{ ansible_facts }}"
+        msg: 
+#         - "All: {{ ansible_facts }}"  # Show all variables in ansible_facts
+          - "Architecture: {{ ansible_facts.architecture }}"
 
+# Set variables in task
 - name: "Set variables in task"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
-  tags: "G5"
+  gather_facts: "no"
+  tags: "G6"
   tasks:
     - name: "Set variables 'a' and 'b'"
-      set_fact:
+      set_fact:  # Set varibles in ansible facts
         a: "var_a"
         b: "var_b"
       

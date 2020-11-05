@@ -1,9 +1,11 @@
 ---
 
+# Loop by item list ( for in <list> )
 - name: "Standard loop"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
+  gather_facts: "no"
   tags: "G1"
   vars:
     items: ['a', 'b', 'c']
@@ -11,7 +13,7 @@
     - name: "Loop by with_items"
       debug:
         msg: "item is: {{ item }}"
-      with_items: 
+      with_items:  # with_item property can be an array list
         - "a"
         - "b"
         - "c"
@@ -20,12 +22,14 @@
     - name: "Loop by list variable"
       debug:
         msg: "item is: {{ item }}"
-      with_items: "{{ items }}"
+      with_items: "{{ items }}"  # with_item property can be value of list variable
 
+# Nested loop ( for in zip(<list1>, <list2>, ...) )
 - name: "Nested loop"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
+  gather_facts: "no"
   tags: "G2"
   vars:
     list1: ['a', 'b', 'c']
@@ -42,13 +46,15 @@
       debug:
         msg: "item[0] is: {{ item[0] }} and item[1] is: {{ item[1] }}"
       with_nested:
-        - "{{ list1 }}"
-        - "{{ list2 }}"
-        
+        - "{{ list1 }}"  # Layer 1
+        - "{{ list2 }}"  # Layer 2
+
+# Get task result and loop in it
 - name: "Loop with task results"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
+  gather_facts: "no"
   tags: "G3"
   tasks:
     - name: "List files in root"
@@ -60,31 +66,35 @@
     - name: "Loop by task result"
       debug:
         msg: "Item is: {{ item }}"
-      with_items: "{{ ls_result.stdout_lines }}"
-      
+      with_items: "{{ ls_result.stdout_lines }}"  # Get shell command output lines as loop list
+
+# Loop each key and value in dictionary
 - name: "Loop in dictionary"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
+  gather_facts: "no"
   tags: "G4"
   vars:
-    map: 
+    map:  # Define a variable named 'map'({ map: { a: 100, b: 200 }})
       a: 100
       b: 200
   tasks:
     - name: "Loop in dictionary with key and value"
       debug:
-        msg: "{{ item.key }}: {{ item.value }}"
-      with_dict: "{{ map }}"
-      
+        msg: "{{ item.key }}: {{ item.value }}"  # Show each key and value of looping dictional
+      with_dict: "{{ map }}" # Loop based dictional, for all keys and values
+
+# Get file list by glob, and loop in it
 - name: "Loop in file list"
   hosts: "group_debian1"
   user: "alvin"
   connection: "ssh"
+  gather_facts: "no"
   tags: "G5"
   tasks:
     - name: "Loop in file list"
       debug:
         msg: "{{ item }}"
       with_fileglob: 
-        - "./*.yml"
+        - "./*.yml"  # File list glob
