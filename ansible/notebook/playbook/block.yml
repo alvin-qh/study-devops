@@ -1,0 +1,81 @@
+---
+
+# Group tasks with block
+# 'block' can group many tasks into one task, all task share same attributes (conditionals or become settings)
+- name: "Group task with blocks"
+  hosts:
+    - "group_debian1"
+    - "group_centos1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G1"
+  tasks:
+    - name: "Run task on Debian server"
+      block:
+        # All sub tasks work together
+        - name: "Step 1"
+          debug:
+            msg: "Debian step 1 executed"
+        - name: "Step 2"
+          debug:
+            msg: "Debian step 2 executed"
+        - name: "Step 3"
+          debug:
+            msg: "Debian step 3 executed"
+
+      # Conditional for whole task, include all sub tasks in block
+      when: "ansible_distribution == 'Debian'"
+      ignore_errors: 'yes'
+        
+    - name: "Run task on CentOS server"
+      block:
+        # All sub tasks work together
+        - name: "Step 1"
+          debug:
+            msg: "CentOS step 1 executed"
+        - name: "Step 2"
+          debug:
+            msg: "CentOS step 2 executed"
+        - name: "Step 3"
+          debug:
+            msg: "CentOS step 3 executed"
+
+      # Conditional for whole task, include all sub tasks in block
+      when: "ansible_distribution == 'CentOS'"
+      ignore_errors: 'yes'
+
+# Use 'block' to handle error in tasks
+- name: "Error handle with blocks"
+  hosts: "group_debian1"
+  user: "alvin"
+  connection: "ssh"
+  tags: "G2"
+  tasks:
+    - name: "Run task with error handle"
+      block:
+        - name: "Normal step 1"
+          debug:
+            msg: "I execute normally"
+        
+        # Raise error
+        - name: "Normal step 2"
+          command: "/bin/false"
+        
+        # Never execute
+        - name: "Normal step 3"
+          debug:
+            msg: "I never execute, cause ERROR"
+      rescue:
+        - name: "Error step 1"
+          debug: 
+            msg: "I caught an error"
+        - name: "Error step 2"
+          command: "/bin/false"
+        - name: "Error step 3"
+          debug: 
+            msg: "I also never execute"
+      always:
+        - name: "Aways run step 3"
+          debug: 
+            msg: "This always executes"
+      when: "ansible_distribution == 'Debian'"
