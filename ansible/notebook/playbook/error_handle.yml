@@ -1,0 +1,180 @@
+---
+# ignore any error, all task should be executed, whatever raised error or not
+- name: Ignoring failed commands
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G1
+  tasks:
+    - name: Do not count this as a failure
+      command: /bin/false
+      # ignore any error, do not abort task executing
+      ignore_errors: True
+      
+    - name: Still working
+      command: /bin/true
+
+# ignore host unreachable error
+- name: Ignoring unreachable host errors
+  hosts: group_unknown  # unreachable host
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G2
+  tasks:
+    # task worked failed caused by unreachable host
+    - name: This executes, fails, and the failure is ignored
+      command: /bin/true
+      # when server unreachable on some task, ignore this error, and try to run next task on the same server
+      ignore_unreachable: True
+      
+#   - meta: clear_host_errors  # If Ansible cannot connect to a host, it marks that host as ‘UNREACHABLE’ 
+                               # and removes it from the list of active hosts for the run. You can use 
+                               # 'meta: clear_host_errors' to reactivate all hosts, so subsequent tasks 
+                               # can try to reach them again.
+    
+    # task worked failed caused by unreachable host
+    - name: This executes, fails, and ends the play for this host
+      command: /bin/true
+    
+    # this task never execute, because previous task abort whole play
+    - name: This task never execute
+      debug: 
+        msg: "Cannot execute"
+
+# Defining failure
+- name: Defining failure
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G3
+  tasks:
+    # Failed when find sub string in task result
+    - name: Fail task when the command stdandard output prints "Hello World"
+      command: echo "Hello World"
+      register: command_result
+      failed_when: ("Hello World" in command_result.stdout)  # condational statement how task failed
+      ignore_errors: True
+    
+    # Failed when task return special code
+    - name: Fail task when both files are identical
+      raw: echo "Hello World"
+      register: command_result
+      failed_when: command_result.rc == 0
+      ignore_errors: True
+      
+    # Combine multiple conditions for failure
+    - name: Check if a file exists in temp and fail task if it does
+      command: ls /tmp/this_should_not_be_here
+      register: command_result
+      failed_when:
+        - result.rc == 0
+        - ("No such file" in result.stdout)
+      ignore_errors: True
+    
+    # Many field conditionals join with 'OR' operator 
+    - name: Example of many failed_when conditions with "OR"
+      shell: ./not_exist_path
+      register: shell_result
+      failed_when: >
+        ("No such file or directory" in shell_result.stdout) or
+        (ret.stderr != '') or
+        (ret.rc == 10)
+      ignore_errors: True
+
+# Defining changed
+- name: Defining changed
+  hosts: group_debian1 
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G4
+  tasks:
+    # Report 'changed' when some conditionals matched
+    - name: Report "changed" when the return code is not equal to 0
+      shell: /usr/bin/true
+      register: shell_result
+      changed_when: (shell_result.rc == 0)
+    
+    # Never report 'changed'
+    - name: This will never report "changed" status
+      shell: /usr/bin/true
+      changed_when: False
+      
+    # Combine multiple conditionals for failure
+    - name: Combine multiple conditions to override "changed" result
+      command: /usr/bin/false
+      register: command_result
+      ignore_errors: True
+      changed_when:
+        - (command_result.stderr == '')
+        - (command_result.rc == 1)
+
+# Ensuring success for shell command
+- name: Ensuring success for command and shell
+  hosts: group_debian1 
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G5
+  tasks:
+    # Ensuring success for shell command
+    - name: Run this shell command and ignore the result
+      shell: /usr/bin/bad_command || /bin/true
+      
+    # Ensuring success for raw command
+    - name: Run this raw command and ignore the result
+      raw: /usr/bin/bad_command || /bin/true
+      
+# Error aborting, when each remote server raise error, the whole play abort on all servers
+- name: Aborting on the first error
+  hosts: 
+    - group_debian1
+    - group_centos1
+  user: alvin
+  connection: ssh
+  tags: G6-1
+  tasks:
+    - name: Task 1 (CentOS)
+      shell: /usr/bin/false
+      when: ansible_distribution == "CentOS"
+
+    - name: Task 1 (Debian)
+      shell: /usr/bin/true
+      when: ansible_distribution == "Debian"
+
+    - name: Task 2 (Never executed, cause "Task 1(CentOS)" error)
+      shell: /usr/bin/true
+  # If 'True', when any error caused, stop whole play on every services
+  any_errors_fatal: True
+
+# Setting a maximum failure percentage
+- name: Setting a maximum failure percentage
+  hosts: 
+    - group_debian1
+    - group_centos1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G6-2
+  vars:
+    t1: "{{ 10 | random % 2 == 0}}"
+    t2: "{{ 10 | random % 2 == 0}}"
+    t3: "{{ 10 | random % 2 == 0}}"
+  tasks:
+    - name: Task 1
+      shell: /usr/bin/false
+      when: (t1 % 2 == 0)
+      
+    - name: Task 2
+      shell: /usr/bin/false
+      when: (t2 % 2 == 0)
+      
+    - name: Task 3
+      shell: /usr/bin/false
+      when: (t3 % 2 == 0)
+  max_fail_percentage: 95
+  serial: 2
+

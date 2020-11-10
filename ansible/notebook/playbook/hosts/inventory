@@ -19,3 +19,6 @@ debian1
 debian2
 debian3
 centos1
+
+[group_unknown]
+unknown

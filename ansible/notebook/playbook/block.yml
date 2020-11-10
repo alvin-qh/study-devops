@@ -2,80 +2,105 @@
 
 # Group tasks with block
 # 'block' can group many tasks into one task, all task share same attributes (conditionals or become settings)
-- name: "Group task with blocks"
+- name: Group task with blocks
   hosts:
-    - "group_debian1"
-    - "group_centos1"
-  user: "alvin"
-  connection: "ssh"
-  tags: "G1"
+    - group_debian1
+    - group_centos1
+  user: alvin
+  connection: ssh
+  tags: G1
   tasks:
-    - name: "Run task on Debian server"
+    - name: Run task on Debian server
       block:
         # All sub tasks work together
-        - name: "Step 1"
+        - name: Step 1
           debug:
             msg: "Debian step 1 executed"
-        - name: "Step 2"
+        - name: Step 2
           debug:
             msg: "Debian step 2 executed"
-        - name: "Step 3"
+        - name: Step 3
           debug:
             msg: "Debian step 3 executed"
 
       # Conditional for whole task, include all sub tasks in block
-      when: "ansible_distribution == 'Debian'"
-      ignore_errors: 'yes'
+      when: ansible_distribution == Debian
+      ignore_errors: True
         
-    - name: "Run task on CentOS server"
+    - name: Run task on CentOS server
       block:
         # All sub tasks work together
-        - name: "Step 1"
+        - name: Step 1
           debug:
             msg: "CentOS step 1 executed"
-        - name: "Step 2"
+        - name: Step 2
           debug:
             msg: "CentOS step 2 executed"
-        - name: "Step 3"
+        - name: Step 3
           debug:
             msg: "CentOS step 3 executed"
 
       # Conditional for whole task, include all sub tasks in block
-      when: "ansible_distribution == 'CentOS'"
-      ignore_errors: 'yes'
+      when: ansible_distribution == CentOS
+      ignore_errors: True
 
 # Use 'block' to handle error in tasks
-- name: "Error handle with blocks"
-  hosts: "group_debian1"
-  user: "alvin"
-  connection: "ssh"
-  tags: "G2"
+- name: Error handle with blocks
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  tags: G2
   tasks:
-    - name: "Run task with error handle"
+    - name: Run task with error handle
       block:
-        - name: "Normal step 1"
+        - name: Normal step 1
           debug:
             msg: "I execute normally"
         
         # Raise error
-        - name: "Normal step 2"
-          command: "/bin/false"
+        - name: Normal step 2
+          command: /bin/false
         
         # Never execute
-        - name: "Normal step 3"
+        - name: Normal step 3
           debug:
             msg: "I never execute, cause ERROR"
       rescue:
-        - name: "Error step 1"
+        - name: Error step 1
           debug: 
             msg: "I caught an error"
-        - name: "Error step 2"
-          command: "/bin/false"
-        - name: "Error step 3"
+        - name: Error step 2
+          command: /bin/false
+        - name: Error step 3
           debug: 
             msg: "I also never execute"
       always:
-        - name: "Aways run step 3"
+        - name: Aways run step 3
           debug: 
             msg: "This always executes"
-      when: "ansible_distribution == 'Debian'"
+      when: ansible_distribution == "Debian"
+
+# Error aborting, when each remote server raise error, the whole play abort on all servers
+- name: Error aborting in block1
+  hosts: 
+    - group_debian1
+    - group_centos1
+  user: alvin
+  connection: ssh
+  tags: G3
+  tasks:
+    - meta: clear_host_errors
+    - name: Aborting on error
+      block:
+        - name: Task 1 (CentOS)
+          shell: /usr/bin/false
+          when: ansible_distribution == "CentOS"
+          
+        - name: Task 1 (Debian)
+          shell: /usr/bin/true
+          when: ansible_distribution == "Debian"
+          
+        - name: Task 2 (Never executed, cause "Task 1(CentOS)" error)
+          shell: /usr/bin/true
+      any_errors_fatal: True
+      

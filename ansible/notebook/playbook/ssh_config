@@ -21,6 +21,10 @@ Host centos1
 Host centos1_1
 	HostName 192.168.100.5
 	User alvin
+    
+Host unknown
+	HostName 192.168.100.100
+	User alvin
 
 Host *
 	ControlPersist yes

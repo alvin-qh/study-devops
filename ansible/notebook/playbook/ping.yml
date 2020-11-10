@@ -1,50 +1,54 @@
 ---
 
 # Test ping for one remote server
-- name: "Test ping for single-server"
-  hosts: "group_debian1"
-  user: "alvin"
-  connection: "ssh"
-  gather_facts: "no"
-  tags: "G1"
+- name: Test ping for single-server
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G1
   tasks:
-    - name: "Ping remote server"
+    - name: Ping remote server
       ping:
-      register: "ping_result"  # Put module execute result into "ping_result" variable
-    - name: "Show ping result"
+      register: ping_result  # Put module execute result into "ping_result" variable
+      
+    - name: Show ping result
       debug:
 #       var: "ping_result"  # Show variable value
-        msg: "{{ ping_result.ping | default('None') }}"  # Show formatted message
+        msg: "{{ ping_result.pings | default('None') }}"  # Show formatted message
         # Module result is an json object, so "ping_result['ping']" or "ping_result.ping" both can get  "ping" property 
 
 # Test ping for all remote servers
-- name: "Test ping of multi-servers"
-  hosts: "group_all"
-  user: "alvin"
-  connection: "ssh"
-  gather_facts: "no"
-  tags: "G1"
+- name: Test ping of multi-servers
+  hosts: group_all
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G2
   tasks:
-    - name: "Ping remote server"
+    - name: Ping remote server
       ping:
-      register: "ping_result"
-    - name: "Show ping results"
+      register: ping_result
+      
+    - name: Show ping results
       debug:
         msg: "{{ ping_result.ping | default('None') }}"
         
 # Test ping for one remote server
-- name: "Test ping as root user"
-  hosts: "group_debian1"
-  user: "alvin"
-  connection: "ssh"
-  gather_facts: "no"
-  tags: "G2"
-# become: "yes"  # All task with become
+- name: Test ping as root user
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G3
+# become: True  # All task with become
   tasks:
-    - name: "Ping remote server"
+    - name: Ping remote server
       ping:
-      register: "ping_result"
-      become: "yes"  # Current task with become
-    - name: "Show ping result"
+      register: ping_result
+      # Current task with become
+      become: True
+      
+    - name: Show ping result
       debug:
         msg: "{{ ping_result.ping | default('None') }}"
