@@ -1,0 +1,11 @@
+---
+
+- name: Test role
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G1
+  roles:
+    - role: role1
+      main_param: Main

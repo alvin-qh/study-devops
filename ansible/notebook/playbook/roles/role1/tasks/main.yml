@@ -1,0 +1,51 @@
+---
+# Task to test "role1/tasks/main.yml"
+- name: '[role1/tasks/main]: Show paramters and variables'
+  debug:
+    msg:
+      - 'Parameter main_param={{ main_param }}'
+      - 'Facts database={{ database.name }} and url={{ database.url }}'
+
+# Task to display values of variables include in "role1/vars/main.yml"
+- name: '[role1/tasks/main, role1/vars/main]: Load variables'
+  debug:
+    msg: a={{ a }}, b={{ b }}’
+
+# Tasks to transfer template file "role1/templates/db.conf.t" to target server
+- block:
+  # Use "template" module to transfer template file to remote server
+  - name: '[role1/task/main, role1/templates/db.conf.t]: Template transfer'
+    template:
+      src: db.conf.t
+      dest: ~/db.conf
+
+  # Show content of transfered file on remote server
+  - name: '[role1/task/main, role1/templates/db.conf.t]: Gather task operated result'
+    shell: cat ~/db.conf
+    register: shell_result
+
+  # Display result of previous task
+  - name: '[role1/task/main, role1/templates/db.conf.t]: Show task operated result'
+    debug:
+      msg: '{{ shell_result.stdout }}'
+
+  # Delete test files
+  - name: '[role1/task/main, role1/templates/db.conf.t]: Delete file'
+    file:
+      path: ~/db.conf
+      state: absent
+
+# Task to display values of default variables include in "role1/defaults/main.yml"
+- block:
+  - name: '[role1/task/main, role1/defaults/main]: Show default variables'
+    debug:
+      msg: 'x={{ x }}, y={{ y }}'
+
+  - name: '[role1/task/main, role1/defaults/main]: Set variable values'
+    set_fact:
+      x: -100
+      y: -200
+
+  - name: '[role1/task/main, role1/defaults/main]: Show default variables again'
+    debug:
+      msg: 'x={{ x }}, y={{ y }}'

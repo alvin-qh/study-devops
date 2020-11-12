@@ -24,7 +24,7 @@
             msg: "Debian step 3 executed"
 
       # Conditional for whole task, include all sub tasks in block
-      when: ansible_distribution == Debian
+      when: ansible_distribution == "Debian"
       ignore_errors: True
         
     - name: Run task on CentOS server
@@ -41,7 +41,7 @@
             msg: "CentOS step 3 executed"
 
       # Conditional for whole task, include all sub tasks in block
-      when: ansible_distribution == CentOS
+      when: ansible_distribution == "CentOS"
       ignore_errors: True
 
 # Use 'block' to handle error in tasks
@@ -59,7 +59,7 @@
         
         # Raise error
         - name: Normal step 2
-          command: /bin/false
+          command: /usr/bin/false
         
         # Never execute
         - name: Normal step 3
@@ -70,7 +70,7 @@
           debug: 
             msg: "I caught an error"
         - name: Error step 2
-          command: /bin/false
+          command: /usr/bin/false
         - name: Error step 3
           debug: 
             msg: "I also never execute"
@@ -100,7 +100,7 @@
           shell: /usr/bin/true
           when: ansible_distribution == "Debian"
           
-        - name: Task 2 (Never executed, cause "Task 1(CentOS)" error)
+        - name: Task 2 (Never executed, cause "Task 1 (CentOS)" error)
           shell: /usr/bin/true
       any_errors_fatal: True
       
