@@ -4,7 +4,8 @@
 dependencies:
   # Dependency "common" role and pass parameter "common_param"
   - role: common
-    common_param: Common
+    vars:
+      common_param: Common
 
   # Dependency "setup" role
   - role: setup

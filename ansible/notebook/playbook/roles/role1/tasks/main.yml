@@ -19,12 +19,11 @@
       src: db.conf.t
       dest: ~/db.conf
 
-  # Show content of transfered file on remote server
+  # Display result of previous task
   - name: '[role1/task/main, role1/templates/db.conf.t]: Gather task operated result'
     shell: cat ~/db.conf
     register: shell_result
 
-  # Display result of previous task
   - name: '[role1/task/main, role1/templates/db.conf.t]: Show task operated result'
     debug:
       msg: '{{ shell_result.stdout }}'
@@ -35,17 +34,44 @@
       path: ~/db.conf
       state: absent
 
-# Task to display values of default variables include in "role1/defaults/main.yml"
+# Tasks to display values of default variables include in "role1/defaults/main.yml"
 - block:
+  # Show default variables
   - name: '[role1/task/main, role1/defaults/main]: Show default variables'
     debug:
       msg: 'x={{ x }}, y={{ y }}'
 
+  # Set variable values to override default variables
   - name: '[role1/task/main, role1/defaults/main]: Set variable values'
     set_fact:
       x: -100
       y: -200
 
+  # Show variables was overrided
   - name: '[role1/task/main, role1/defaults/main]: Show default variables again'
     debug:
       msg: 'x={{ x }}, y={{ y }}'
+
+- block:
+  - name: '[role1/task/main, role1/files/show_me.sh]: File operator'
+    copy:
+      src: show_me.sh
+      dest: ~/show_me.sh
+
+  - name: '[role1/task/main, role1/files/show_me.sh]: Show copyed file'
+    shell: ls -alh ~/show_me.sh
+    register: shell_result
+
+  - name: 'ddd'
+    debug:
+      msg: '{{ shell_result.stdout }}'
+
+  - name: 'execute'
+    command: /bin/sh show_me.sh
+    args:
+      chdir: ~/
+    register: cmd_result
+
+  - name: ''
+    debug:
+      msg: '{{ cmd_result.stdout }}'

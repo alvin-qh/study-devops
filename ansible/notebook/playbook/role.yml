@@ -8,4 +8,5 @@
   tags: G1
   roles:
     - role: role1
-      main_param: Main
+      vars:
+        main_param: Main
