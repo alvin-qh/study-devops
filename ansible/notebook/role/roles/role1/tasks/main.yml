@@ -1,35 +1,35 @@
 ---
 # Test "tasks/main.yml", show role arguments
-- name: '1. Main Task. [role1/tasks/main]: Show paramters and variables'
+- name: '1. Main Task. [roles/role1/tasks/main.yml]: Show paramters and variables'
   debug:
     msg:
       - 'Parameter main_param={{ main_param }}'
       - 'Facts database={{ database.name }} and url={{ database.url }}'
 
 # Test "vars/main.yml", output variables value
-- name: '2. Load variables [role1/tasks/main, role1/vars/main]: Load variables'
+- name: '2. Load variables. [roles/role1/tasks/main.yml, roles/role1/vars/main.yml]: Load variables'
   debug:
     msg: a={{ a }}, b={{ b }}’
 
 # Test "templates/db.conf.t", transfer generated file by template to remote server
 - block:
   # Use "template" module to transfer template file to remote server
-  - name: '3. Template. [role1/task/main, role1/templates/db.conf.t]: Template transfer'
+  - name: '3. Template. [roles/role1/task/main.yml, roles/role1/templates/db.conf.t]: Template transfer'
     template:
       src: db.conf.t
       dest: ~/db.conf
 
   # Display result of previous task
-  - name: '3. Template. [role1/task/main, role1/templates/db.conf.t]: Gather task operated result'
+  - name: '3. Template. [roles/role1/task/main.yml, roles/role1/templates/db.conf.t]: Gather task operated result'
     shell: cat ~/db.conf
     register: shell_result
 
-  - name: '3. Template. [role1/task/main, role1/templates/db.conf.t]: Show task operated result'
+  - name: '3. Template. [roles/role1/task/main.yml, roles/role1/templates/db.conf.t]: Show task operated result'
     debug:
       msg: '{{ shell_result.stdout }}'
 
   # Delete test files
-  - name: '3. Template. [role1/task/main, role1/templates/db.conf.t]: Delete file'
+  - name: '3. Template. [roles/role1/task/main, roles/role1/templates/db.conf.t]: Delete file'
     file:
       path: ~/db.conf
       state: absent
@@ -37,63 +37,63 @@
 # Test "defaults/main.yml", display default value of variables and overrided value
 - block:
   # Show default variables
-  - name: '4. Defaults. [role1/task/main, role1/defaults/main]: Show default variables'
+  - name: '4. Defaults. [roles/role1/task/main.yml, roles/role1/defaults/main.yml]: Show default variables'
     debug:
       msg: 'x={{ x }}, y={{ y }}'
 
   # Set variable values to override default variables
-  - name: '4. Defaults. [role1/task/main, role1/defaults/main]: Set variable values'
+  - name: '4. Defaults. [roles/role1/task/main.yml, roles/role1/defaults/main.yml]: Set variable values'
     set_fact:
       x: -100
       y: -200
 
   # Show variables was overrided
-  - name: '4. Defaults. [role1/task/main, role1/defaults/main]: Show default variables again'
+  - name: '4. Defaults. [roles/role1/task/main.yml, roles/role1/defaults/main.yml]: Show default variables again'
     debug:
       msg: 'x={{ x }}, y={{ y }}'
 
 # Test "files/show_me.sh", copy file to remote server and run it as shell script
 - block:
   # copy file from "files/show_mes.h" to remote server
-  - name: '5. Files. [role1/task/main, role1/files/show_me.sh]: File operator'
+  - name: '5. Files. [roles/role1/task/main.yml, roles/role1/files/show_me.sh]: File operator'
     copy:
       src: show_me.sh
       dest: ~/show_me.sh
 
   # run copied file as shell script on remote server
-  - name: '5. Files. [role1/task/main, role1/files/show_me.sh]: Execute shell command'
+  - name: '5. Files. [roles/role1/task/main.yml, roles/role1/files/show_me.sh]: Execute shell command'
     script: show_me.sh
     args:
       chdir: /home/alvin/
     register: cmd_result
 
   # Show script executed result
-  - name: '5. Files. [role1/task/main, role1/files/show_me.sh]: Show shell command execute result'
+  - name: '5. Files. [roles/role1/task/main.yml, roles/role1/files/show_me.sh]: Show shell command execute result'
     debug:
       msg: '{{ cmd_result.stdout }}'
 
   # remote copied file on remote server
-  - name: '5. Files. [role1/task/main, role1/files/show_me.sh]: Delete script file'
+  - name: '5. Files. [roles/role1/task/main.yml, roles/role1/files/show_me.sh]: Delete script file'
     file:
       path: ~/show_me.sh
       state: absent
 
 # Test "handlers/main.yml", run task and notify to handler
-- name: '6. Handlers. [role1/task/main, role1/handlers/main]: Notify when task state is "changed"'
+- name: '6. Handlers. [roles/role1/task/main.yml, roles/role1/handlers/main.yml]: Notify when task state is "changed"'
   shell: /usr/bin/true
   changed_when: True
   notify:
-    - '6. Handler. [role1/handlers/main]: Execute handler when task notified'
+    - '6. Handler. [roles/role1/handlers/main.yml]: Execute handler when task notified'
 
 # Test "library/hello.py", execute user define module and display result
 - block:
   # run user define module, pass argument and save result
-  - name: "7. User define module. [role1/task/main, role1/library/hello.py]: Execute user define module"
+  - name: "7. User define module. [roles/role1/task/main.yml, roles/role1/library/hello.py]: Execute user define module"
     hello:
       name: Alvin
     register: hello_result
 
   # show result of user define module
-  - name: "7. User define module. [role1/task/main, role1/library/hello.py]: Show module result"
+  - name: "7. User define module. [roles/role1/task/main.yml, roles/role1/library/hello.py]: Show module result"
     debug:
       msg: '{{ hello_result }}'

@@ -1,0 +1,21 @@
+---
+
+- name: Test role
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G1
+  pre_tasks:
+    - name: 'P. Pre-tasks. [role.yml]: tasks in "pre_tasks" is executing'
+      shell: /usr/bin/true
+  tasks:
+    - name: 'P. Tasks. [role.yml]: task in "tasks" is executing'
+      shell: /usr/bin/true
+  post_tasks:
+    - name: 'P. Post-tasks. [role.yml]: task in "post_tasks" is executing'
+      shell: /usr/bin/true
+  roles:
+    - role: role1
+      vars:
+        main_param: Main

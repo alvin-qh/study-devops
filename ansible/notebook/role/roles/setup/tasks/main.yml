@@ -1,13 +1,13 @@
 ---
 # Task in "setup" role ("setup/tasks/main.yml")
 # The tasks in dependency role should execute first
-- name: 'P. [setup/tasks/main]: Setup facts variables'
+- name: 'P. Setup role. [roles/setup/tasks/main.yml]: Setup facts variables'
   # Setup fact variables, the variables shared in whole play
   set_fact:
     database:
       name: mysql
       url: mysql://localhost:3306/test-db
 
-- name: '[setup/tasks/main]: Check facts variables is set'
+- name: 'P. Setup role. [roles/setup/tasks/main.yml]: Check facts variables is set'
   debug:
     msg: 'database={{ database }}'
