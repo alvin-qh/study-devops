@@ -1,0 +1,5 @@
+---
+
+- name: '6. Handler. [role1/handlers/main]: Execute handler when task notified'
+  debug:
+    msg: 'The handler(defined in role1/handlers/main.yml) is working'

@@ -1,6 +1,6 @@
 ---
 # Task in "common" role ("common/tasks/main.yml")
 # The tasks in dependency role should execute first
-- name: '[common/tasks/main] show task param'
+- name: 'P. [common/tasks/main]: Show task param'
   debug:
     msg: 'Param common_param={{ common_param }}'

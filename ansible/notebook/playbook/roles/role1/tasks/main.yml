@@ -1,35 +1,35 @@
 ---
 # Task to test "role1/tasks/main.yml"
-- name: '[role1/tasks/main]: Show paramters and variables'
+- name: '1. Main Task. [role1/tasks/main]: Show paramters and variables'
   debug:
     msg:
       - 'Parameter main_param={{ main_param }}'
       - 'Facts database={{ database.name }} and url={{ database.url }}'
 
 # Task to display values of variables include in "role1/vars/main.yml"
-- name: '[role1/tasks/main, role1/vars/main]: Load variables'
+- name: '2. Load variables [role1/tasks/main, role1/vars/main]: Load variables'
   debug:
     msg: a={{ a }}, b={{ b }}’
 
 # Tasks to transfer template file "role1/templates/db.conf.t" to target server
 - block:
   # Use "template" module to transfer template file to remote server
-  - name: '[role1/task/main, role1/templates/db.conf.t]: Template transfer'
+  - name: '3. Template. [role1/task/main, role1/templates/db.conf.t]: Template transfer'
     template:
       src: db.conf.t
       dest: ~/db.conf
 
   # Display result of previous task
-  - name: '[role1/task/main, role1/templates/db.conf.t]: Gather task operated result'
+  - name: '3. Template. [role1/task/main, role1/templates/db.conf.t]: Gather task operated result'
     shell: cat ~/db.conf
     register: shell_result
 
-  - name: '[role1/task/main, role1/templates/db.conf.t]: Show task operated result'
+  - name: '3. Template. [role1/task/main, role1/templates/db.conf.t]: Show task operated result'
     debug:
       msg: '{{ shell_result.stdout }}'
 
   # Delete test files
-  - name: '[role1/task/main, role1/templates/db.conf.t]: Delete file'
+  - name: '3. Template. [role1/task/main, role1/templates/db.conf.t]: Delete file'
     file:
       path: ~/db.conf
       state: absent
@@ -37,41 +37,55 @@
 # Tasks to display values of default variables include in "role1/defaults/main.yml"
 - block:
   # Show default variables
-  - name: '[role1/task/main, role1/defaults/main]: Show default variables'
+  - name: '4. Defaults. [role1/task/main, role1/defaults/main]: Show default variables'
     debug:
       msg: 'x={{ x }}, y={{ y }}'
 
   # Set variable values to override default variables
-  - name: '[role1/task/main, role1/defaults/main]: Set variable values'
+  - name: '4. Defaults. [role1/task/main, role1/defaults/main]: Set variable values'
     set_fact:
       x: -100
       y: -200
 
   # Show variables was overrided
-  - name: '[role1/task/main, role1/defaults/main]: Show default variables again'
+  - name: '4. Defaults. [role1/task/main, role1/defaults/main]: Show default variables again'
     debug:
       msg: 'x={{ x }}, y={{ y }}'
 
 - block:
-  - name: '[role1/task/main, role1/files/show_me.sh]: File operator'
+  - name: '5. Files. [role1/task/main, role1/files/show_me.sh]: File operator'
     copy:
       src: show_me.sh
       dest: ~/show_me.sh
 
-  - name: '[role1/task/main, role1/files/show_me.sh]: Show copyed file'
-    shell: ls -alh ~/show_me.sh
-    register: shell_result
-
-  - name: 'ddd'
-    debug:
-      msg: '{{ shell_result.stdout }}'
-
-  - name: 'execute'
-    command: /bin/sh show_me.sh
+  - name: '5. Files. [role1/task/main, role1/files/show_me.sh]: Execute shell command'
+    script: show_me.sh
     args:
-      chdir: ~/
+      chdir: /home/alvin/
     register: cmd_result
 
-  - name: ''
+  - name: '5. Files. [role1/task/main, role1/files/show_me.sh]: Show shell command execute result'
     debug:
       msg: '{{ cmd_result.stdout }}'
+
+  - name: '5. Files. [role1/task/main, role1/files/show_me.sh]: Delete script file'
+    file:
+      path: ~/show_me.sh
+      state: absent
+
+- block:
+  - name: '6. Handlers. [role1/task/main, role1/handlers/main]: Notify when task state is "changed"'
+    shell: /usr/bin/true
+    changed_when: True
+    notify:
+      - '6. Handler. [role1/handlers/main]: Execute handler when task notified'
+
+- block:
+  - name: "7. User define module. [role1/task/main, role1/library/main]: Execute user define module"
+    hello:
+      name: Alvin
+    register: hello_result
+
+  - name: "7. User define module. [role1/task/main, role1/library/main]: Show module result"
+    debug:
+      msg: '{{ hello_result }}'

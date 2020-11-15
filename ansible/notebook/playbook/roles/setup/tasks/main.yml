@@ -1,7 +1,7 @@
 ---
 # Task in "setup" role ("setup/tasks/main.yml")
 # The tasks in dependency role should execute first
-- name: '[setup/tasks/main]: Setup facts variables'
+- name: 'P. [setup/tasks/main]: Setup facts variables'
   # Setup fact variables, the variables shared in whole play
   set_fact:
     database:
