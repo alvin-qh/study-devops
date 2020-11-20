@@ -181,4 +181,3 @@
   # 95% server raise error, stop play
   max_fail_percentage: 95
   serial: 2
-
