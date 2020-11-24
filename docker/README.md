@@ -123,6 +123,18 @@ Goto https://homenew.console.aliyun.com/ and register account
 - Goto https://cr.console.aliyun.com/, create new instance (If need private docker repository)
 - Goto https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors copy docker-hub mirror url (If use docker-hub mirror)
 
+### 3.3. Setup docker-hub mirror
+
+Edit `/etc/docker/daemon.json` file, add the content
+
+```json
+{
+  "registry-mirrors": [
+    "https://*******.mirror.aliyuncs.com"
+  ]
+}
+```
+
 ## 4. Install python
 
 ### 4.1. Install pyenv
