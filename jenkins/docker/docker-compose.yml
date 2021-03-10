@@ -3,19 +3,16 @@ services:
   jenkinsci:
     image: "jenkinsci/blueocean"
     container_name: "jenkins-blueocean"
+    user: "root"
     volumes:
       - "data:/var/jenkins_home"
-      - "certs:/certs/client:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
       - "8080:8080"
       - "50000:50000"
     expose:
       - "8080"
       - "50000"
-    environment:
-      - "DOCKER_HOST=tcp://docker:2376"
-      - "DOCKER_CERT_PATH=/certs/client"
-      - "DOCKER_TLS_VERIFY=1"
     networks:
       - "jenkins_net"
 networks:
@@ -23,6 +20,3 @@ networks:
 volumes:
   data:
     name: "study-devops-jenkins-data"
-  certs:
-    name: "study-devops-jenkins-certs"
-
