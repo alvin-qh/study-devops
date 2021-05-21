@@ -1,8 +1,7 @@
----
 version: "3"
 services:
   percona:
-    image: "percona:latest"
+    image: "percona:8"
     container_name: "percona"
     restart: "always"
     environment:
@@ -10,12 +9,16 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - "percona_v:/var/lib/mysql"
-      - "./log:/var/log/mysql"
+      - "percona_data:/var/lib/mysql"
+      - "./log:/var/log/mysql/"
       - "./my.cnf:/etc/my.cnf:rw"
     networks:
-      - "percona_n"
+      - "percona_network"
 networks:
-  percona_n:
+  percona_network:
+    external: false
 volumes:
-  percona_v:
+  percona_data:
+    driver_opts:
+      type: "tmpfs"
+      device: "tmpfs"
