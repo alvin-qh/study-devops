@@ -2,16 +2,19 @@
 version: "3"
 services:
   mongo:
-    image: "mongo:latest"
+    image: "mongo:4.4.6"
     container_name: "mongo"
     ports:
       - "27017:27017"
     volumes:
-      - "mongo_v:/data/db"
-      - "./configdb:/data/configdb"
+      - "mongo-data:/data"
     networks:
-      - "mongo_n"
+      - "mongo-network"
 networks:
-  mongo_n:
+  mongo-network:
+    external: false
 volumes:
-  mongo_v:
+  mongo-data:
+    driver_opts:
+      type: "tmpfs"
+      device: "tmpfs"
