@@ -1,24 +1,16 @@
-# Use Notebook
+# MongoDB Notebook
 
 ## 1. Setup
 
-### 1.1. Install python virtualenv
+See [Jupyter lab setup guide](../../README.md)
+
+Run pip install python requirement packages
 
 ```bash
-$ python -m venv .venv --prompt='study-devops-mongo'
-$ source .venv/bin/activate
-$ pip install -r requirements.txt
+$ bash ./setup.sh
 ```
 
-### 1.2. Install jupyter bash extension
-
-#### 1.2.1. Install pip package
-
-```bash
-$ pip install bash_kernel
-```
-
-#### 1.2.2. Build and install extension
+Install 
 
 ```bash
 $ python -m bash_kernel.install

@@ -8,11 +8,16 @@ fi
 if [[ ! -d ".venv" ]]; then
   echo "> Create virtualenv..."
   python -m venv .venv --prompt="study-devops-mongo-notebook"
+fi
 
-  . .venv/bin/activate
+. .venv/bin/activate
 
-  echo "> Install jupyter lab requirement packages..."
-  pip install -r ../../notebook-requirements.txt
+pip install --upgrade pip
+
+echo "> Install jupyter lab requirement packages..."
+pip install -r ../../notebook-requirements.txt
+
+if [[ -e "requirements.txt" ]]; then
   pip install -r requirements.txt
 fi
 
