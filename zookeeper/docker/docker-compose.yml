@@ -13,8 +13,8 @@ services:
       - zk_data1:/usr/local/zookeeper/data
       - zk_log1:/usr/local/zookeeper/log
     environment:
-      ZOO_MY_ID: 1
-      ZOO_SERVERS: server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181
+      ZOO_MY_ID: 1 # 当前实例的 ID
+      ZOO_SERVERS: server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181 # 集群中的服务地址
   zk02:
     image: zookeeper
     ports:
@@ -48,4 +48,4 @@ volumes:
       type: tmpfs
       device: tmpfs
 networks:
-  zk_network:
+  zk_network: null
