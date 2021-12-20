@@ -4,6 +4,7 @@ import conf
 import pytest
 from kazoo.client import KazooClient
 from kazoo.exceptions import BadVersionError, NodeExistsError, NoNodeError
+from kazoo.retry import KazooRetry
 
 # 创建 zookeeper client 对象
 zk = KazooClient(hosts=conf.HOSTS)
@@ -157,3 +158,21 @@ def test_child_node():
         val, stat = zk.get(child_node)
         assert val.decode() == str(n+1)
         assert stat.version == 0
+
+
+def test_retry():
+    """
+    retry 可以在失败后自动重试，保证命令执行成功
+    """
+    path = "/alvin/study"
+
+    # 创建路径，失败后重试
+    r = zk.retry(zk.ensure_path, path=path)
+    assert r == path
+
+    path = os.path.join(path, "zk")
+
+    # 自定义重试规则，创建节点
+    kr = KazooRetry(max_tries=3, ignore_expire=False)
+    r = kr(zk.create, path, b"created")
+    assert r == path
