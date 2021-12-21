@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   zk01:
-    image: zookeeper
+    image: zookeeper:latest
     ports:
       - "2181:2181"
     container_name: zk01
@@ -16,7 +16,7 @@ services:
       ZOO_MY_ID: 1 # 当前实例的 ID
       ZOO_SERVERS: server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181 # 集群中的服务地址
   zk02:
-    image: zookeeper
+    image: zookeeper:latest
     ports:
       - "2182:2181"
     container_name: zk02
