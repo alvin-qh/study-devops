@@ -1,26 +1,32 @@
 ---
-version: "3"
+version: "3.7"
 services:
   neo4j:
     image: "neo4j:latest"
     container_name: "neo4j"
     volumes:
-      - "data:/data"
-      - "./conf:/var/lib/neo4j/conf"
-      - "./logs:/logs"
+      - "neo4j_data:/data"
+      - "neo4j_log:/logs"
+      - "./conf:/var/lib/neo4j/conf"   # conf, import and plugins need to create manually
       - "./import:/var/lib/neo4j/import"
       - "./plugins:/plugins"
     environment:
-      - "NEO4J_auth=neo4j/neo4j_"
-      - "NEO4J_dbms.security.auth_enabled=false"
+      - "NEO4J_AUTH=neo4j/neo4j_"
+      - "NEO4J_dbms_security_auth_enabled=false"
     networks:
-      - "newtork"
+      - "neo4j_network"
     ports:
       - "7474:7474"
       - "7687:7687"
       - "7473:7473"
 networks:
-  newtork:
+  neo4j_network:
 volumes:
-  data:
-    name: "study-devops-neo4j"
+  neo4j_data:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  neo4j_log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
