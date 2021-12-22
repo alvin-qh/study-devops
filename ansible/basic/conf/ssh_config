@@ -1,0 +1,28 @@
+Host debian1
+	HostName 192.168.100.2
+	User alvin
+
+Host debian1_1
+	HostName 192.168.100.2
+	User alvin
+
+Host debian2
+	HostName 192.168.100.3
+	User alvin
+
+Host debian3
+	HostName 192.168.100.4
+	User alvin
+
+Host centos1
+	HostName 192.168.100.5
+	User alvin
+
+Host centos1_1
+	HostName 192.168.100.5
+	User alvin
+
+Host *
+	ControlPersist yes
+	ControlMaster auto
+	ControlPath ../.cp/master-%r@%h:%p

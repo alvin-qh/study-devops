@@ -1,0 +1,34 @@
+# 定义一个 inventory, 其中:
+# 	group_debian1       inventory名称
+# 	ansible_host		主机地址, 可以为主机IP，域名或者SSH配置名(参见"ssh_config"文件)
+# 	ansible_ssh_user	ssh登录名称
+
+# 形式 1
+# group_debian1 ansible_host=debian1 ansible_ssh_user=alvin
+
+# 形式 2
+# [group_debian1]
+# debian1 ansible_ssh_user=alvin
+
+# 形式 3
+[group_debian1]
+debian1
+
+# "[xxx:vars]" 用于设定 "[xxx]" 中所列 server 的参数，例如 "[group_debian1:vars]" 用于为 "debian1" 设定参数
+# 只要 server 是一样的，则应用的参数均是一致的
+[group_debian1:vars]
+ansible_ssh_user=alvin
+
+[group_centos1]
+centos1
+
+[group_centos1:vars]
+ansible_ssh_user=alvin
+
+[group_debian]
+debian1
+debian2
+debian3
+
+[group_debian:vars]
+ansible_ssh_user=alvin
