@@ -2,7 +2,24 @@
     "version": "0.2",
     "language": "en",
     "words": [
-        "pyenv"
+        "autoremove",
+        "chdir",
+        "disablerepo",
+        "enablerepo",
+        "epel",
+        "installroot",
+        "metalink",
+        "mirrorlist",
+        "pyenv",
+        "releasever",
+        "repodata",
+        "repoid",
+        "repoquery",
+        "sslcacert",
+        "sslclientcert",
+        "sslclientkey",
+        "sslverify",
+        "tsinghua"
     ],
     "flagWords": []
 }

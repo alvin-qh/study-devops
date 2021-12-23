@@ -13,6 +13,7 @@
   - [2. 使用密码文件](#2-使用密码文件)
     - [2.1. 使用加密文件作为 `become` 密码](#21-使用加密文件作为-become-密码)
     - [2.2. 使用加密字符串作为 `become` 密码](#22-使用加密字符串作为-become-密码)
+    - [2.3. 使用附加参数作为 `become` 参数](#23-使用附加参数作为-become-参数)
 
 可以将一个文本文件进行加密，以保证它在执行和传输时不会暴露其中的内容
 
@@ -92,8 +93,8 @@ $ ansible-vault encrypt_string "test" --name "sudo_pass"
 New Vault password:
 Confirm New Vault password:
 sudo_pass: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          3837323131386166323266393......
+    $ANSIBLE_VAULT;1.1;AES256
+    3837323131386166323266393......
 Encryption successful
 ```
 
@@ -160,8 +161,8 @@ $ ansible group_debian1_vault -a "ifconfig" --extra-vars "@password.yml" --vault
 $ ansible-vault encrypt_string "<sudo password>" --name "sudo_pass" --vault-id=vault-id
 
 sudo_pass: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          6635353839646335393663613......
+    $ANSIBLE_VAULT;1.1;AES256
+    6635353839646335393663613......
 Encryption successful
 ```
 
@@ -169,8 +170,8 @@ Encryption successful
 
 ```yml
 sudo_pass: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          6635353839646335393663613......
+    $ANSIBLE_VAULT;1.1;AES256
+    6635353839646335393663613......
 ```
 
 此时直接执行命令即可
@@ -178,3 +179,27 @@ sudo_pass: !vault |
 ```bash
 $ ansible group_debian1_vault -a "ifconfig" --extra-vars "@password.yml" --vault-id=vault-id
 ```
+
+
+### 2.3. 使用附加参数作为 `become` 参数
+
+可以无需在 `inventory` 文件中设置 `become` 参数，而是在需要时，通过 `--extra-vars` 引入这些参数
+
+建立一个 `become.yml` 文件存储相关的扩展参数
+
+```yml
+ansible_become: "yes"
+ansible_become_method: "sudo"
+ansible_become_pass: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  6635353839646335393663613......
+```
+
+在需要提升权限的时候使用如下命令
+
+```bash
+$ ansible group_debian1 -a "ifconfig" -e "@become.yml" --vault-id=vault-id
+```
+
+- `-e` 为 `--extra-vars` 参数的简写，参数从 `become.yml` 文件中引入
+

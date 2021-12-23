@@ -19,8 +19,11 @@ debian1
 [group_debian1:vars]
 ansible_ssh_user=alvin
 
+# 这里 debian1_1 相当于 debian1 主机的别名
+# 如果不使用别名，会为 debian1 增加 group_debian1_vault 中的参数
+# 在其它使用 debian1 的组中这些参数也会生效
 [group_debian1_vault]
-debian1
+debian1_1
 
 [group_debian1_vault:vars]
 ansible_become=yes

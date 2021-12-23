@@ -2,6 +2,9 @@ Host debian1
 	HostName 192.168.100.2
 	User alvin
 
+# 为 debian1 主机设置一个别名
+# 以避免 inventory 设置中重复使用 debian1 主机导致参数互相影响
+# 下面的 centos1_1 同理
 Host debian1_1
 	HostName 192.168.100.2
 	User alvin
