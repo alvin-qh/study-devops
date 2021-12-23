@@ -19,6 +19,14 @@ debian1
 [group_debian1:vars]
 ansible_ssh_user=alvin
 
+[group_debian1_vault]
+debian1
+
+[group_debian1_vault:vars]
+ansible_become=yes
+ansible_become_method=sudo 
+ansible_become_pass={{ sudo_pass }}
+
 [group_centos1]
 centos1
 

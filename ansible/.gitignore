@@ -1,3 +1,5 @@
 .cp
 .venv
 __pycache__
+
+password.yml
