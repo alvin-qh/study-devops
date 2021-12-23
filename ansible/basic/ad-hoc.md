@@ -1,5 +1,31 @@
 # Ad-Hoc
 
+- [Ad-Hoc](#ad-hoc)
+  - [1. 执行 Ad-Hoc 命令](#1-执行-ad-hoc-命令)
+    - [1.1. 列出服务器列表](#11-列出服务器列表)
+    - [1.2. 使用模块](#12-使用模块)
+  - [2. 各类模块](#2-各类模块)
+    - [2.1. Ping 模块](#21-ping-模块)
+    - [2.2. Raw 模块](#22-raw-模块)
+      - [执行远程命令行](#执行远程命令行)
+      - [增加扩展参数](#增加扩展参数)
+    - [2.3. Shell 模块](#23-shell-模块)
+      - [执行 shell 命令](#执行-shell-命令)
+      - [使用附加参数执行 shell 命令](#使用附加参数执行-shell-命令)
+    - [2.4. 软件安装](#24-软件安装)
+      - [2.4.1. Yum 模块](#241-yum-模块)
+        - [安装并升级软件包](#安装并升级软件包)
+        - [设置软件仓库](#设置软件仓库)
+      - [2.4.2. Apt 模块](#242-apt-模块)
+        - [安装并升级软件包](#安装并升级软件包-1)
+    - [2.5. Template 模块](#25-template-模块)
+      - [使用模板输出文件](#使用模板输出文件)
+    - [2.6. Copy 模块](#26-copy-模块)
+      - [复制文件](#复制文件)
+      - [复制文件和目录](#复制文件和目录)
+      - [复制目录](#复制目录)
+      - [复制内容](#复制内容)
+
 Ansible 具备一系列内置模块，用于执行各类远程任务，例如文件复制、软件安装等
 
 ```bash
@@ -126,39 +152,6 @@ $ ansible group_debian1 -m shell \
 > [yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html)
 > [yum_repository](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_repository_module.html)
 
-`yum` 模块具备如下参数
-
-- `allow_downgrade` 是否允许降级已安装的软件，允许软件降级可能会导致一些以来问题。默认值为 `no`
-- `autoremove` 是否允许删除软件时自动删除依赖，默认值为 `no`
-- `bugfix` 是否只安装用来修复 bug 的软件包，默认值为 `no`
-- `conf_file` 指定远程主机的 `yum.conf` 配置文件，一般使用默认配置文件
-- `disable_excludes` 禁用 `yum.conf` 配置文件中定义的“排除项”。如果设置为 `all`，禁用所有排除项；如果设置为 `main`，禁用以 `[main]` 定义的排除项；如果设置为 `repoid`，则禁用给定 "repo id" 定义的排除项
-- `disable_gpg_check` 是否禁用安装软件包签名的 GPG 检查，默认值为 `no`
-- `disable_plugin` 指定在安装/更新软件包操作中禁用的插件，仅此次命令生效，默认值为 `no`
-- `disablerepo` 在安装/更新软件时禁用的软件源，多个值使用 `,` 分隔。仅在本次命令中有效
-- `download_dir` 当 `download_only` 生效时，指定软件包下载路径
-- `download_only` 是否只下载不安装，默认值为 `no`
-- `enable_plugin` 在安装/更新软件时启用的插件，仅在本次命令中有效，默认值为 `yes`
-- `enablerepo` 在安装/更新时，设置启用的软件源，仅在本次命令中有效
-- `exclude`: 当 `state=present` 或 `state=latest` 时，设置排除的软件包名称
-- `install_repoquery`: `no` or `yes`(default). 如果软件源查询不可用，则安装 `yum-utils` 包。如果系统注册到 RHN 或 RHN，则允许查询所有分配的软件源频道。`list` 参数也依赖该参数
-- `install_weak_deps` 自动安装由“弱依赖关系”关联的其它包，默认值 `yes`
-  - 该功能只在后端为 `yum4` 时生效
-- `installroot` 默认为 "/"，指定一个路径替代原有的安装路径
-- `list` 列举软件包，等效于 `yum list --show-duplicates <package>` 命令。除了列举软件包外，还可以对“已安装”，“待更新”，“可用”和“软件源”进行列举。该参数与 `name` 参数互斥
-- `lock_timeout` 等待 yum 文件锁释放的实际，默认值为 `30`
-- `name`: 要安装/更新/卸载的软件包名称，可以带有版本号（如：`name-1.0`）。如果版本号低于已安装版本，则 `allow_downgrade` 设置需开启。如果使用 `state=latest`，则可设置 `name=*` 表示更新所有软件
-  - 别名为 `pkg`
-- `releasever` 指定要按照软件包的替代版本
-- `security`: 是否仅安装标记为与“安全相关”的更新，需要 `state=latest`，默认值为 `no`
-- `skip_broken`: 跳过依赖项已损坏的包，默认值为 `no`
-- `state` 取值为：安装（`present` 或 `installed`），卸载（`absent` 或 `removed`），更新（`latest`）
-- `update_cache` 强制在安装前检查软件源缓存并更新，默认值为 `no`
-  - 别名为 `expire-cache`
-- `update_only` 只更新软件包而不安装不存在的包，默认值为 `no`
-- `use_backend` 选择使用的 yum 后端，可以为 `auto`（默认值）, `yum`, `yum4` 或者 `dnf`。默认情况下会根据 `ansible_pkg_mgr` 的设置选择后端
-- `validate_certs`: 是否验证软件源的证书，只对 `https` 软件源有效。默认值为 `yes`
-
 ##### 安装并升级软件包
 
 安装 `epel-release` 软件包
@@ -193,6 +186,17 @@ $ ansible group_centos1 -m yum \
 ```
 
 - `state=absent` 表示卸载软件包
+
+更新软件包
+
+```bash
+$ ansible group_centos1 -m yum \
+    -a "name=* state=latest use_backend=dnf" \
+    -e "@become.yml" \
+    --vault-id=vault-id
+```
+
+- `name=*` 表示更新所有软件包
 
 ##### 设置软件仓库
 
@@ -244,4 +248,111 @@ $ ansible group_centos1 -m yum \
 ```
 
 #### 2.4.2. Apt 模块
+
+> [apt](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html)
+> [apt_key](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_key_module.html)
+> [apt_repository](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html)
+
+##### 安装并升级软件包
+
+安装 `htop` 软件
+
+```bash
+$ ansible group_debian1 -m apt \
+    -a "name=htop state=present install_recommends=true update_cache=yes" \
+    -e "@become.yml" \
+    --vault-id=vault-id
+```
+
+卸载 `htop` 软件包
+
+```bash
+$ ansible group_debian1 -m apt \
+    -a "name=htop state=absent purge=yes" \
+    -e "@become.yml" \
+    --vault-id=vault-id;
+
+# 卸载无效的依赖包
+$ ansible group_debian1 -m apt \
+    -a "autoremove=yes purge=yes" \
+    -e "@become.yml" \
+    --vault-id=vault-id;
+```
+
+更新软件包
+
+```bash
+# apt update
+$ ansible group_debian1 -m apt \
+    -a "update_cache=yes" \
+    -e "@become.yml" \
+    --vault-id=vault-id;
+
+# apt upgrade
+$ ansible group_centos1 -m yum \
+    -a "name=* state=latest update_cache=yes" \
+    -e "@become.yml" \
+    --vault-id=vault-id
+```
+
+- `name=*` 表示更新所有软件包
+
+### 2.5. Template 模块
+
+[template](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html)
+
+通过“模板”在目标主机上输出文件
+
+#### 使用模板输出文件
+
+```bash
+$ ansible group_debian1 -m template \
+    -a "src=./test_template.txt dest=~/test_template.txt \
+        owner=alvin mode=u=rw,g=r,o=r backup=yes" \
+    -e "dynamic_name=Alvin"
+```
+
+- `src` 本机的模板文件名
+- `dest` 远程主机的目标文件名
+- `owner` 设置文件在远程主机的所属用户
+- `mode` 设置文件在远程主机的属性
+- `backup` 是否备份旧文件
+
+### 2.6. Copy 模块
+
+将文件从本机复制到远程主机
+
+#### 复制文件
+
+```bash
+$ ansible group_debian1 -m copy \
+    -a "src=./ansible.cfg dest=~/ force=yes"
+```
+
+- `src` 本机文件路径
+- `dest` 远程主机目标文件路径
+- `force` 是否强制拷贝（覆盖目标文件）
+
+#### 复制文件和目录
+
+```bash
+$ ansible group_debian1 -m copy \
+    -a "src=./conf/ dest=~/target force=yes"
+```
+
+#### 复制目录
+
+```bash
+$ ansible group_debian1 -m copy \
+    -a "src=./conf dest=~/target force=yes"
+```
+
+#### 复制内容
+
+```bash
+$ ansible group_debian1 -m copy \
+    -a "content='Hello World' dest=~/target.txt force=yes"
+```
+
+- `content` 要复制的字符串，需要使用“引号”包围
 
