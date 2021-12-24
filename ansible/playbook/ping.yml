@@ -1,0 +1,57 @@
+# 测试 ping 模块
+- name: Test ping on single-server
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G1
+  tasks:
+    # 执行 ping 模块
+    - name: Ping remote server
+      ping:
+      register: ping_result  # 将模块执行结果放在 ping_result 变量中
+      
+    # 执行 debug 模块输出结果
+    - name: Show ping result
+      debug:
+#       var: "ping_result"  # 显示 ping_result 变量值
+        msg: "{{ ping_result.pings | default('None') }}"  # 显示格式化过的 ping_result 变量值
+        # 模块返回的执行结果为一个 json 对象, 所以 "ping_result['ping']" 或者 "ping_result.ping" 均表示 "ping" 模块的执行结果 
+
+# 在所有远程主机上测试 ping 模块
+- name: Test ping of multi-servers
+  hosts: group_all
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G2
+  tasks:
+    # 执行 ping 模块
+    - name: Ping remote server
+      ping:
+      register: ping_result
+      
+    # 执行 debug 模块输出结果
+    - name: Show ping results
+      debug:
+        msg: "{{ ping_result.ping | default('None') }}"
+        
+# 以 become 用户权限执行 ping 模块
+- name: Test ping as root user
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G3
+  # become: True  # 所有子任务使用 become 用户权限
+  tasks:
+    # 执行 ping 模块
+    - name: Ping remote server
+      ping:
+      register: ping_result
+      become: True  # 该子任务使用 become 用户权限
+      
+    # 执行 debug 模块输出结果
+    - name: Show ping result
+      debug:
+        msg: "{{ ping_result.ping | default('None') }}"

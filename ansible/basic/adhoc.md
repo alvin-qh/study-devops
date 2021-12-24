@@ -181,8 +181,8 @@ $ ansible group_debian1 -m shell \
 ```bash
 $ ansible group_centos1 -m yum \
     -a "name=epel-release state=present use_backend=dnf" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 - `state=present` 表示安装软件包
@@ -192,8 +192,8 @@ $ ansible group_centos1 -m yum \
 ```bash
 $ ansible group_centos1 -m yum \
     -a "name=htop state=present update_cache=yes use_backend=dnf" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 - `update_cache=yes` 表示执行 `yum update` 命令更新软件源缓存
@@ -203,8 +203,8 @@ $ ansible group_centos1 -m yum \
 ```bash
 $ ansible group_centos1 -m yum \
     -a "name=htop state=absent autoremove=yes use_backend=dnf" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 - `state=absent` 表示卸载软件包
@@ -214,8 +214,8 @@ $ ansible group_centos1 -m yum \
 ```bash
 $ ansible group_centos1 -m yum \
     -a "name=* state=latest use_backend=dnf" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 - `name=*` 表示更新所有软件包
@@ -228,8 +228,8 @@ $ ansible group_centos1 -m yum \
 $ ansible group_centos1 -m yum \
     -a "name={{ names }} autoremove=yes state=absent use_backend=dnf" \
     -e "{names: ['docker', 'docker-engine', 'docker.io']}" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 安装 `docker` 相关依赖软件包
@@ -237,9 +237,9 @@ $ ansible group_centos1 -m yum \
 ```bash
 $ ansible group_centos1 -m yum \
     -a "name={{ names }} state=present use_backend=dnf" \
-    -e "@arg/become.yml" \
+    -e "@var/become.yml" \
     -e "{names: ['yum-utils', 'device-mapper-persistent-data', 'lvm2']}" \
-    --vault-id=vault-id
+    --vault-id vault/vault-id
 ```
 
 设置 `docker` 软件仓库，下载 `docker` 的 `repo` 文件
@@ -247,8 +247,8 @@ $ ansible group_centos1 -m yum \
 ```bash
 $ ansible group_centos1 -m get_url \
     -a "url=https://download.docker.com/linux/centos/docker-ce.repo dest=/etc/yum.repos.d/docker-ce.repo timeout=20" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 将软件源的地址替换为国内镜像地址
@@ -256,8 +256,8 @@ $ ansible group_centos1 -m get_url \
 ```bash
 $ ansible group_centos1 -m raw \
     -a "sed -i 's+download.docker.com+mirrors.tuna.tsinghua.edu.cn/docker-ce+' /etc/yum.repos.d/docker-ce.repo" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 安装 `docker`
@@ -265,8 +265,8 @@ $ ansible group_centos1 -m raw \
 ```bash
 $ ansible group_centos1 -m yum \
     -a "name=docker-ce update_cache=yes state=present use_backend=dnf" \
-    -e "@arg/become.yml"  \
-    --vault-id=vault-id
+    -e "@var/become.yml"  \
+    --vault-id vault/vault-id
 ```
 
 #### 2.4.2. Apt 模块
@@ -282,8 +282,8 @@ $ ansible group_centos1 -m yum \
 ```bash
 $ ansible group_debian1 -m apt \
     -a "name=htop state=present install_recommends=true update_cache=yes" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 卸载 `htop` 软件包
@@ -291,14 +291,14 @@ $ ansible group_debian1 -m apt \
 ```bash
 $ ansible group_debian1 -m apt \
     -a "name=htop state=absent purge=yes" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id;
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id;
 
 # 卸载无效的依赖包
 $ ansible group_debian1 -m apt \
     -a "autoremove=yes purge=yes" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id;
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id;
 ```
 
 更新软件包
@@ -307,14 +307,14 @@ $ ansible group_debian1 -m apt \
 # apt update
 $ ansible group_debian1 -m apt \
     -a "update_cache=yes" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id;
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id;
 
 # apt upgrade
 $ ansible group_centos1 -m yum \
     -a "name=* state=latest update_cache=yes" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 - `name=*` 表示更新所有软件包
@@ -391,8 +391,8 @@ $ ansible group_debian1 -m user \
     -a "name=test password={{'test'|password_hash('sha512')}} \
         append=yes createhome=yes shell=/bin/bash \
         generate_ssh_key='yes' groups='sudo,root' state='present'" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 - `name` 用户名
@@ -410,8 +410,8 @@ $ ansible group_debian1 -m user \
 $ ansible group_debian1 -m copy \
     -a "content='test ALL=(ALL:ALL) ALL\n' dest='/etc/sudoers.d/test' \
         force='yes' mode='u=r,g=r'" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 - 在 `/etc/sudoers.d` 下增加 `test` 文件，赋予 `test` 用户 `sudo` 权限
@@ -425,8 +425,8 @@ $ ansible group_debian1 -m copy \
 ```bash
 $ ansible group_debian1 -m authorized_key \
     -a "user=test key={{lookup('file', '~/.ssh/id_rsa.pub')}} state=present" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 - `user` 要拷贝密钥的远程用户
@@ -438,8 +438,8 @@ $ ansible group_debian1 -m authorized_key \
 ```bash
 $ ansible group_debian1 -m user \
     -a "user=test remove=yes state=absent" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 ### 2.8. Group 模块
@@ -453,8 +453,8 @@ Group 模块用于创建用户组
 ```bash
 $ ansible group_debian1 -m group \
     -a "name=test state=present" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 #### 删除用户组
@@ -462,8 +462,8 @@ $ ansible group_debian1 -m group \
 ```bash
 $ ansible group_debian1 -m group \
     -a "name=test state=absent" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 ### 2.9. Service 模块
@@ -479,7 +479,7 @@ $ ansible group_debian1 -m group \
 ``` bash
 $ ansible group_debian1 -m service \
     -a "name='sshd' state='started'" \
-    -e "@arg/become.yml"  \
+    -e "@var/become.yml"  \
 ```
 
 #### 停止服务
@@ -489,7 +489,7 @@ $ ansible group_debian1 -m service \
 ``` bash
 $ ansible group_debian1 -m service \
     -a "name='sshd' state='stopped'" \
-    -e "@arg/become.yml"  \
+    -e "@var/become.yml"  \
 ```
 
 ### 2.10. Get Url 模块
@@ -608,8 +608,8 @@ $ ansible group_debian1 -m apt \
     -a "name={{names}} state=present update_cache=yes \
         autoclean=yes autoremove=yes" \
     -e "{names: [python3-venv, python3-pip]}" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 在远程主机创建 `pip.conf` 文件
@@ -663,8 +663,8 @@ $ ansible group_debian1 -m pip \
 ```bash
 $ ansible group_debian1 -m apt \
     -a "name=rsync state=present install_recommends=true update_cache=yes" \
-    -e "@arg/become.yml" \
-    --vault-id=vault-id
+    -e "@var/become.yml" \
+    --vault-id vault/vault-id
 ```
 
 ```bash
