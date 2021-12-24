@@ -2,11 +2,14 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "autoclean",
         "autoremove",
         "chdir",
+        "createhome",
         "disablerepo",
         "enablerepo",
         "epel",
+        "hlink",
         "installroot",
         "metalink",
         "mirrorlist",
@@ -19,7 +22,9 @@
         "sslclientcert",
         "sslclientkey",
         "sslverify",
-        "tsinghua"
+        "tsinghua",
+        "venv",
+        "virtualenv"
     ],
     "flagWords": []
 }

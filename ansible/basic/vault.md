@@ -29,9 +29,6 @@
 
 ```bash
 $ ansible-vault create <filename>
-
-New Vault password:
-Confirm New Vault password:
 ```
 
 输入密码后，随机会打开内置编辑器（如 vim）提示文件内容，输入的内容会被加密存储
@@ -42,8 +39,6 @@ Confirm New Vault password:
 
 ```bash
 $ ansible-vault edit <filename>
-
-Vault password:
 ```
 
 输入密码库文件密码后，打开内置编辑器（如 vim）提示修改文本内容，修改后的内容会被加密存储
@@ -54,11 +49,6 @@ Vault password:
 
 ```bash
 $ ansible-vault rekey <filename>
-
-Vault password:
-New Vault password:
-Confirm New Vault password:
-Rekey successful
 ```
 
 需要输入加密文件的原密码和新密码即可
@@ -67,10 +57,6 @@ Rekey successful
 
 ```bash
 $ ansible-vault encrypt <filename>
-
-New Vault password:
-Confirm New Vault password:
-Encryption successful
 ```
 
 输入密码后，即可对目标文件进行加密
@@ -79,8 +65,6 @@ Encryption successful
 
 ```bash
 $ ansible-vault view <filename>
-
-Vault password:
 ```
 
 输入密码文件密码后，即可以只读方式打开默认编辑器显示密码原文
@@ -89,13 +73,6 @@ Vault password:
 
 ```bash
 $ ansible-vault encrypt_string "test" --name "sudo_pass"
-
-New Vault password:
-Confirm New Vault password:
-sudo_pass: !vault |
-    $ANSIBLE_VAULT;1.1;AES256
-    3837323131386166323266393......
-Encryption successful
 ```
 
 - `--name` 只是给密钥文件增加一个 key，方便拷贝粘贴
@@ -107,7 +84,7 @@ Encryption successful
 可以将加密文件的密码存储在文件中，避免反复输入密码
 
 ```bash
-$ ansible-vault encrypt <filename> --vault-id=vault-id
+$ ansible-vault encrypt <filename> --vault-id=vault/vault-id
 ```
 
 加密文件，所需的密钥从 `vault-id` 文件中获取
@@ -134,39 +111,35 @@ ansible_become_method=sudo  # 设置 become 命令为 sudo，相当于 --become-
 ansible_become_pass={{ sudo_pass }}  # become 密码为 sudo_pass 变量值
 ```
 
-创建 `password.yml` 文件，保存 `sudo_pass` 变量对应的远程服务器 sudo 密码
+创建 `arg/password.yml` 文件，保存 `sudo_pass` 变量对应的远程服务器 sudo 密码
 
 ```yml
 sudo_pass: "<sudo password>"
 ```
 
-对 `password.yml` 文件进行加密
+对 `arg/password.yml` 文件进行加密
 
 ```bash
-$ echo "<file password>" > vault-id
-$ ansible-vault encrypt password.yml --vault-id=vault-id
+$ echo 12345 > vault/vault-id
+
+$ ansible-vault encrypt arg/password.yml --vault-id=vault/vault-id
 ```
 
 ```bash
-$ ansible group_debian1_vault -a "ifconfig" --extra-vars "@password.yml" --vault-id=vault-id
+$ ansible group_debian1_vault -a "ifconfig" --extra-vars "@arg/password.yml" --vault-id=vault/vault-id
 ```
 
-- `--extra-vars` 设置扩展参数，`@password.yml` 表示这是一个存储扩展参数的 `YAML` 文件
+- `--extra-vars` 设置扩展参数，`@arg/password.yml` 表示这是一个存储扩展参数的 `YAML` 文件
 
 ### 2.2. 使用加密字符串作为 `become` 密码
 
-如果 `@password.yml` 文件中只存储了密码，则也无需将整个文件加密，只需对密码字符串进行加密即可
+如果 `arg/password.yml` 文件中只存储了密码，则也无需将整个文件加密，只需对密码字符串进行加密即可
 
 ```bash
-$ ansible-vault encrypt_string "<sudo password>" --name "sudo_pass" --vault-id=vault-id
-
-sudo_pass: !vault |
-    $ANSIBLE_VAULT;1.1;AES256
-    6635353839646335393663613......
-Encryption successful
+$ ansible-vault encrypt_string "<sudo password>" --name "sudo_pass" --vault-id=vault/vault-id
 ```
 
-将输出的密码拷贝到 `password.yml` 文件中即可
+将输出的密码拷贝到 `arg/password.yml` 文件中即可
 
 ```yml
 sudo_pass: !vault |
@@ -177,15 +150,15 @@ sudo_pass: !vault |
 此时直接执行命令即可
 
 ```bash
-$ ansible group_debian1_vault -a "ifconfig" --extra-vars "@password.yml" --vault-id=vault-id
+$ ansible group_debian1_vault -a "ifconfig" --extra-vars "@arg/password.yml" --vault-id=vault/vault-id
 ```
 
 
 ### 2.3. 使用附加参数作为 `become` 参数
 
-可以无需在 `inventory` 文件中设置 `become` 参数，而是在需要时，通过 `--extra-vars` 引入这些参数
+可以无需在 `conf/inventory` 文件中设置 `become` 参数，而是在需要时，通过 `--extra-vars` 引入这些参数
 
-建立一个 `become.yml` 文件存储相关的扩展参数
+建立一个 `arg/become.yml` 文件存储相关的扩展参数
 
 ```yml
 ansible_become: "yes"
@@ -198,8 +171,7 @@ ansible_become_pass: !vault |
 在需要提升权限的时候使用如下命令
 
 ```bash
-$ ansible group_debian1 -a "ifconfig" -e "@become.yml" --vault-id=vault-id
+$ ansible group_debian1 -a "ifconfig" -e "@arg/become.yml" --vault-id=vault/vault-id
 ```
 
-- `-e` 为 `--extra-vars` 参数的简写，参数从 `become.yml` 文件中引入
-
+- `-e` 为 `--extra-vars` 参数的简写，参数从 `arg/become.yml` 文件中引入
