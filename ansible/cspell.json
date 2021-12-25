@@ -15,6 +15,7 @@
         "installroot",
         "metalink",
         "mirrorlist",
+        "mkdir",
         "pyenv",
         "releasever",
         "repodata",

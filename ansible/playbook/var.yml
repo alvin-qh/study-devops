@@ -116,12 +116,12 @@
   tags: G6
   tasks:
     - name: Set variables "a" and "b"
-      set_fact: # 为 ansible_fact 值设置变量值，需要以 var_ 为前缀
+      set_fact: # 为 ansible_fact 值设置变量 a, b 的值
         a: var_a
         b: var_b
 
     - name: Show variable name "a" and "b"
       debug:
         msg:
-          - "var 'a' is: {{ a }}" # 使用变量时无需前缀
+          - "var 'a' is: {{ a }}" # 使用 a, b 变量
           - "var 'b' is: {{ b }}"

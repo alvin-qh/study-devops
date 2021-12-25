@@ -1,11 +1,13 @@
-import os
-from ansible.module_utils.basic import (AnsibleModule)
+# 自定义模块
 
-# Arguments template of module, use:
+import os
+from ansible.module_utils.basic import AnsibleModule
+
+# 模块参数定义模板
 # - name: "..."
 #   hello:
-#     name: Alvin   # argument 'name'
-#     gender: 'M'   # argument 'gender'
+#     name: Alvin # argument 'name'
+#     gender: 'M' # argument 'gender'
 arg_template = {
     'name': {
         'type': 'str',
@@ -17,10 +19,10 @@ arg_template = {
     }
 }
 
-# create ansible module, setup module argument
+# 创建模块实例，设置参数定义模板
 module = AnsibleModule(argument_spec=arg_template)
 
-# get argument values
+# 获取传入模块的参数
 arg_name = module.params['name']
 arg_gender = module.params['gender']
 
@@ -28,11 +30,11 @@ prefix = 'Mr.'
 if (arg_gender == 'F'):
     prefix = 'Ms.'
 
-# make output string
+# 设置输出信息
 msg = 'Hello {} {}'.format(prefix, arg_name)
 
-# run command on remote server
+# 执行模块命令
 os.system('echo {}'.format(msg))
 
-# exit module and report result
+# 设置输出结果
 module.exit_json(changed=True, msg=msg)

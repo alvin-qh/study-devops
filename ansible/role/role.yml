@@ -1,21 +1,28 @@
----
+# 使用 roles 定义剧本
 
-- name: Test role
+- name: Use ansible roles
   hosts: group_debian1
   user: alvin
   connection: ssh
   gather_facts: False
-  tags: G1
+
+  # 前置操作，在所有任务执行前执行
   pre_tasks:
     - name: 'P. Pre-tasks. [role.yml]: tasks in "pre_tasks" is executing'
       shell: /usr/bin/true
+
+  # 剧本本身定义的任务，在 role 任务执行完毕后执行
   tasks:
     - name: 'P. Tasks. [role.yml]: task in "tasks" is executing'
       shell: /usr/bin/true
+
+  # 后置操作，在所有任务执行完毕后执行
   post_tasks:
     - name: 'P. Post-tasks. [role.yml]: task in "post_tasks" is executing'
       shell: /usr/bin/true
+
+  # 引入的 role
   roles:
-    - role: role1
-      vars:
+    - role: demo # 引入 ./roles/demo 下定义的 role
+      vars: # 为 role 定义变量
         main_param: Main
