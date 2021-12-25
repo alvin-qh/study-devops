@@ -1,0 +1,104 @@
+# 循环
+
+# 遍历集合，为集合中每项执行当前任务
+- name: Standard loop
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G1
+  vars:
+    items: ["a", "b", "c"] # 定义集合变量
+  tasks:
+    # 遍历 with_items 中的每项
+    - name: Loop by "with_items"
+      debug:
+        msg: "item is: {{ item }}"
+      with_items: # 遍历集合中的每项，循环执行当前任务
+        - a
+        - b
+        - c
+        - d
+
+    # 通过 with_items，遍历 items 变量中的每项
+    - name: Loop by list variable
+      debug:
+        msg: "item is: {{ item }}"
+      with_items: "{{ items }}" # 遍历集合遍历，循环执行当前任务
+
+# 遍历多集合组合内容
+- name: Nested loop
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G2
+  vars:
+    list1: ["a", "b", "c"] # 定义多个集合变量
+    list2: ["x", "y"]
+  tasks:
+    # 遍历多个集合组成的笛卡尔积，重复执行任务
+    - name: Loop by "with_nested"
+      debug:
+        msg: "item[0] is: {{ item[0] }} and item[1] is: {{ item[1] }}"
+      with_nested: # 遍历两个集合组成的笛卡尔积
+        - ["a", "b", "c"]
+        - ["x", "y"]
+
+    # 遍历多个集合变量组成的笛卡尔积，重复执行任务
+    - name: Show items in nest loop
+      debug:
+        msg: "item[0] is: {{ item[0] }} and item[1] is: {{ item[1] }}"
+      with_nested: # 遍历两个集合变量组成的笛卡尔积
+        - "{{ list1 }}"
+        - "{{ list2 }}"
+
+# 遍历前一个任务返回的结果
+- name: Loop with task results
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G3
+  tasks:
+    - name: List files in root
+      shell:
+        cmd: ls -al
+        chdir: /
+      register: ls_result # 将 ls 命令执行的结果存入变量
+
+    - name: Loop by task result
+      debug:
+        msg: "Item is: {{ item }}"
+      with_items: "{{ ls_result.stdout_lines }}" # 遍历执行结果的输出，执行任务
+
+# 遍历字典的每一个 key 和 value 值
+- name: Loop in dictionary
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G4
+  vars:
+    map: # 定义一个名为 map 的字典变量
+      a: 100 # 定义字典的 key:value 值
+      b: 200
+  tasks:
+    - name: Loop in dictionary with key and value
+      debug:
+        msg: "{{ item.key }}: {{ item.value }}" # 输出遍历结果，即字典的 key/value 值
+      with_dict: "{{ map }}" # 基于字典进行遍历
+
+# 通过 glob 获取文件列表
+- name: Loop in file list
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G5
+  tasks:
+    - name: Loop in file list
+      debug:
+        msg: "{{ item }}"
+      with_fileglob:
+        - "*.yml" # 通过 glob 遍历所有的 yml 文件

@@ -1,5 +1,6 @@
----
-# ignore any error, all task should be executed, whatever raised error or not
+# 错误处理
+
+# 对错误进行忽略，令所有任务都能得到执行
 - name: Ignoring failed commands
   hosts: group_debian1
   user: alvin
@@ -9,41 +10,34 @@
   tasks:
     - name: Do not count this as a failure
       command: /usr/bin/false
-      # ignore any error, do not abort task executing
-      ignore_errors: True
-      
+      ignore_errors: True # 忽略所有错误，让所有任务都能被执行
+
     - name: Still working
       command: /usr/bin/true
 
-# ignore host unreachable error
+# 忽略远程主机无法访问错误
 - name: Ignoring unreachable host errors
-  hosts: group_unknown  # unreachable host
+  hosts: group_unknown # 定义一组不存在的远程主机
   user: alvin
   connection: ssh
-  gather_facts: False
+  gather_facts: False # 不收集远程主机信息，否则任务无法执行
   tags: G2
   tasks:
-    # task worked failed caused by unreachable host
-    - name: This executes, fails, and the failure is ignored
+    # 远程访问错误，错误被忽略
+    - name: This task failed and the failure is ignored
       command: /usr/bin/true
-      # when server unreachable on some task, ignore this error, and try to run next task on the same server
-      ignore_unreachable: True
-      
-#   - meta: clear_host_errors  # If Ansible cannot connect to a host, it marks that host as ‘UNREACHABLE’ 
-                               # and removes it from the list of active hosts for the run. You can use 
-                               # 'meta: clear_host_errors' to reactivate all hosts, so subsequent tasks 
-                               # can try to reach them again.
-    
-    # task worked failed caused by unreachable host
-    - name: This executes, fails, and ends the play for this host
+      ignore_unreachable: True # 忽略远程主机无法访问错误
+
+    # 远程访问错误，错误不被忽略
+    - name: This task failed and ends the play on same host
       command: /usr/bin/true
-    
-    # this task never execute, because previous task abort whole play
+
+    # 因前一个任务未忽略错误，所以该任务无法被执行
     - name: This task never execute
-      debug: 
+      debug:
         msg: "Cannot execute"
 
-# Defining failure
+# 定义失败条件
 - name: Defining failure
   hosts: group_debian1
   user: alvin
@@ -51,86 +45,86 @@
   gather_facts: False
   tags: G3
   tasks:
-    # Failed when find sub string in task result
-    - name: Fail task when the command stdandard output prints "Error"
+    # 如果命令输出中包含 "Error" 字符串，则定义为失败
+    - name: Fail task when result of command contains "Error" string
       command: 'echo "Error: this command was failed"'
       register: command_result
-      failed_when: ("Error" in command_result.stdout)  # condational statement how task failed
+      failed_when: ("Error" in command_result.stdout) # 定义失败条件
       ignore_errors: True
-    
-    # Failed when task return special code
-    - name: Fail task when both files are identical
+
+    # 如果命令进程返回代码 0，则定义为失败
+    - name: Fail task when shell process return 0
       raw: echo "Hello World"
       register: command_result
       failed_when: command_result.rc == 0
       ignore_errors: True
-      
-    # Combine multiple conditions for failure
+
+    # 组合多种条件定义失败
     - name: Check if a file exists in temp and fail task if it does
       command: ls /tmp/this_should_not_be_here
       register: command_result
-      failed_when:
+      failed_when: # 组合进程返回代码和输出内容，共同定义失败条件
         - result.rc == 0
         - ("No such file" in result.stdout)
       ignore_errors: True
-    
-    # Many field conditionals join with 'OR' operator 
+
+    # 多种条件任意满足，作为失败条件
     - name: Example of many failed_when conditions with "OR"
       shell: ./not_exist_path
       register: shell_result
-      failed_when: >
+      failed_when: > # 利用 or 连接多个失败条件
         ("No such file or directory" in shell_result.stdout) or
         (ret.stderr != '') or
         (ret.rc == 10)
       ignore_errors: True
 
-# Defining changed
+# 定义变化条件
 - name: Defining changed
-  hosts: group_debian1 
+  hosts: group_debian1
   user: alvin
   connection: ssh
   gather_facts: False
   tags: G4
   tasks:
-    # Report 'changed' when some conditionals matched
+    # 当命令执行状态为 0，表示主机发生改变
     - name: Report "changed" when the return code is not equal to 0
       shell: /usr/bin/true
       register: shell_result
-      changed_when: (shell_result.rc == 0)
-    
-    # Never report 'changed'
+      changed_when: shell_result.rc == 0
+
+    # 该任务永远不会令主机发生改变（即便实时上改变了主机）
     - name: This will never report "changed" status
       shell: /usr/bin/true
       changed_when: False
-      
-    # Combine multiple conditionals for failure
+
+    # 组合多个条件判断主机是否发生改变
     - name: Combine multiple conditions to override "changed" result
       command: /usr/bin/false
       register: command_result
       ignore_errors: True
       changed_when:
-        - (command_result.stderr == '')
-        - (command_result.rc == 1)
+        - command_result.stderr == ''
+        - command_result.rc == 1
 
-# Ensuring success for shell command
+# 确保远程命令行执行成功
 - name: Ensuring success for command and shell
-  hosts: group_debian1 
+  hosts: group_debian1
   user: alvin
   connection: ssh
   gather_facts: False
   tags: G5
   tasks:
-    # Ensuring success for shell command
+    # 对于 shell 命令，可以通过 || /usr/bin/true 方式确保执行成功
     - name: Run this shell command and ignore the result
       shell: /usr/bin/bad_command || /usr/bin/true
-      
-    # Ensuring success for raw command
+
+    # 对于 raw 命令，可以通过 || /usr/bin/true 方式确保执行成功
     - name: Run this raw command and ignore the result
       raw: /usr/bin/bad_command || /usr/bin/true
-      
-# Error aborting, if any remote server raise error, the whole play would be aborted on all servers
+
+# 当错误发生时停止整个
 - name: Aborting on the first error
-  hosts: 
+  hosts:
     - group_debian1
     - group_centos1
   user: alvin
@@ -147,37 +141,32 @@
 
     - name: Task 2 (Never executed, cause "Task 1(CentOS)" error)
       shell: /usr/bin/true
-  # If 'True', when any error caused, stop whole play on every services
-  any_errors_fatal: True
+  any_errors_fatal: True # 发生任意错误时停止执行
 
-# Setting a maximum failure percentage
+# 设置最大错误率
 - name: Setting a maximum failure percentage
-  hosts: 
+  hosts:
     - group_debian1
     - group_centos1
   user: alvin
   connection: ssh
   gather_facts: False
   tags: G6-2
-  vars:
-    # Get three random variables
+  vars: # 获取 3 各随机变量
     t1: "{{ 10 | random % 2 == 0}}"
     t2: "{{ 10 | random % 2 == 0}}"
     t3: "{{ 10 | random % 2 == 0}}"
-  tasks:
-    # Run task and raise error by random
-    
+  tasks: # 根据随机变量值，随机导致任务错误或跳过
     - name: Task 1
       shell: /usr/bin/false
       when: (t1 % 2 == 0)
-      
+
     - name: Task 2
       shell: /usr/bin/false
       when: (t2 % 2 == 0)
-      
+
     - name: Task 3
       shell: /usr/bin/false
       when: (t3 % 2 == 0)
-  # 95% server raise error, stop play
   max_fail_percentage: 95
   serial: 2

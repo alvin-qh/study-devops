@@ -1,0 +1,8 @@
+# 外部任务
+
+# 被导入的任务将以类似子任务的方式处理（即 block 属性）
+- name: Task1 from external tasks
+  shell: /usr/bin/true
+
+- name: Task2 from external tasks
+  shell: /usr/bin/true

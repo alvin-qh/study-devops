@@ -1,7 +1,6 @@
----
+# 子任务组
 
-# Group tasks with block
-# 'block' can group many tasks into one task, all task share same attributes (conditionals or become settings)
+# 在一个任务中设置子任务组
 - name: Group task with blocks
   hosts:
     - group_debian1
@@ -11,8 +10,7 @@
   tags: G1
   tasks:
     - name: Run task on Debian server
-      block:
-        # All sub tasks work together
+      block: #　任务组的任务是一个整体
         - name: Step 1
           debug:
             msg: "Debian step 1 executed"
@@ -22,14 +20,11 @@
         - name: Step 3
           debug:
             msg: "Debian step 3 executed"
-
-      # Conditional for whole task, include all sub tasks in block
-      when: ansible_distribution == "Debian"
+      when: ansible_distribution == "Debian" # 任务条件，也约束整个任务组
       ignore_errors: True
-        
+
     - name: Run task on CentOS server
       block:
-        # All sub tasks work together
         - name: Step 1
           debug:
             msg: "CentOS step 1 executed"
@@ -39,12 +34,10 @@
         - name: Step 3
           debug:
             msg: "CentOS step 3 executed"
-
-      # Conditional for whole task, include all sub tasks in block
       when: ansible_distribution == "CentOS"
       ignore_errors: True
 
-# Use 'block' to handle error in tasks
+# 处理 block 中出现的错误
 - name: Error handle with blocks
   hosts: group_debian1
   user: alvin
@@ -56,33 +49,33 @@
         - name: Normal step 1
           debug:
             msg: "I execute normally"
-        
-        # Raise error
+
+        # 该子任务会出现错误
         - name: Normal step 2
           command: /usr/bin/false
-        
-        # Never execute
+          register: error_result
+
+        # 由于前一个任务错误，该任务无法被执行
         - name: Normal step 3
           debug:
             msg: "I never execute, cause ERROR"
+
+      # 处理 block 中的错误
       rescue:
-        - name: Error step 1
-          debug: 
-            msg: "I caught an error"
-        - name: Error step 2
-          command: /usr/bin/false
-        - name: Error step 3
-          debug: 
-            msg: "I also never execute"
+        - name: Error rescue
+          debug:
+            msg: "I caught an error, cmd = {{ error_result.cmd }}"
+
       always:
-        - name: Aways run step 3
-          debug: 
+        - name: Always run
+          debug:
             msg: "This always executes"
+
       when: ansible_distribution == "Debian"
 
-# Error aborting, when each remote server raise error, the whole play abort on all servers
+# 当任务发生错误后，停止所有主机后续任务执行
 - name: Error aborting in block1
-  hosts: 
+  hosts:
     - group_debian1
     - group_centos1
   user: alvin
@@ -90,17 +83,19 @@
   tags: G3
   tasks:
     - meta: clear_host_errors
+
     - name: Aborting on error
       block:
         - name: Task 1 (CentOS)
           shell: /usr/bin/false
           when: ansible_distribution == "CentOS"
-          
+
         - name: Task 1 (Debian)
           shell: /usr/bin/true
           when: ansible_distribution == "Debian"
-          
+
+        # 由于发生错误，导致无法继续执行该任务
         - name: Task 2 (Never executed, cause "Task 1 (CentOS)" error)
           shell: /usr/bin/true
+
       any_errors_fatal: True
-      
