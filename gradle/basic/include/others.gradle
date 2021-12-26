@@ -1,0 +1,6 @@
+// 设置一组扩展变量，可以在 gradle 文件中直接使用
+ext {
+    user = [
+        name: "Alvin"
+    ]
+}

@@ -1,0 +1,45 @@
+/* 显示全局属性值 */
+task showGlobalProps() {
+    doLast {
+        // 根项目路径
+        println "rootProject: ${rootProject}"
+        // 当前项目路径（子项目路径）
+        println "rootProject.projectDir: ${rootProject.projectDir}"
+
+        // 当前项目
+        println "project: ${project}"
+        // 当前项目路径
+        println "project.projectDir: ${project.projectDir}"
+    }
+}
+
+/* 显示自定义属性值 */
+task showProps() {
+    doLast {
+        // 输出 gradle.properties 文件中定义的 gradlePropertiesProp 属性值
+        // 定义在 gradle.properties 文件中的属性可以以类似变量的形式直接使用
+        println "gradlePropertiesProp: ${gradlePropertiesProp}"
+
+        // 通过属性名 common.prop，在 gradle.properties 文件中查找对应的值
+        // 与直接使用属性不同，查找的方式在属性名不存在时不会报错
+        println "common.prop: ${project.findProperty('common.prop')}"
+
+        // 获取 PATH 环境变量值
+        println "PATH: ${System.getenv('PATH')}"
+
+        // 获取从命令行传入的参数值
+        // 在命令行中使用 -P<name> = ... 可以传递名为 name 的参数
+        println "commandLineProp: ${commandLineProp}"
+
+        // 获取从命令行传入的 JVM 参数
+        // 在命令行中使用 -Dorg.gradle.project.<name> = ... 可以传递名为 name 的参数
+        println "systemCommandLineProp: ${systemCommandLineProp}"
+
+        // 获取特殊环境变量值
+        // 特殊环境变量 ORG_GRADLE_PROJECT_<name> = ... 可以传递名为 name 的参数
+        println "systemEnvironmentProp: ${systemEnvironmentProp}"
+
+        // 判断是否存在指定参数（无论是从什么途径设置的）
+        println project.hasProperty('systemEnvironmentProp')
+    }
+}

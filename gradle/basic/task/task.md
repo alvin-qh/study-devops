@@ -10,7 +10,10 @@
     - [1.6. 默认任务](#16-默认任务)
     - [1.7. Task 调用链](#17-task-调用链)
     - [1.8. 使用 Java 包](#18-使用-java-包)
+  - [2. gradle 命令行](#2-gradle-命令行)
     - [2.1. 显示所有 task](#21-显示所有-task)
+    - [2.2. 显示调试信息](#22-显示调试信息)
+    - [2.3. 构建 cache](#23-构建-cache)
 
 ## 1. 定义 Task
 
@@ -210,11 +213,41 @@ import org.apache.commons.codec.binary.Base64
 $ gradle -q --offline base64encode
 ```
 
+## 2. gradle 命令行
+
 ### 2.1. 显示所有 task
 
 ```bash
-$ gradle tasks --all -q
+$ gradle -q --offline tasks --all
 ```
 
-- `--all` 显示所有任务
 - `-q` 只显示关键信息和错误 log
+- `--offline` 不进行网络操作，在无需网络操作的情况可以加快速度
+- `--all` 显示所有任务
+
+### 2.2. 显示调试信息
+
+```bash
+$ gradle <task name> --info;
+$ gradle <task name> --debug;
+$ gradle <task name> --stacktrace;
+```
+
+- `--info, --debug, --stacktrace` 显示更详细的 log 信息
+
+### 2.3. 构建 cache
+
+使用构建 cache 可以加快 gradle 执行速度
+
+方式1. 通过 `gradle.properties` 文件配置
+
+```ini
+org.gradle.caching=true # true 启用 cache（默认），false 禁用 cache
+```
+
+方式2. 通过命令行参数
+
+```bash
+$ gradle <task name> --build-cache; # 启用 cache
+$ gradle <task name> --no-build-cache;  # 禁用 cache
+```
