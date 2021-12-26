@@ -2,8 +2,10 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "ajoberstar",
         "buildscript",
         "classpath",
+        "grgit",
         "javac",
         "loadfile",
         "println"
