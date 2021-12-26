@@ -1,12 +1,12 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
-task deleteAll(type: Delete) {
-    delete 'build/conf'
+task clean(type: Delete) {
+    delete 'build'
     followSymlinks = true
 }
 
+import org.apache.tools.ant.filters.ReplaceTokens
+
 task token {
-    dependsOn deleteAll
+    dependsOn clean
     doLast {
         copy {
             from 'conf'
