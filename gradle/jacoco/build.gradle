@@ -11,34 +11,38 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '11'
+targetCompatibility = '11'
 
 repositories {
     maven {
-        url 'http://maven.aliyun.com/nexus/content/groups/public/'
+        url 'https://maven.aliyun.com/nexus/content/groups/public/'
     }
     jcenter()
 }
 
 dependencies {
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.0",
-                       "org.junit.jupiter:junit-jupiter-engine:5.6.0",
-                       "org.hamcrest:hamcrest-all:1.3"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2",
+                       "org.junit.jupiter:junit-jupiter-engine:5.7.2"
 }
 
+// 配置 JaCoCo 的工具链版本以及报告生成路径
 jacoco {
     toolVersion = "0.8.5"
     reportsDir = file("$buildDir/reports/jacoco")
 }
 
+// 配置 JaCoCo 的测试报告
 jacocoTestReport {
+    // 配置生成报告的种类
     reports {
         xml.enabled true
         html.enabled true
         csv.enabled false
-//      html.destination file("${buildDir}/test-report")
+    //  html.destination file("${buildDir}/test-report")
     }
+
+    // 设置从报告中排除的文件或路径
     afterEvaluate {
         classDirectories.from = files(classDirectories.files.collect {
             fileTree(dir: it, exclude: ['resources/**'])
@@ -46,29 +50,37 @@ jacocoTestReport {
     }
 }
 
+/* 覆盖率计算任务 */
 task coverage {
     dependsOn 'jacocoTestReport'
     doLast {
+        // 从 xml 中读取覆盖率阈值
         def thresholds = parseXml("${projectDir}/thresholds.xml").coverage[0]
+
+        // 读取覆盖率计算报告
         def report = parseXml("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+
+        // 判断覆盖率是否达标，如未达标则输出结果并停止构建
         failIfBelowThreshold(thresholds, report, 'line')
         failIfBelowThreshold(thresholds, report, 'branch')
     }
 }
 
+// 当生成报告后即计算覆盖率
 coverage.shouldRunAfter jacocoTestReport
 
-task prebuild {
+/* 预提交任务，在提交到代码库前执行 */
+task prePush {
     dependsOn 'check', 'test', 'coverage'
 }
 
 
-// external methods
+//// 扩展方法
 
 import org.gradle.internal.logging.text.StyledTextOutput.Style
 import org.gradle.internal.logging.text.StyledTextOutputFactory
 
-
+/* 解析 XML */
 static def parseXml(path) {
     def parser = new XmlSlurper(false, false, true)
     parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
@@ -76,6 +88,7 @@ static def parseXml(path) {
     return parser.parse(new File(path))
 }
 
+/* 比较实际覆盖率和预期覆盖率，在未达标时停止构建 */
 def failIfBelowThreshold(thresholds, report, type) {
     def threshold = thresholds[type][0].text().toFloat()
     def actual = calculateCoverage(report, type)
@@ -89,6 +102,7 @@ def failIfBelowThreshold(thresholds, report, type) {
     }
 }
 
+/* 计算覆盖率 */
 static def calculateCoverage(report, type) {
     def counter = report.counter.find { it.@type == type.toUpperCase() }
     def missed = counter.@missed.toFloat()

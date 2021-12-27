@@ -3,8 +3,8 @@ package alvin.gradle.jacoco;
 public class JacocoDemo {
 
     public boolean isPrime(int number) {
-        int counter = (int) Math.sqrt(number);
-        for (int i = 2; i <= counter; i++) {
+        var counter = (int) Math.sqrt(number);
+        for (var i = 2; i <= counter; i++) {
             if (number % i == 0) {
                 return false;
             }

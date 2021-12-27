@@ -1,15 +1,15 @@
 package alvin.gradle.jacoco;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 class JacocoDemoTest {
 
     @Test
-    void test_name() {
-        final JacocoDemo demo = new JacocoDemo();
+    void shouldCheckNumberIsPrime() {
+        var demo = new JacocoDemo();
 
         assertTrue(demo.isPrime(2));
         assertTrue(demo.isPrime(3));

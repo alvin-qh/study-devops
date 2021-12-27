@@ -106,6 +106,7 @@ task showSourceSets {
 /* 设置编译选项 */
 tasks.withType(JavaCompile) {
     options.compilerArgs += ['-Xdoclint:none', '-Xlint:none', '-nowarn']
+    options.encoding = 'UTF-8'
 }
 
 /* 执行 main 方法并传递参数 */
