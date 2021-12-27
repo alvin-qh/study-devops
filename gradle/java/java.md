@@ -10,6 +10,9 @@
     - [2.5. 构建项目](#25-构建项目)
     - [2.6. 构建 FatJar](#26-构建-fatjar)
     - [2.7. 清理生成的文件](#27-清理生成的文件)
+  - [3. 单元测试](#3-单元测试)
+    - [3.1. 配置 Junit 测试框架](#31-配置-junit-测试框架)
+    - [3.2. 执行单元测试](#32-执行单元测试)
 
 ## 1. 根项目和子项目
 
@@ -316,4 +319,70 @@ $ java -jar build/libs/alvin.gradle.java-1.0-fat.jar arg1 arg2
 
 ```bash
 $ gradle -q clean
+```
+
+## 3. 单元测试
+
+以 JUnit5 为例，在 gradle 中可以配置测试任务的属性
+
+### 3.1. 配置 Junit 测试框架
+
+首先需要对 `test` task 进行配置，选择测试框架，配置测试框架参数
+
+```groovy
+test {
+    useJUnitPlatform() // 使用 JUnit5 测试框架
+
+    reports.html.required = true // 输出 HTML 测试报告
+
+    // 配置测试日志输出类型
+    testLogging {
+        events "SKIPPED", "FAILED"  // 输出 log 的日志状态
+        showStackTraces = true // 显示堆栈信息
+        exceptionFormat = "full" // 异常信息格式化程度
+    }
+}
+```
+
+使用 JUnit5，需要引入 JUnit5 依赖
+
+```groovy
+dependencies {
+    ...
+
+    // 单元测试依赖
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2",
+                       "org.junit.jupiter:junit-jupiter-engine:5.7.2",
+                       dependencies.create("org.hamcrest:hamcrest-all:1.3") {
+                           exclude group: 'junit' // 排除 JUnit4 依赖
+                           exclude group: 'org.junit.vintage'
+                       },
+                       dependencies.create("com.google.guava:guava-testlib:31.0.1-jre") {
+                           exclude group: 'junit' // 排除 JUnit4 依赖
+                           exclude group: 'org.junit.vintage'
+                       }
+
+    // 单元测试编译期依赖
+    testCompileOnly "org.junit.platform:junit-platform-launcher:1.7.2"
+}
+```
+
+### 3.2. 执行单元测试
+
+执行单元测试
+
+```bash
+$ gradle test
+```
+
+执行指定的单元测试
+
+```bash
+$ gradle test --tests <pattern>
+```
+
+例如
+
+```bash
+$ gradle test --tests '*shouldCommandLineArgsFormatted*'
 ```

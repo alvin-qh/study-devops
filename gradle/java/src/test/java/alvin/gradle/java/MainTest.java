@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MainTest {
 
     @Test
-    void test_format() {
+    void shouldCommandLineArgsFormatted() {
         final Main main = new Main();
         final String actual = main.format(new String[]{"A", "B", "C"});
         assertThat(actual, is("Main class is running, arguments is A,B,C ..."));
