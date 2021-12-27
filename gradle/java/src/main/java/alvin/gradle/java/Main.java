@@ -5,7 +5,7 @@ import com.google.common.base.Joiner;
 public final class Main {
 
     String format(String[] args) {
-        final String joined = Joiner.on(",").join(args);
+        var joined = Joiner.on(",").join(args);
         return String.format("Main class is running, arguments is %s ...", joined);
     }
 
