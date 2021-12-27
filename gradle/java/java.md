@@ -5,18 +5,11 @@
   - [2. `java` 插件](#2-java-插件)
     - [2.1. `sourceSets` 变量](#21-sourcesets-变量)
     - [2.2. 设置自定义 `sourceSets`](#22-设置自定义-sourcesets)
-    - [2.3. 构建项目](#23-构建项目)
-    - [2.4. Run java main method](#24-run-java-main-method)
-    - [2.5. Make thin jar package (exclude thirdpart jar libaraies)](#25-make-thin-jar-package-exclude-thirdpart-jar-libaraies)
-      - [2.5.1. Make jar package](#251-make-jar-package)
-      - [2.5.2. Show package output and thirdpart jar libs](#252-show-package-output-and-thirdpart-jar-libs)
-      - [2.5.3. Run jar package](#253-run-jar-package)
-      - [2.5.4. Delete all outputs](#254-delete-all-outputs)
-    - [2.6. Make fat jar package (include all thirdpart jar libaraies)](#26-make-fat-jar-package-include-all-thirdpart-jar-libaraies)
-      - [2.6.1 Build fat jar](#261-build-fat-jar)
-      - [2.6.2. Show build output](#262-show-build-output)
-      - [2.6.3. Run fat jar](#263-run-fat-jar)
-    - [2.4. 清理生成的文件](#24-清理生成的文件)
+    - [2.3. 设置编译参数](#23-设置编译参数)
+    - [2.4. 执行 main 方法](#24-执行-main-方法)
+    - [2.5. 构建项目](#25-构建项目)
+    - [2.6. 构建 FatJar](#26-构建-fatjar)
+    - [2.7. 清理生成的文件](#27-清理生成的文件)
 
 ## 1. 根项目和子项目
 
@@ -159,7 +152,61 @@ sourceSets {
 $ gradle -q --offline showSourceSets
 ```
 
-### 2.3. 构建项目
+### 2.3. 设置编译参数
+
+通过 `JavaCompile` task 可以设置 java 的编译选项
+
+```groovy
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-Xdoclint:none', '-Xlint:none', '-nowarn']
+}
+```
+
+在执行和编译相关的 tasks 时，编译选项会按上述设置定义
+
+### 2.4. 执行 main 方法
+
+可以通过 gradle 直接执行 `main` 方法启动 java 程序，无需打包过程，即可快速的测试程序
+
+运行程序需要知道 `main` 方法所在的**包**和**类**，需要对 `JavaExec` 类型的 task 进行配置
+
+```groovy
+task runMain(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath // 设置 classpath 参数
+    main = 'alvin.gradle.java.Main' // 设置 main 方法所在的类
+    args 'A', 'B', 'C'  // 传递给 main 方法的默认参数
+}
+```
+
+使用默认参数执行 main 方法
+
+```bash
+$ gradle runMain
+```
+
+通过命令行传递参数
+
+```bash
+$ gradle runMain --args="X Y Z"
+```
+
+除了使用 `JavaExec` 类型任务外，也可以使用 `Exec` 类型任务，但该类型任务并不是专用于 java 项目的，所以需要设置启动项目的命令行
+
+```groovy
+task runWithExecJar(type: Exec) {
+    dependsOn jar
+
+    group = project.group
+    description = "Run the output executable jar with ExecTask"
+    commandLine "java", "-jar", jar.archiveFile.get(), "A B C"
+}
+```
+
+这种方式本质上是将 java 项目打包为可执行 jar 文件后，通过命令行执行，所以需要配置 `jar` 任务正确完成打包，另外 `runWithExecJar` 代码必须要出现在 `jar` 任务之后，否则无法获取正确的 `jar` 打包参数
+
+`jar` 任务配置方法见 [2.5. 构建项目](#25-构建项目)
+
+### 2.5. 构建项目
 
 `build` task 是插件内置的任务，依赖 `assemble`，`classes`，`buildDependents`，`check` 和 `jar` 这几个 task
 
@@ -217,29 +264,53 @@ def makeClassPath() {
 $ gradle build
 ```
 
-### 2.4. Run java main method
-./gradlew runMain -q
-### 2.5. Make thin jar package (exclude thirdpart jar libaraies)
-#### 2.5.1. Make jar package
-./gradlew jar -q
-#### 2.5.2. Show package output and thirdpart jar libs
-ls build/libs
-ls build/libs/libs
-#### 2.5.3. Run jar package
-java -jar build/libs/alvin.gradle.java-1.0.jar a b c
-#### 2.5.4. Delete all outputs
-./gradlew clean -q
-### 2.6. Make fat jar package (include all thirdpart jar libaraies)
+运行编译结果
 
-> Building fat jar is "unpacking of third-party jars and package all `.class` file into the target jar"
-#### 2.6.1 Build fat jar
-./gradlew fatjar -q
-#### 2.6.2. Show build output
-ls build/libs
-#### 2.6.3. Run fat jar
-java -jar build/libs/alvin.gradle.java-1.0-fat.jar 1 2 3
+```bash
+$ java -jar build/libs/alvin.gradle.java-1.0.jar arg1 arg2
+```
 
-### 2.4. 清理生成的文件
+### 2.6. 构建 FatJar
+
+上节中构建的 jar 文件称为 "ThinJar"，即不包含依赖，只包含当前项目本身编译出的 `.class` 文件，所以要正确运行一个 "ThinJar"，仍需要使用 `--classpath` 参数定位依赖所在的路径
+
+而与之对应的 "FatJar" 则是把所有依赖的 `.class` 文件都打包到一个 jar 文件中，只需要该 jar 文件即可正确的运行，为应用的打包和分发提供了便利
+
+通过定义一个 `Jar` 类型的 task，并增加对依赖的打包配置，即可完成 FatJar 的打包
+
+```groovy
+task fatJar(type: Jar) {
+    // 打包结果中排除如下文件，会导致冲突
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.MF'
+
+    manifest { // Manifest.MF 文件生成规则
+        attributes(
+            'Implementation-Title': 'Gradle Demo',
+            'Implementation-Version': project.version,
+            'Main-Class': 'alvin.gradle.java.Main',
+        )
+    }
+
+    // 打包文件名
+    archiveFileName = "${project.group}.${project.name}-${project.version}-fat.jar"
+
+    // 将运行时所需的 jar 文件解压缩后放入 jar 包
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
+```
+
+运行编译结果
+
+```bash
+$ java -jar build/libs/alvin.gradle.java-1.0-fat.jar arg1 arg2
+```
+
+### 2.7. 清理生成的文件
 
 构建过程中产生的文件可以清理
 
