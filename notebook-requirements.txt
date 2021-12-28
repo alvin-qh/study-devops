@@ -1,3 +1,0 @@
-jupyterlab
-jupyterlab-git==0.30.0b1
-bash_kernel
