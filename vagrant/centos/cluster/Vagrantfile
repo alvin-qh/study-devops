@@ -1,21 +1,29 @@
+# 配置 centos 集群
+
 Vagrant.configure("2") do |config|
 
+  # 配置两台机器的集群
   (0..2).each do |i|
     config.vm.define "centos#{i + 1}" do |machine|
+      # 配置 virtualbox backend
       machine.vm.provider "virtualbox" do |vb|
         vb.name = "centos#{i + 1}"
         vb.memory = 256
         vb.cpus = 1
       end
 
-      machine.vm.hostname = "centos1"
-      machine.vm.box = "centos_8"
+      machine.vm.hostname = "centos1" # 设置 hostname
+      machine.vm.box = "centos_8" # 设置使用的 vagrantbox 名称
 
-      machine.vm.network "forwarded_port", guest: 80, host: (8083 + i)
-      machine.vm.network "private_network", ip: "192.168.100.#{i + 3}"
-      machine.vm.network "private_network", type: "dhcp"
-      machine.vm.synced_folder ".", "/vagrant"
+      # 网络配置
+      machine.vm.network "forwarded_port", guest: 80, host: (8083 + i) # 端口转发
+      machine.vm.network "private_network", ip: "192.168.100.#{i + 3}" # 内网固定 IP
+      machine.vm.network "private_network", type: "dhcp" # 内网自动 IP
 
+      # 设置共享目录
+	    # config.vm.synced_folder ".", "/vagrant"
+
+      # 执行初始化脚本
       config.vm.provision "shell", inline: <<-SHELL
         cp /vagrant/sshd_config /etc/ssh/
         systemctl restart sshd
