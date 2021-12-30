@@ -1,24 +1,25 @@
 version: "3.7"
 services:
   es:
-    image: "elasticsearch:7.6.2"
-    container_name: "es"
+    image: elasticsearch:7.16.2
+    container_name: es
     environment:
-      - "node.name=es"
-      - "cluster.initial_master_nodes=es"
-      - "cluster.name=docker-cluster"
-      - "bootstrap.memory_lock=true"
+      - node.name=es
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      # - xpack.security.enabled=true
+      # - xpack.security.audit.enabled=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - 9200:9200
+      - 9300:9300
     networks:
-      - "network"
+      - es_network
     volumes:
-      - "./logs:/usr/share/elasticsearch/logs/"
-      - "./plugins:/usr/share/elasticsearch/plugins/"
-      #   - "./config:/usr/share/elasticsearch/config:ro"
-      - "data:/usr/share/elasticsearch/data"
+      - es_log:/usr/share/elasticsearch/logs
+      - es_data:/usr/share/elasticsearch/data
+      - ./es_plugins:/usr/share/elasticsearch/plugins
+      # - ./elasticsearch.keystore:/usr/share/elasticsearch/config/elasticsearch.keystore
     ulimits:
       memlock:
         soft: -1
@@ -26,25 +27,37 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-    restart: "always"
+    restart: always
+    privileged: true
   kibana:
-    image: "kibana:7.6.2"
-    container_name: "kibana"
+    image: kibana:7.16.2
+    container_name: kibana
     depends_on:
-      - "es"
+      - es
     environment:
-      - "SERVER_NAME=kibana"
-      - "ELASTICSEARCH_HOSTS=http://es:9200"
+      - SERVER_NAME=kibana
+      - ELASTICSEARCH_HOSTS=["http://es:9200"]
+      # - MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED=true
+      # - ELASTICSEARCH_USERNAME=elastic
+      # - ELASTICSEARCH_PASSWORD=dQUtviHdUCryzvBVLR8O
     ports:
-      - "5601:5601"
+      - 5601:5601
     networks:
-      - "network"
+      - es_network
     # volumes:
+    #   - "./kibana.keystore:/usr/share/kibana/config/kibana.keystore"
     #   - "./kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
-    restart: "always"
+    restart: always
+    privileged: true
 networks:
-  network:
-    driver: "bridge"
+  es_network:
 volumes:
-  data:
-    name: "study-devops-es-standalone-data"
+  es_data:
+    # name: es_data # 使用实际分配的卷
+    driver_opts: # 使用临时卷
+      type: tmpfs
+      device: tmpfs
+  es_log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs

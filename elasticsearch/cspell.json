@@ -1,0 +1,22 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "aggregatable",
+        "certutil",
+        "datafeeds",
+        "fielddata",
+        "httpie",
+        "Lucene",
+        "mget",
+        "nodeattrs",
+        "PKCS",
+        "prirep",
+        "querydsl",
+        "relo",
+        "truststore",
+        "xpack",
+        "XPUT"
+    ],
+    "flagWords": []
+}
