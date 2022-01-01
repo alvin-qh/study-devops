@@ -458,7 +458,7 @@ POST /analyzer-pattern-tokenizer/_analyze
 
 ### 3.3. 字符组分词器
 
-[Character Group Tokenizer](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/analysis-chargroup-tokenizer.html)
+[Character Group Tokenizer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-chargroup-tokenizer.html)
 
 遇到字符组中的字符时将文本分解为词汇（例如 `,`）
 
@@ -538,7 +538,7 @@ POST /analyzer-simple-pattern-split-tokenizer/_analyze
 
 ### 3.5. 路径分词器
 
-[Path Hierarchy Tokenizer](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/analysis-pathhierarchy-tokenizer.html)
+[Path Hierarchy Tokenizer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-pathhierarchy-tokenizer.html)
 
 接受一个类似于文件系统路径的层次值，在路径分隔符上进行分割
 

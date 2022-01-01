@@ -263,8 +263,8 @@ POST /analyzer-language/_analyze
 自定义分析器即组合现有分词器和过滤器，达到更复杂的分析目标。主要包含如下参数：
 
 - `tokenizer`: 指定分词器。分词器参见 [分词器](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html)
-- `char_filter`: 字符过滤器 [字符过滤器](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/analysis-charfilters.html)
-- `filter`: 词过滤器 [词过滤器](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/analysis-tokenfilters.html)
+- `char_filter`: 字符过滤器 [字符过滤器](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-charfilters.html)
+- `filter`: 词过滤器 [词过滤器](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenfilters.html)
 - `position_increment_gap`: 词汇间插入的间隙（参见 [文档](https://www.elastic.co/guide/en/elasticsearch/reference/current/position-increment-gap.html)）
 
 ```json

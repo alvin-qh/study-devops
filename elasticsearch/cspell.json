@@ -2,11 +2,15 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "açaí",
         "aggregatable",
         "ALPHANUM",
         "asciifolding",
+        "bigram",
         "certutil",
         "datafeeds",
+        "Decompounder",
+        "dedup",
         "fielddata",
         "httpie",
         "Lucene",
@@ -22,6 +26,7 @@
         "sorani",
         "stopwords",
         "truststore",
+        "veya",
         "xpack",
         "XPUT"
     ],
