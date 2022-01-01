@@ -35,28 +35,38 @@ PUT /person
     "mappings": {
         "properties": {
             "name": {
-                "type": "keyword"
+                "type": "keyword",
+                "copy_to": "_all"
             },
             "gender": {
-                "type": "keyword"
+                "type": "keyword",
+                "copy_to": "_all"
             },
             "birthday": {
-                "type": "date"
+                "type": "date",
+                "copy_to": "_all"
             },
             "role": {
-                "type": "keyword"
+                "type": "keyword",
+                "copy_to": "_all"
             },
             "department": {
                 "properties": {
                     "college": {
-                        "type": "keyword"
+                        "type": "keyword",
+                        "copy_to": "_all"
                     },
                     "program": {
-                        "type": "keyword"
+                        "type": "keyword",
+                        "copy_to": "_all"
                     }
                 }
             },
             "note": {
+                "type": "text",
+                "copy_to": "_all"
+            },
+            "_all": {
                 "type": "text"
             }
         }
@@ -69,6 +79,18 @@ PUT /person
   - `number_of_shards` 数据分片数，默认为 `5`
 - `mappings` 数据和字段的对应关系
   - `properties` 每种类型的数据都有 `properties` 来说明其字段
+  - `copy_to` 将字段值复制到另一个字段中去，该字段不会作为 document 的字段，但可以被查询，例如：
+
+    ```json
+    GET /person/_search
+    {
+        "query": {
+            "match": {
+                "_all": "STUDENT"
+            }
+        }
+    }
+    ```
 
 ### 1.2. 查询索引
 
@@ -118,3 +140,5 @@ POST /person/_open
 ### 2.1. 更新 mapping
 
 [`PUT /<index>/_mapping`](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html)
+
+**注意：** 更新索引前必须关闭该索引，更新完毕后打开即可

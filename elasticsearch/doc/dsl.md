@@ -4,6 +4,7 @@
   - [1. 查询 DSL](#1-查询-dsl)
     - [1.1. `match` 查询](#11-match-查询)
     - [1.2. `multi_match` 查询](#12-multi_match-查询)
+    - [1.3. `bool` 查询](#13-bool-查询)
 
 > 查看 [文档](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/query-dsl.html)
 
@@ -99,3 +100,49 @@ GET /person/_search
   - `best_fields` 以最佳匹配的字段进行评分
   - `most_fields` 以所有匹配到的字段进行评分
   - `cross_fields` 将具有相同分析器的字段合成一个“大字段”后进行查询
+
+### 1.3. `bool` 查询
+
+[`Bool` query](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/query-dsl-match-bool-prefix-query.html)
+
+通过 `bool` 运算符可以组合多个查询
+
+```json
+GET /person/_search
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "term": {
+                        "role": "STUDENT"
+                    }
+                }
+            ],
+            "filter": [
+                {
+                    "range": {
+                        "birthday": {
+                            "gte": "1980-01-01"
+                        }
+                    }
+                }
+            ],
+            "must_not": [
+                {
+                    "term": {
+                        "gender": "F"
+                    }
+                }
+            ],
+            "should": [
+                {
+                    "match": {
+                        "note": "Top"
+                    }
+                }
+            ]
+        }
+    }
+}
+```

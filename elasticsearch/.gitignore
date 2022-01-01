@@ -1,3 +1,2 @@
-cluster/es*
-standalone/logs
-standalone/plugins
+docker/cluster/es*
+docker/standalone/es_plugins
