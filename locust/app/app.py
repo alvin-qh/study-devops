@@ -2,11 +2,10 @@ import os
 import sqlite3
 from datetime import datetime
 
-from flask import Flask, request, g, redirect, session, render_template
-from wtforms import Form, StringField, PasswordField
-from wtforms.validators import DataRequired
-
 import gevent.monkey
+from flask import Flask, g, redirect, render_template, request, session
+from wtforms import Form, PasswordField, StringField
+from wtforms.validators import DataRequired
 
 gevent.monkey.patch_all()
 
