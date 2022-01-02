@@ -87,7 +87,6 @@ $ locust -f locustfiles/web.py -H http://localhost:3000 --worker --master-host=l
 - `--worker` 以 "从测试节点" 启动 Locust
 - `--master-port` 指定 "测试主节点" 的端口号
 
-
 ### 2.3. 通过配置文件启动测试
 
 master 端，参见 [web.master.conf 配置文件](./testcase/web.master.conf)
