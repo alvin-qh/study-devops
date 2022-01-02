@@ -1,2 +1,6 @@
 docker/cluster/es*
 docker/standalone/es_plugins
+
+.venv
+__pycache__
+.pytest_cache

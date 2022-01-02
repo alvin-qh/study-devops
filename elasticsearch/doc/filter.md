@@ -19,6 +19,9 @@
     - [1.14. 扁平化标记图过滤器](#114-扁平化标记图过滤器)
     - [1.15. Hunspell 令牌筛选器](#115-hunspell-令牌筛选器)
   - [2. 字符过滤器](#2-字符过滤器)
+    - [2.1. HTML 标记字符筛选器](#21-html-标记字符筛选器)
+    - [2.2. 映射字符过滤器](#22-映射字符过滤器)
+    - [2.3. 正则表达式替换字符过滤器](#23-正则表达式替换字符过滤器)
 
 ## 1. 词过滤器
 
@@ -676,3 +679,140 @@ POST /analyzer-hunspell/_analyze
 > 与 snowball stemmers（基于算法）相反，这是一个基于字典查找的过滤器器，因此结果的质量取决于字典的质量。
 
 ## 2. 字符过滤器
+
+[Character Filter](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/analysis-charfilters.html)
+
+字符筛选器用于在字符流传递给分词器 ([Tokenizer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html)) 之前对其进行预处理。
+
+字符筛选器作为字符流接收原始文本，并且可以通过添加、删除或更改字符来转换流。例如，字符筛选器可用于将 “印度-阿拉伯数字” `(٠‎١٢٣٤٥٦٧٨‎٩‎)` 转换为 “阿拉伯语-拉丁” 等效项 `(0123456789)`，或从流中剥离像 `<b>` 这样的 HTML 元素。
+
+Elasticsearch 具有许多内置字符筛选器，可用于构建自定义文本分析器 ([Custom Analyzers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-custom-analyzer.html))
+
+### 2.1. HTML 标记字符筛选器
+
+[HTML Strip Char Filter](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-htmlstrip-charfilter.html)
+
+`html_strip` 筛选器从文本中剥离 HTML 元素，并将 HTML 实体替换为其解码的值（例如，用 `&` 替换 `&amp`）
+
+```json
+PUT /analyzer-html-strip
+{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "html_strip_analyzer": {
+                    "tokenizer": "keyword",
+                    "char_filter": [
+                        "html_strip"
+                    ]
+                }
+            }
+        }
+    }
+}
+
+POST /analyzer-html-strip/_analyze
+{
+    "analyzer": "html_strip_analyzer",
+    "text": "<p>I&apos;m so <b>happy</b>!</p>"
+}
+```
+
+### 2.2. 映射字符过滤器
+
+[Mapping Character  Filter](https://www.elastic.co/guide/en/elasticsearch/reference/7.16/analysis-mapping-charfilter.html)
+
+映射字符过滤器接受键和值的映射。每当遇到与键相同的字符串时，它就用与该键关联的值替换它们。
+
+匹配是贪婪方式的，在给定词汇上以最长的模式匹配。也可以替换为空字符串。
+
+```json
+PUT /analyzer-mapping
+{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "mapping_analyzer": {
+                    "tokenizer": "keyword",
+                    "char_filter": [
+                        "mapping_filter"
+                    ]
+                }
+            },
+            "char_filter": {
+                "mapping_filter": {
+                    "type": "mapping",
+                    "mappings": [
+                        "٠ => 0",
+                        "١ => 1",
+                        "٢ => 2",
+                        "٣ => 3",
+                        "٤ => 4",
+                        "٥ => 5",
+                        "٦ => 6",
+                        "٧ => 7",
+                        "٨ => 8",
+                        "٩ => 9"
+                    ]
+                }
+            }
+        }
+    }
+}
+
+POST /analyzer-mapping/_analyze
+{
+    "analyzer": "mapping_analyzer",
+    "text": "My license plate is ٢٥٠١٥"
+}
+```
+
+- `mappings` 一个映射数组，每个元素的形式为 `键 => 值`
+- `mappings_path` 文本映射文件的路径（UTF-8 编码），其中每一行包含一个 `键 => 值` 映射，该路径可以是配置目录的绝对路径，也可以是相对于配置目录的路径
+
+> `mappings` 或 `mappings_path` 参数二者必须提供一个
+
+### 2.3. 正则表达式替换字符过滤器
+
+[Pattern Replace Character Filter]
+
+`pattern_replace` 字符过滤器使用一个正则表达式来匹配替换字符串替换的字符。替换字符串可以引用正则表达式中的组
+
+匹配是贪婪方式的，在给定词汇上以最长的模式匹配。也可以替换为空字符串
+
+```json
+PUT /analyzer-pattern-replace
+{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "pattern_replace_analyzer": {
+                    "tokenizer": "keyword",
+                    "char_filter": [
+                        "pattern_replace_filter"
+                    ]
+                }
+            },
+            "char_filter": {
+                "pattern_replace_filter": {
+                    "type": "pattern_replace",
+                    "pattern": "(\\d+)-(?=\\d)",
+                    "replacement": "$1_"
+                }
+            }
+        }
+    }
+}
+
+POST /analyzer-pattern-replace/_analyze
+{
+    "analyzer": "pattern_replace_analyzer",
+    "text": "My credit card is 123-456-789"
+}
+```
+
+- `pattern` Java 风格的正则表达式
+- `replacement` 被替换字符串，它可以使用 `$1`..`$9` 的 [占位符](http://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#appendReplacement-java.lang.StringBuffer-java.lang.String-);
+- `flags`: Java 正则表达式标志。标志应该用 `|` 分隔，例如 `CASE_INSENSITIVE|COMMENTS`
+
+> 使用更改原始文本长度的替换字符串可以用于搜索，但是会导致不正确的高亮显示。
