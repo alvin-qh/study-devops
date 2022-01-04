@@ -3,7 +3,7 @@ services:
   zk01:
     image: zookeeper:3.7.0
     ports:
-      - "2181:2181"
+      - 2181:2181
     container_name: zk01
     networks:
       - zk_network
@@ -13,12 +13,12 @@ services:
       - zk_data1:/usr/local/zookeeper/data
       - zk_log1:/usr/local/zookeeper/log
     environment:
-      ZOO_MY_ID: 1 # 当前实例的 ID
-      ZOO_SERVERS: server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181 # 集群中的服务地址
+      - ZOO_MY_ID=1 # 当前实例的 ID
+      - ZOO_SERVERS=server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181 # 集群中的服务地址
   zk02:
-    image: zookeeper:latest
+    image: zookeeper:3.7.0
     ports:
-      - "2182:2181"
+      - 2182:2181
     container_name: zk02
     networks:
       - zk_network
@@ -28,8 +28,8 @@ services:
       - zk_data2:/usr/local/zookeeper/data
       - zk_log2:/usr/local/zookeeper/log
     environment:
-      ZOO_MY_ID: 2
-      ZOO_SERVERS: server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181
 volumes:
   zk_data1:
     driver_opts:
@@ -48,4 +48,5 @@ volumes:
       type: tmpfs
       device: tmpfs
 networks:
-  zk_network: null
+  zk_network:
+    driver: bridge
