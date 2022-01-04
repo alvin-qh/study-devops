@@ -1,5 +1,4 @@
----
-version: "3"
+version: "3.7"
 services:
   java:
     image: study/java:1.0

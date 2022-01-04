@@ -2,7 +2,6 @@ package alvin.docker.infra.repo;
 
 import alvin.docker.infra.model.FeedbackBuilder;
 import alvin.docker.testing.IntegrationTestSupport;
-import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -18,20 +17,20 @@ class FeedbackRepositoryTest extends IntegrationTestSupport {
 
     @Test
     void test_create() {
-        final val entity = newBuilder(FeedbackBuilder.class).build();
+        var entity = newBuilder(FeedbackBuilder.class).build();
 
-        try (val ignore = beginTx()){
+        try (var ignore = beginTx()) {
             repository.save(entity);
         }
     }
 
     @Test
     void test_list() {
-        try (val ignore = beginTx()) {
+        try (var ignore = beginTx()) {
             newBuilder(FeedbackBuilder.class).create();
         }
 
-        final val all = repository.findAll();
+        var all = repository.findAll();
         assertThat(all.size(), is(1));
     }
 }

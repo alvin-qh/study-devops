@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.val;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -49,7 +48,7 @@ public class MainConfig {
 
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
-        val templateResolver = new SpringResourceTemplateResolver();
+        var templateResolver = new SpringResourceTemplateResolver();
 
         templateResolver.setPrefix("classpath:/templates/");
         templateResolver.setSuffix(".html");
@@ -61,7 +60,7 @@ public class MainConfig {
 
     @Bean
     public MessageSource messageSource() {
-        val messageSource = new ReloadableResourceBundleMessageSource();
+        var messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasename("classpath:/i18n/messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
@@ -69,7 +68,7 @@ public class MainConfig {
 
     @Bean
     public LocalValidatorFactoryBean getValidator() {
-        val bean = new LocalValidatorFactoryBean();
+        var bean = new LocalValidatorFactoryBean();
         bean.setValidationMessageSource(messageSource());
         return bean;
     }

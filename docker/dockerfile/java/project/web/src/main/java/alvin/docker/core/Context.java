@@ -3,7 +3,6 @@ package alvin.docker.core;
 import alvin.docker.core.web.I18n;
 import alvin.docker.core.web.LocalRequestAttributes;
 import alvin.docker.utils.Values;
-import lombok.val;
 import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -45,7 +44,7 @@ public interface Context {
     }
 
     static void register(Context context) {
-        val attributes = new LocalRequestAttributes();
+        var attributes = new LocalRequestAttributes();
         attributes.setAttribute(KEY, context, SCOPE_REQUEST);
         RequestContextHolder.setRequestAttributes(attributes);
     }

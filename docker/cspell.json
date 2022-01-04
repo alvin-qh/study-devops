@@ -1,0 +1,13 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "cmake",
+        "fontawesome",
+        "fortawesome",
+        "mkdir",
+        "vuex",
+        "logback"
+    ],
+    "flagWords": []
+}

@@ -1,11 +1,12 @@
 package alvin.docker.testing.builder;
 
-import alvin.docker.infra.model.BaseEntity;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+
+import alvin.docker.infra.model.BaseEntity;
 
 public abstract class EntityBuilder<T extends BaseEntity> {
     @Inject
@@ -20,8 +21,8 @@ public abstract class EntityBuilder<T extends BaseEntity> {
         if (t instanceof ParameterizedType) {
             type = (Class<?>) ((ParameterizedType) t).getActualTypeArguments()[0];
             try {
-                entity = (T) type.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                entity = (T) type.getConstructor().newInstance();
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else {
@@ -39,8 +40,9 @@ public abstract class EntityBuilder<T extends BaseEntity> {
         return em;
     }
 
+    @SuppressWarnings("unchecked")
     public T build() {
-        final T entity = this.entity;
+        var entity = this.entity;
         this.entity = (T) entity.clone();
         preBuild(entity);
         return entity;

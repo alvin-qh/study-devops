@@ -1,10 +1,13 @@
 .code
+.DS_Store
+
+data/
+logs/
+
+/**/node_modules/
+
 *.ipr
 *.iws
 *.iml
 *.idea
 *.ids
-
-.DS_Store
-
-/**/node_modules/

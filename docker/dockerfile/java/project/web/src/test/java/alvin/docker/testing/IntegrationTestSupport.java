@@ -7,7 +7,6 @@ import alvin.docker.testing.jpa.TableCleaner;
 import alvin.docker.testing.jpa.Transaction;
 import alvin.docker.testing.jpa.TransactionManager;
 import alvin.docker.testing.web.ContextMocker;
-import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +65,7 @@ public abstract class IntegrationTestSupport extends UnitTestSupport {
     @SuppressWarnings("unchecked")
     protected <T extends BaseEntity> T refreshEntity(T old) {
         try {
-            val field = BaseEntity.class.getDeclaredField("id");
+            var field = BaseEntity.class.getDeclaredField("id");
             field.setAccessible(true);
 
             return (T) em.find(old.getClass(), field.get(old));
@@ -83,7 +82,7 @@ public abstract class IntegrationTestSupport extends UnitTestSupport {
     protected void setUp() throws Exception {
         synchronized (IntegrationTestSupport.class) {
             if (!tableCleaned) {
-                try (val ignore = beginTx()) {
+                try (var ignore = beginTx()) {
                     tableCleaner.clearAllTables(Main.TABLE_SCHEMA_VERSION);
                 }
                 tableCleaned = true;

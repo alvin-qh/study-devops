@@ -1,6 +1,5 @@
 package alvin.docker.utils;
 
-import lombok.val;
 import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
@@ -219,7 +218,7 @@ public final class Collections2 {
     }
 
     public static <K, V> Map<K, V> combineMap(Map<K, V> left, Map<K, V> right) {
-        val map = left == null ? new HashMap<K, V>() : new HashMap<>(left);
+        var map = left == null ? new HashMap<K, V>() : new HashMap<>(left);
         if (right != null) {
             map.putAll(right);
         }
@@ -227,7 +226,7 @@ public final class Collections2 {
     }
 
     public static <T> Set<T> combineSet(Collection<T> left, Collection<T> right) {
-        val set = left == null ? new HashSet<T>() : new HashSet<>(left);
+        var set = left == null ? new HashSet<T>() : new HashSet<>(left);
         if (right != null) {
             set.addAll(right);
         }
@@ -251,12 +250,12 @@ public final class Collections2 {
     }
 
     public static <T> List<T> disorder(Collection<T> collection, int frequency) {
-        val list = new ArrayList<>(collection);
+        var list = new ArrayList<>(collection);
         for (int i = 0; i < frequency; i++) {
-            val a = RANDOM.nextInt(list.size());
-            val b = RANDOM.nextInt(list.size());
+            var a = RANDOM.nextInt(list.size());
+            var b = RANDOM.nextInt(list.size());
             if (a != b) {
-                val v = list.get(a);
+                var v = list.get(a);
                 list.set(a, list.get(b));
                 list.set(b, v);
             }
@@ -268,8 +267,9 @@ public final class Collections2 {
         return disorder(list(collection), frequency);
     }
 
-    public static <T> Set<T> conact(Set<T> set, T... items) {
-        val newSet = new LinkedHashSet<>(set);
+    @SafeVarargs
+    public static <T> Set<T> concat(Set<T> set, T... items) {
+        var newSet = new LinkedHashSet<>(set);
         if (items != null) {
             newSet.addAll(Arrays.asList(items));
         }

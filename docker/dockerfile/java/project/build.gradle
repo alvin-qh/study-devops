@@ -11,39 +11,17 @@ import org.gradle.internal.logging.text.StyledTextOutputFactory
 
 idea {
     project {
-        jdkName = '1.8'
-        languageLevel = '1.8'
+        jdkName = '11'
+        languageLevel = '11'
     }
 }
 
 buildscript {
-    ext {
-        versions = [
-                guava        : '27.0.1-jre',
-                springBoot   : '2.2.4.RELEASE',
-                springLoaded : '1.2.8.RELEASE',
-                h2db         : '1.4.200',
-                flyway       : '6.2.0',
-                jackson      : '2.10.1',
-
-                junit        : '5.6.0',
-                junitLauncher: '1.6.0',
-                hamcrest     : '1.3',
-
-                lombok       : '1.18.10'
-        ]
-    }
-
     repositories {
-        jcenter()
         maven {
             url 'https://plugins.gradle.org/m2/'
         }
-    }
-
-    dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:${versions.springBoot}"
-        classpath "org.ajoberstar:gradle-git:1.7.2"
+        jcenter()
     }
 }
 
@@ -53,8 +31,8 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
 
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
 
     ext {
         out = services.get(StyledTextOutputFactory).create("dockerjava")
@@ -68,7 +46,7 @@ allprojects {
 
     repositories {
         maven {
-            url 'http://maven.aliyun.com/nexus/content/groups/public/'
+            url 'https://maven.aliyun.com/nexus/content/groups/public/'
         }
         jcenter()
     }
@@ -113,16 +91,15 @@ subprojects {
     checkStyle.mustRunAfter check
 
     dependencies {
-        annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
-        compileOnly "org.projectlombok:lombok:${versions.lombok}"
+        annotationProcessor annotations.main.common
+        testAnnotationProcessor annotations.test.common
 
-        implementation libs.main.guava
+        compileOnly compiles.main.common
+        testCompileOnly compiles.test.common
 
-        testAnnotationProcessor "org.projectlombok:lombok:${versions.lombok}"
-        testCompileOnly "org.projectlombok:lombok:${versions.lombok}"
-
-        testImplementation libs.test.common
-        testImplementation libs.test.guava
+        implementation libs.main.common
+        testImplementation libs.test.common,
+            libs.test.guava
     }
 }
 

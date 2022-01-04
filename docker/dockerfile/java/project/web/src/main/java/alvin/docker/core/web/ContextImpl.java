@@ -2,7 +2,6 @@ package alvin.docker.core.web;
 
 import alvin.docker.core.Context;
 import lombok.Data;
-import lombok.val;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class ContextImpl implements Context {
 
     @Override
     public void clear() {
-        val oldMap = contextMap;
+        var oldMap = contextMap;
         contextMap = new HashMap<>();
         oldMap.clear();
     }

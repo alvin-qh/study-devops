@@ -1,5 +1,5 @@
 # Javascript build
-FROM node:latest AS js-build
+FROM node AS js-build
 
 WORKDIR /build/src
 COPY project/web/src/front .

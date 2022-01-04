@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 @Controller
 @RequestMapping("/d")
-class MiscController {
+public class MiscController {
 
     private final ApplicationInfo applicationInfo;
 

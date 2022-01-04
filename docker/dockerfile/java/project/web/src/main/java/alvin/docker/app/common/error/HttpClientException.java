@@ -2,7 +2,6 @@ package alvin.docker.app.common.error;
 
 import com.google.common.base.Joiner;
 import lombok.Getter;
-import lombok.val;
 
 import java.util.Map;
 
@@ -23,7 +22,7 @@ public class HttpClientException extends RuntimeException {
     }
 
     private static String makeMessage(ClientError clientError) {
-        val builder = new StringBuilder(String.format("Client error caused, status: %d, message: \"%s\"",
+        var builder = new StringBuilder(String.format("Client error caused, status: %d, message: \"%s\"",
                 clientError.statusCode(), clientError.getMessage()));
         if (isNotEmpty(clientError.getErrorFields())) {
             builder.append(", fields=").append(mapToString(clientError.getErrorFields()));
@@ -35,7 +34,7 @@ public class HttpClientException extends RuntimeException {
     }
 
     private static <T> String mapToString(Map<String, T> map) {
-        val builder = new StringBuilder("{");
+        var builder = new StringBuilder("{");
         map.forEach((k, v) -> {
             if (builder.length() > 1) {
                 builder.append(",");

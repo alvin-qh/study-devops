@@ -5,8 +5,6 @@
 package alvin.docker.utils;
 
 import alvin.docker.app.common.error.InternalException;
-import lombok.val;
-import lombok.var;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -55,13 +53,13 @@ public final class Passwords {
      */
     public static String createHash(char[] password) {
         // Generate a random salt
-        val random = new SecureRandom();
+        var random = new SecureRandom();
 
-        val salt = new byte[SALT_BYTE_SIZE];
+        var salt = new byte[SALT_BYTE_SIZE];
         random.nextBytes(salt);
 
         // Hash the password
-        val hash = pbkdf2(password, salt, PBKDF2_ITERATIONS, HASH_BYTE_SIZE);
+        var hash = pbkdf2(password, salt, PBKDF2_ITERATIONS, HASH_BYTE_SIZE);
 
         // format iterations:salt:hash
         return PBKDF2_ITERATIONS + ":" + toHex(salt) + ":" + toHex(hash);
@@ -87,14 +85,14 @@ public final class Passwords {
      */
     public static boolean validatePassword(char[] password, String correctHash) {
         // Decode the hash into its parameters
-        val params = correctHash.split(":");
-        val iterations = Integer.parseInt(params[ITERATION_INDEX]);
-        val salt = fromHex(params[SALT_INDEX]);
-        val hash = fromHex(params[PBKDF2_INDEX]);
+        var params = correctHash.split(":");
+        var iterations = Integer.parseInt(params[ITERATION_INDEX]);
+        var salt = fromHex(params[SALT_INDEX]);
+        var hash = fromHex(params[PBKDF2_INDEX]);
 
         // Compute the hash of the provided password, using the same salt,
         // iteration count, and hash length
-        val testHash = pbkdf2(password, salt, iterations, hash.length);
+        var testHash = pbkdf2(password, salt, iterations, hash.length);
 
         // Compare the hashes in constant time. The password is correct if
         // both hashes match.
@@ -128,9 +126,9 @@ public final class Passwords {
      * @return the PBDKF2 hash of the password
      */
     private static byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes) {
-        val spec = new PBEKeySpec(password, salt, iterations, bytes * BYTE_BITS);
+        var spec = new PBEKeySpec(password, salt, iterations, bytes * BYTE_BITS);
         try {
-            val skf = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
+            var skf = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
             return skf.generateSecret(spec).getEncoded();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new InternalException(e);
@@ -144,7 +142,7 @@ public final class Passwords {
      * @return the hex string decoded into a byte array
      */
     private static byte[] fromHex(String hex) {
-        val binary = new byte[hex.length() / 2];
+        var binary = new byte[hex.length() / 2];
         for (var i = 0; i < binary.length; i++) {
             binary[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), RADIX);
         }
@@ -158,9 +156,9 @@ public final class Passwords {
      * @return a length*2 character string encoding the byte array
      */
     private static String toHex(byte[] array) {
-        val bi = new BigInteger(1, array);
-        val hex = bi.toString(RADIX);
-        val paddingLength = (array.length * 2) - hex.length();
+        var bi = new BigInteger(1, array);
+        var hex = bi.toString(RADIX);
+        var paddingLength = (array.length * 2) - hex.length();
 
         if (paddingLength > 0) {
             return String.format("%0" + paddingLength + "d", 0) + hex;

@@ -86,7 +86,6 @@ public class ErrorHandler implements ErrorController {
         return new ModelAndView(getErrorPath(), error.toMap(), error.getStatus());
     }
 
-    @Override
     public String getErrorPath() {
         return "errors/error_page";
     }

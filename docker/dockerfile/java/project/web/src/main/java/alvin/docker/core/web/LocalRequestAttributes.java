@@ -1,6 +1,5 @@
 package alvin.docker.core.web;
 
-import lombok.val;
 import org.springframework.web.context.request.AbstractRequestAttributes;
 
 import java.io.Closeable;
@@ -56,7 +55,7 @@ public class LocalRequestAttributes extends AbstractRequestAttributes implements
 
     @Override
     public void close() {
-        val attributesMap = this.attributesMap;
+        var attributesMap = this.attributesMap;
         this.attributesMap = new HashMap<>();
         attributesMap.clear();
     }

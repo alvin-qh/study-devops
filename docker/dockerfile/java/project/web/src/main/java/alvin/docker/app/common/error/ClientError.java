@@ -4,8 +4,6 @@ import alvin.docker.core.Context;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import lombok.var;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -41,7 +39,7 @@ public class ClientError implements Cloneable {
     private ClientError(HttpStatus status) {
         var attrib = RequestContextHolder.getRequestAttributes();
         if (attrib != null) {
-            val context = (Context) attrib.getAttribute(Context.KEY, SCOPE_REQUEST);
+            var context = (Context) attrib.getAttribute(Context.KEY, SCOPE_REQUEST);
             if (context != null) {
                 this.path = context.getRequestPath();
             }
@@ -164,12 +162,12 @@ public class ClientError implements Cloneable {
     }
 
     private static String message(String key, String defaultMessage, Object... args) {
-        val context = Context.current();
+        var context = Context.current();
         if (context == null) {
             return defaultMessage;
         }
 
-        val i18n = context.getI18n();
+        var i18n = context.getI18n();
         if (i18n == null) {
             return defaultMessage;
         }
@@ -177,7 +175,7 @@ public class ClientError implements Cloneable {
     }
 
     public static Builder status(HttpStatus status) {
-        val key = "error.common.http." + status.name();
+        var key = "error.common.http." + status.name();
         return new Builder(new ClientError(status)).fMessage(key);
     }
 
@@ -185,7 +183,7 @@ public class ClientError implements Cloneable {
         final ClientError clientError;
 
         if (exception instanceof HttpClientException) {
-            val exp = (HttpClientException) exception;
+            var exp = (HttpClientException) exception;
             clientError = exp.getClientError();
         } else if (exception instanceof InternalException) {
             if (exception.getCause() != null) {

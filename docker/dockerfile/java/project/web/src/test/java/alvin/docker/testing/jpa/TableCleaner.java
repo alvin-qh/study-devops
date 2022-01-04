@@ -1,10 +1,8 @@
 package alvin.docker.testing.jpa;
 
-import lombok.val;
 import org.hibernate.Session;
 
 import javax.persistence.EntityManager;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +30,7 @@ public class TableCleaner {
 //            final String schema = connection.getCatalog();
             Set<String> excludeSet = newHashSet(exclude);
             em.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
-            final val tables = listAllTables("PUBLIC");
+            var tables = listAllTables("PUBLIC");
             tables.stream()
                     .filter(t -> !excludeSet.contains(t))
                     .forEach(t ->

@@ -1,8 +1,6 @@
 package alvin.docker.utils;
 
 import alvin.docker.core.Context;
-import lombok.val;
-import lombok.var;
 import org.apache.logging.log4j.util.Strings;
 
 import java.time.Instant;
@@ -69,7 +67,7 @@ public class Times {
     public static String datetimeFormat(LocalDateTime dateTime, Context context) {
         var formatter = STANDARD_DATETIME_FORMATTER;
         if (context != null && context.getI18n() != null) {
-            val pattern = context.getI18n().getMessage("common.datetime.format");
+            var pattern = context.getI18n().getMessage("common.datetime.format");
             if (Strings.isEmpty(pattern)) {
                 formatter = DateTimeFormatter.ofPattern(pattern);
             }

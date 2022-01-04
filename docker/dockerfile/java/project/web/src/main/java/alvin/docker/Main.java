@@ -1,6 +1,5 @@
 package alvin.docker;
 
-import lombok.val;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,11 +28,11 @@ public class Main implements WebMvcConfigurer {
     private static final int STATIC_RESOURCE_CACHE_PERIOD = 3600;
 
     public static void main(String[] args) {
-        val application = new SpringApplication(Main.class);
+        var application = new SpringApplication(Main.class);
 
         application.setBannerMode(Banner.Mode.OFF);
 
-        val props = new Properties();
+        var props = new Properties();
         props.put("spring.datasource.hikari.pool-name", "demo.docker.alvin");
         props.put("spring.datasource.hikari.auto-commit", "true");
 

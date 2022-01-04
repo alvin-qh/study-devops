@@ -1,6 +1,5 @@
 package alvin.docker.utils;
 
-import lombok.val;
 import org.apache.logging.log4j.util.Strings;
 
 import java.util.Objects;
@@ -36,12 +35,12 @@ public final class Values {
         return !truly(value);
     }
 
-    public static <T> T nullElse(T val, T elseValue) {
-        return val == null ? elseValue : val;
+    public static <T> T nullElse(T value, T elseValue) {
+        return value == null ? elseValue : value;
     }
 
-    public static <T> T nullElse(T val, Supplier<? extends T> orElse) {
-        return val == null ? orElse.get() : val;
+    public static <T> T nullElse(T value, Supplier<? extends T> orElse) {
+        return value == null ? orElse.get() : value;
     }
 
     public static <T, R> R fetchIfNonNull(T value, Function<? super T, ? extends R> fetch) {
@@ -71,7 +70,7 @@ public final class Values {
     public static <T, R> T choose(Supplier<? extends R> query, Function<? super R, Boolean> condition,
                                   Function<? super R, ? extends T> ifTrue,
                                   Function<? super R, ? extends T> otherWish) {
-        val value = query.get();
+        var value = query.get();
         return condition.apply(value) ? ifTrue.apply(value) : otherWish.apply(value);
     }
 

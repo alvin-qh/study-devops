@@ -3,7 +3,7 @@ package alvin.docker.app.api.model;
 import lombok.Getter;
 
 @Getter
-public class Response<T> {
+public final class Response<T> {
     private String status;
     private T payload;
 

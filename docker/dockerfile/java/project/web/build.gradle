@@ -1,19 +1,21 @@
+plugins {
+    id "org.springframework.boot" version "${VER_SPRING_BOOT}"
+    id "io.spring.dependency-management" version "${VER_GRADLE_SPRING_DEPENDENCY_MANAGEMENT}"
+}
+
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.internal.logging.text.StyledTextOutput.Style
 
-plugins {
-    id 'org.springframework.boot'
-    id 'io.spring.dependency-management'
-}
-
 dependencies {
-    compileOnly "org.springframework.boot:spring-boot-configuration-processor:${versions.springBoot}"
+    annotationProcessor annotations.main.spring
 
-    implementation libs.main.springBoot,
+    compileOnly compiles.main.spring
+
+    implementation libs.main.common,
+            libs.main.springBoot,
             libs.main.jackson,
             libs.main.db.h2,
             libs.main.db.migration
-
     testImplementation libs.test.common,
             libs.test.springBoot
 }
@@ -58,7 +60,7 @@ versionize.shouldRunAfter processResources
 bootJar {
     dependsOn versionize
 
-    baseName = project.group
+    archiveBaseName = project.group
 
     manifest {
         attributes 'Implementation-Title': 'Docker Java Demo'

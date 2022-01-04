@@ -7,7 +7,6 @@ import alvin.docker.app.api.model.Response;
 import alvin.docker.app.common.error.ClientError;
 import alvin.docker.app.common.error.HttpClientException;
 import alvin.docker.domain.service.FeedbackService;
-import lombok.val;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +37,7 @@ public class FeedbackController {
 
     @GetMapping
     Response<List<FeedbackDto>> index() {
-        final val feedback = feedbackService.list()
+        var feedback = feedbackService.list()
                 .stream()
                 .map(feedbackMapper::toDto)
                 .collect(Collectors.toList());
@@ -50,7 +49,7 @@ public class FeedbackController {
         if (br.hasErrors()) {
             throw new HttpClientException(ClientError.badRequest().build());
         }
-        final val feedback = feedbackMapper.toEntity(form);
+        var feedback = feedbackMapper.toEntity(form);
         feedbackService.create(feedback);
         return Response.success(null);
     }
