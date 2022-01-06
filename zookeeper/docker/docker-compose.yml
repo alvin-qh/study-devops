@@ -1,5 +1,6 @@
 version: "3.7"
 services:
+  # Zookper 集群
   zk01:
     image: zookeeper:3.7.0
     ports:
@@ -10,8 +11,7 @@ services:
     privileged: true
     restart: always
     volumes:
-      - zk_data1:/usr/local/zookeeper/data
-      - zk_log1:/usr/local/zookeeper/log
+      - zk_data1:/usr/local/zookeeper
     environment:
       - ZOO_MY_ID=1 # 当前实例的 ID
       - ZOO_SERVERS=server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181 # 集群中的服务地址
@@ -25,8 +25,7 @@ services:
     privileged: true
     restart: always
     volumes:
-      - zk_data2:/usr/local/zookeeper/data
-      - zk_log2:/usr/local/zookeeper/log
+      - zk_data2:/usr/local/zookeeper
     environment:
       - ZOO_MY_ID=2
       - ZOO_SERVERS=server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181
@@ -35,15 +34,7 @@ volumes:
     driver_opts:
       type: tmpfs
       device: tmpfs
-  zk_log1:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
   zk_data2:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
-  zk_log2:
     driver_opts:
       type: tmpfs
       device: tmpfs
