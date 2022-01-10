@@ -197,7 +197,6 @@ test1:4:0
 
 - `--kafka-run-class.sh` 执行某个指定的 Java 类，本例中 `GetOffsetShell` 类表示在命令行中获取偏移量
 
-
 ### 1.6. 删除主题
 
 正常情况下，Kafka 不推荐删除主题，通过设置 `retention.ms=1000` 配置项清空其内容即可
@@ -205,7 +204,7 @@ test1:4:0
 删除 test1 主题
 
 ```bash
-$ docker exec -it kf01 kafka-topics.sh --delete \
+$ kafka-topics.sh --delete \
     --topic test1 \
     --bootstrap-server localhost:9092,kf02:9092
 ```

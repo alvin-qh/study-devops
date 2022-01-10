@@ -2,8 +2,12 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "addrs",
         "downconversion",
-        "insync"
+        "insync",
+        "keyvalue",
+        "pykafka",
+        "Zhjg"
     ],
     "flagWords": []
 }
