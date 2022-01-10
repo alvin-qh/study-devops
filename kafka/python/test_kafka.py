@@ -1,3 +1,5 @@
+import time
+
 import conf
 import pytest
 from kafka.admin import NewTopic
@@ -106,6 +108,8 @@ def test_producer_send():
     assert record.topic == conf.TOPIC  # 发送的主题
     assert record.partition in {0, 1, 2, 3, 4}  # 发送到的分区
     assert record.offset >= 0  # 发送分区的偏移量
+
+    time.sleep(1)
 
     for msg in consumer:
         assert msg.topic == conf.TOPIC  # 接收到的主题
