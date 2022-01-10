@@ -2,11 +2,17 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "acks",
         "addrs",
+        "backoff",
         "downconversion",
         "insync",
         "keyvalue",
+        "partitioner",
         "pykafka",
+        "RCVBUFF",
+        "rebalance",
+        "SNDBUFF",
         "Zhjg"
     ],
     "flagWords": []

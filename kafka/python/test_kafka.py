@@ -316,9 +316,9 @@ def test_json_deserializer():
     producer = ka.KafkaProducer(
         client_id=conf.CLIENT_ID,
         bootstrap_servers=BOOTSTRAP_SERVERS,
-        value_serializer=lambda x: json.dumps(
-            x,
-        ).encode("utf8"),  # 编码器，对 value 进行编码
+        value_serializer=lambda x: (
+            json.dumps(x).encode("utf8")
+        ),  # 编码器，对 value 进行编码
     )
 
     try:
