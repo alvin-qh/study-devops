@@ -1,9 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>alvin.study</groupId>
   <artifactId>study-maven-package</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
+  <packaging>jar</packaging>
   <url>http://study.maven.alvin</url>
 
   <!-- 项目属性 -->
@@ -29,17 +31,17 @@
   <!-- 依赖引用 -->
   <dependencies>
     <dependency>
-      <groupId>org.junit.jupiter</groupId> <!-- 使用被声明的依赖，无需指定版本 -->
+      <groupId>org.junit.jupiter</groupId>      <!-- 使用被声明的依赖，无需指定版本 -->
       <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope> <!-- 依赖仅在测试时引入 -->
+      <scope>test</scope>      <!-- 依赖仅在测试时引入 -->
     </dependency>
   </dependencies>
 
-  <!-- 应用插件 -->
+  <!-- 项目构建 -->
   <build>
     <plugins>
+      <!-- 编译插件 -->
       <plugin>
-        <!-- 编译插件 -->
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
@@ -47,24 +49,50 @@
           <target>11</target>
         </configuration>
       </plugin>
+
+      <!-- 单元测试插件 -->
       <plugin>
-        <!-- 单元测试插件 -->
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.2</version>
       </plugin>
+
+      <!-- 执行器插件 -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.0.0</version>
         <executions>
           <execution>
+            <id>main</id>
             <goals>
               <goal>java</goal>
             </goals>
+            <configuration>
+              <mainClass>alvin.study.maven.Main</mainClass>
+              <workingdir>${project.root.directory}</workingdir>
+              <arguments>
+                <argument>12</argument>
+                <argument>13</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>dir</id>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>ls</executable>
+              <arguments>
+                <argument>-al</argument>
+              </arguments>
+            </configuration>
           </execution>
         </executions>
         <configuration>
-          <mainClass>alvin.study.maven.Main</mainClass>
+          <environmentVariables>
+            <WORK_DIR>./target</WORK_DIR>
+          </environmentVariables>
         </configuration>
       </plugin>
     </plugins>

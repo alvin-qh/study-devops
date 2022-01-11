@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>alvin.study</groupId>
   <artifactId>study-maven-basic</artifactId>
@@ -18,10 +19,10 @@
     <dependencies>
       <dependency>
         <groupId>org.junit</groupId>
-        <artifactId>junit-bom</artifactId>
+        <artifactId>junit-bom</artifactId>        <!-- 使用 junit 提供的 bom（物料清单），包含所有 junit 相关依赖 -->
         <version>5.8.2</version>
         <type>pom</type>
-        <scope>import</scope>
+        <scope>import</scope>        <!-- 依赖仅在测试时引入 -->
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -31,15 +32,15 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>      <!-- 使用被声明的依赖，无需指定版本 -->
       <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>      <!-- 依赖仅在测试时引入 -->
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
-  <!-- 应用插件 -->
+  <!-- 项目构建 -->
   <build>
     <plugins>
+      <!-- 编译插件 -->
       <plugin>
-        <!-- 编译插件 -->
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
@@ -47,8 +48,9 @@
           <target>11</target>
         </configuration>
       </plugin>
+
+      <!-- 单元测试插件 -->
       <plugin>
-        <!-- 单元测试插件 -->
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.2</version>
       </plugin>
