@@ -1,0 +1,53 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>alvin.study</groupId>
+  <artifactId>study-maven-basic</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>${project.artifactId}</name>
+  <url>http://study.maven.alvin/</url>
+
+  <!-- 项目属性 -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+  </properties>
+
+  <!-- 依赖声明，所有子项目可使用声明后的依赖 -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>5.8.2</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- 依赖引用 -->
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>      <!-- 使用被声明的依赖，无需指定版本 -->
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>      <!-- 依赖仅在测试时引入 -->
+    </dependency>
+  </dependencies>
+
+  <!-- 应用插件 -->
+  <build>
+    <plugins>
+      <plugin>
+        <!-- 编译插件 -->
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+      </plugin>
+      <plugin>
+        <!-- 单元测试插件 -->
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>
