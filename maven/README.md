@@ -70,3 +70,11 @@ $ mvn archetype:generate
     -DarchetypeArtifactId = maven-archetype-quickstart
     -DinteractiveMode = false
 ```
+
+## 2. 通用指令
+
+### 2.1. 查看依赖树
+
+```bash
+$ mvn dependency:tree
+```
