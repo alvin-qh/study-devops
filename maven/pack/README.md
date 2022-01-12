@@ -146,4 +146,191 @@ $ mvn compile exec:exec@dir
 
 ## 2. 打包
 
-打包的目标是生成一个 `jar` 或
+打包的目标是生成一个 `jar` 或 `war` 包。目前 `war` 包使用的较少了，主要是以 `jar` 包为主
+
+maven 具备基本的打包功能，但仅是将项目产生的 `.class` 文件压缩到 `.jar` 文件中，很多必要的设置（如定义 `.MF` 文件）仍需要引入相关的插件来完成
+
+通过不同的插件，可以进行不同类型的打包，常用的有如下几种类型
+
+### 2.1. Thin jar
+
+[maven-jar-plugin](https://maven.apache.org/plugins/maven-jar-plugin/index.html)
+[maven-dependency-plugin](https://maven.apache.org/plugins/maven-dependency-plugin/index.html)
+
+`maven-jar-plugin` 插件产生最小尺寸的 jar 包，只包含当前项目产生的 `.class` 文件，不包含引入的依赖。该 jar 包需要通过 `--classpath` 参数指定其它
+
+如果项目不仅依赖于 JDK，可以通过 `maven-dependency-plugin` 将所需的依赖汇集到指定的位置，并将依赖声明增加在 manifest 声明中，以达到 jar 文件可以被运行的效果
+
+`maven-jar-plugin` 定义
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-jar-plugin</artifactId>
+    <version>3.2.1</version>
+    <configuration>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+        <archive>
+            <index>true</index>
+            <manifest>
+                <mainClass>alvin.study.maven.Main</mainClass>
+                <addClasspath>true</addClasspath>
+                <classpathPrefix>./lib/</classpathPrefix>
+                <useUniqueVersions>false</useUniqueVersions>
+            </manifest>
+            <manifestEntries>
+                <mode>development</mode>
+                <url>${project.url}</url>
+            </manifestEntries>
+        </archive>
+    </configuration>
+</plugin>
+```
+
+- `finalName` 定义输出的 jar 文件名
+- `archive` 打包配置
+  - `manifest` 定义 jar 包中 `META-INF/MANIFEST.MF` 文件的内容
+    - `mainClass` 改 jar 包执行时执行的入口类
+    - `addClasspath` 将所需依赖加入到 `Class-Path` 配置项中
+    - `classpathPrefix` 依赖所在路径的前缀
+    - `useUniqueVersions` 是否为 jar 生成时间戳版本
+  - `manifestEntries` 通过 key/value 方式将额外的信息加入 `META-INF/MANIFEST.MF` 文件
+
+`maven-dependency-plugin` 定义
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-dependency-plugin</artifactId>
+    <version>3.2.0</version>
+    <executions>
+        <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+                <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+                <outputDirectory>${project.build.directory}/lib</outputDirectory>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+- `<phase>package</phase>` 附加在 maven 的 `package` 指令上
+- `<goal>copy-dependencies</goal>` 表示将依赖进行 copy 操作
+- `outputDirectory` 依赖拷贝到的路径
+
+通过如下命令即可进行打包
+
+```bash
+$ mvn compile package
+```
+
+### 2.2. Fat jar
+
+[maven-assembly-plugin](https://maven.apache.org/plugins/maven-assembly-plugin/index.html)
+
+所谓的 fat jar 即将当前项目的 `.class` 文件以及项目所依赖的 `.jar` 文件中包含的 `.class` 文件统一打包在输出的 `.jar` 文件中
+
+这样打包出来的 `.jar` 文件尺寸会很大，但执行时只需依赖 JDK，比较方便
+
+`maven-assembly-plugin` 插件配置如下
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <version>3.3.0</version>
+    <configuration>
+        <finalName>${project.artifactId}-${project.version}-fat</finalName>
+        <appendAssemblyId>false</appendAssemblyId>
+        <archive>
+            <manifest>
+                <mainClass>alvin.study.maven.Main</mainClass>
+            </manifest>
+        </archive>
+        <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+        </descriptorRefs>
+    </configuration>
+    <executions>
+        <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+                <goal>single</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+- `finalName` 最终输出的 jar 文件名称
+- `appendAssemblyId` 是否在输出的 jar 文件名后追加 `jar-with-dependencies` 部分
+
+通过如下命令可完成打包：
+
+```bash
+$ mvn compile assembly:single
+```
+
+`assembly` 指令对应唯一 `goal` 为 `single`
+
+由于配置文件中定义了 `execution` 并绑定到 `package` 指令上，所以如下命令也可以完成打包
+
+```bash
+$ mvn compile package
+```
+
+### 2.2. Fat jar with shade
+
+`maven-assembly-plugin` 插件打包有可能会出现引用冲突的问题（例如引用的包也将依赖进行打包），此时应该使用 `maven-shade-plugin` 插件进行打包
+
+`maven-shade-plugin` 在打包方面有更多的优势，一般情况下，优先选择 `maven-shade-plugin` 即可
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>3.2.4</version>
+    <configuration>
+        <finalName>${project.artifactId}-${project.version}-shade</finalName>
+        <createDependencyReducedPom>false</createDependencyReducedPom>
+    </configuration>
+    <executions>
+        <execution>
+            <id>make-shade</id>
+            <phase>package</phase>
+            <goals>
+                <goal>shade</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+- `createDependencyReducedPom` 是否保留生成的中间 `.pom` 文件
+
+`maven-shade-plugin` 插件只有一个名为 `shade` 的 `goal`，可以通过 `phase` 绑定在 `package` 指令上
+
+处理依赖冲突，则需要在插件的 `configuration` 标签中配置 `transformer` 对冲突的文件进行指定覆盖策略
+
+```xml
+<configuration>
+    ...
+    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+        <mainClass>alvin.study.maven.Main</mainClass>
+    </transformer>
+    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+        <resource>META-INF/spring.handlers</resource>
+    </transformer>
+    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+        <resource>META-INF/spring.schemas</resource>
+    </transformer>
+</configuration>
+```
+
+- `org.apache.maven.plugins.shade.resource.ManifestResourceTransformer` 对主 `META-INF/MANIFEST.MF` 进行冲突处理
+- `org.apache.maven.plugins.shade.resource.AppendingTransformer` 对指定位置的资源冲突进行处理

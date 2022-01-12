@@ -105,7 +105,7 @@
         </configuration>
       </plugin>
 
-      <!-- 打包插件 -->
+      <!-- thin jar 打包插件 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -128,7 +128,7 @@
         </configuration>
       </plugin>
 
-      <!-- copy 插件依赖 -->
+      <!-- 依赖 copy 插件依赖 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -183,7 +183,25 @@
         <configuration>
           <finalName>${project.artifactId}-${project.version}-shade</finalName>
           <createDependencyReducedPom>false</createDependencyReducedPom>
+          <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+            <mainClass>alvin.study.maven.Main</mainClass>
+          </transformer>
+          <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+            <resource>META-INF/spring.handlers</resource>
+          </transformer>
+          <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+            <resource>META-INF/spring.schemas</resource>
+          </transformer>
         </configuration>
+        <executions>
+          <execution>
+            <id>make-shade</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
