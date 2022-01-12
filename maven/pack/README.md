@@ -1,4 +1,4 @@
-# 打包
+# 执行和打包
 
 ## 1. 通过 maven 执行程序
 
@@ -143,3 +143,7 @@ $ mvn compile exec:exec@dir
 ```
 
 此时，直接通过 `$ mvn compile exec:java` 即可启动当前项目，而无需追加 `@id`
+
+## 2. 打包
+
+打包的目标是生成一个 `jar` 或

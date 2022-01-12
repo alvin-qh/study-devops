@@ -161,6 +161,9 @@ my-app
 
 ### 2.5. 项目构建配置
 
+[maven-compiler-plugin](https://maven.apache.org/plugins/maven-compiler-plugin/index.html)
+[maven-surefire-plugin](https://maven.apache.org/surefire/maven-surefire-plugin/index.html)
+
 指定构建项目所用的插件集合。一般来说，一个插件即对应一组**指令**，用于对项目进行某种构建（例如：编译，资源处理，打包等等）
 
 常用的构建插件如下：
@@ -188,4 +191,4 @@ my-app
 ```
 
 - `maven-compiler-plugin` 增加 `$ mvn compile` 指令，用来编译整个项目
-- `org.apache.maven.plugins` 增加 `$mvn test` 指令，执行单元测试
+- `maven-surefire-plugin` 增加 `$ mvn test` 指令，执行单元测试
