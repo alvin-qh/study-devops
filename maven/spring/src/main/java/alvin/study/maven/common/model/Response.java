@@ -1,6 +1,7 @@
-package alvin.study.maven.spring.common.model;
+package alvin.study.maven.common.model;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
