@@ -1,11 +1,14 @@
 package alvin.study.maven.common.model;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Response<T> {
-    private final String error;
-    private final T payload;
+    private String error;
+    private T payload;
 }

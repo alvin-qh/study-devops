@@ -1,0 +1,7 @@
+spring:
+  main:
+    banner-mode: "off"
+    allow-bean-definition-overriding: true
+  config:
+    activate:
+      on-profile: "test"
