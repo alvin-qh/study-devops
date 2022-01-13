@@ -2,12 +2,12 @@ package alvin.study.maven;
 
 import com.google.common.base.Strings;
 
-public class Main {
+public final class Main {
     public static void main(String[] args) {
         new Main().execute(args);
     }
 
-    private void execute(String[] args) {
+    protected void execute(String[] args) {
         System.out.println("Hello maven project");
 
         if (args.length == 2) {

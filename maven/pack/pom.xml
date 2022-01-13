@@ -13,6 +13,16 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+
+    <version.junit>5.8.2</version.junit>
+    <version.guava>31.0.1-jre</version.guava>
+    <version.maven-compiler>3.8.1</version.maven-compiler>
+    <version.maven-surefire>2.22.2</version.maven-surefire>
+    <version.maven-exec>3.0.0</version.maven-exec>
+    <version.maven-jar>3.2.1</version.maven-jar>
+    <version.maven-dependency>3.2.0</version.maven-dependency>
+    <version.maven-assembly>3.3.0</version.maven-assembly>
+    <version.maven-shade>3.2.4</version.maven-shade>
   </properties>
 
   <!-- 依赖声明，所有子项目可使用声明后的依赖 -->
@@ -21,14 +31,14 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.8.2</version>
+        <version>${version.junit}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>31.0.1-jre</version>
+        <version>${version.guava}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -52,7 +62,7 @@
       <!-- 编译插件 -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>${version.maven-compiler}</version>
         <configuration>
           <source>11</source>
           <target>11</target>
@@ -62,14 +72,14 @@
       <!-- 单元测试插件 -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
+        <version>${version.maven-surefire}</version>
       </plugin>
 
       <!-- 执行器插件 -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>${version.maven-exec}</version>
         <executions>
           <execution>
             <id>main</id>
@@ -109,7 +119,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>${version.maven-jar}</version>
         <configuration>
           <finalName>${project.artifactId}-${project.version}</finalName>
           <archive>
@@ -132,7 +142,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>${version.maven-dependency}</version>
         <executions>
           <execution>
             <id>copy</id>
@@ -151,7 +161,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>${version.maven-assembly}</version>
         <configuration>
           <finalName>${project.artifactId}-${project.version}-fat</finalName>
           <appendAssemblyId>false</appendAssemblyId>
@@ -179,7 +189,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>${version.maven-shade}</version>
         <configuration>
           <finalName>${project.artifactId}-${project.version}-shade</finalName>
           <createDependencyReducedPom>false</createDependencyReducedPom>
