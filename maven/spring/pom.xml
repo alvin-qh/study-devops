@@ -22,11 +22,12 @@
     <version.lambok>1.18.22</version.lambok>
 
     <version.maven-compiler>3.8.1</version.maven-compiler>
-    <version.maven-exec>3.0.0</version.maven-exec>
+    <version.maven-surefire>2.22.2</version.maven-surefire>
   </properties>
 
   <dependencyManagement>
     <dependencies>
+      <!-- springboot bom -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
@@ -34,11 +35,14 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${version.guava}</version>
       </dependency>
+
+      <!-- junit 5 bom -->
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
@@ -46,6 +50,8 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <!-- lombok -->
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
@@ -55,43 +61,54 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- 引入 spirngboot web starter -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+
+    <!-- 引入 spirngboot web test starter -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <exclusions>
+      <scope>test</scope>
+      <exclusions>        <!-- 排除 junit4 -->
         <exclusion>
           <groupId>junit</groupId>
           <artifactId>*</artifactId>
         </exclusion>
-        <exclusion>
+        <exclusion>          <!-- 排除 junit4 vintage -->
           <groupId>org.junit.vintage</groupId>
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- 引入 spirngboot webflux starter，这里仅用作测试 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
+      <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${version.guava}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>${version.apache-lang3}</version>
     </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -100,13 +117,14 @@
 
   <build>
     <plugins>
+      <!-- 编译插件 -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${version.maven-compiler}</version>
         <configuration>
           <source>11</source>
           <target>11</target>
-          <annotationProcessorPaths>
+          <annotationProcessorPaths>            <!-- 设置编译期注解处理器 -->
             <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
@@ -115,10 +133,21 @@
           </annotationProcessorPaths>
         </configuration>
       </plugin>
+
+      <!-- 单元测试插件 -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.maven-surefire}</version>
+      </plugin>
+
+      <!-- spring maven 插件 -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>${version.spring-boot}</version>
+        <configuration>
+          <mainClass>alvin.study.maven.Application</mainClass>
+        </configuration>
         <executions>
           <execution>
             <goals>
