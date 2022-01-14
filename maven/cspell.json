@@ -7,8 +7,13 @@
         "codehaus",
         "Deserialization",
         "JDBC",
+        "lambok",
+        "projectlombok",
         "Servlet",
         "simplifed",
+        "Springboot",
+        "springframework",
+        "webflux",
         "workingdir"
     ],
     "flagWords": []
