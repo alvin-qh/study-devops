@@ -1,6 +1,8 @@
 # Springboot
 
-## 1. 插件
+## 1. springboot 插件
+
+[`spring-boot-maven-plugin`](`https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/maven-plugin/reference/html/`)
 
 Springboot 提供了一个完整的插件 `spring-boot-maven-plugin`，一站式的解决运行，调试和打包功能
 
@@ -126,6 +128,8 @@ spring:
 ```
 
 ## 3. Lombok 支持
+
+[`lombok`](https://projectlombok.org/setup/maven)
 
 ### 3.1. 引入依赖
 

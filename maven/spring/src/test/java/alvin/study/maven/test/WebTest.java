@@ -17,7 +17,7 @@ import org.springframework.test.web.reactive.server.WebTestClient.RequestHeaders
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @AutoConfigureWebTestClient
-public class WebTest extends IntegrationTest {
+public abstract class WebTest extends IntegrationTest {
     @Autowired
     private WebTestClient webClient;
 

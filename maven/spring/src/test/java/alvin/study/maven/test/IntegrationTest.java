@@ -14,5 +14,5 @@ import alvin.study.maven.test.conf.TestContextInitializer;
 @SpringBootTest(classes = { Application.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = { TestContextInitializer.class })
 @ActiveProfiles("test")
-public class IntegrationTest extends UnitTest {
+public abstract class IntegrationTest extends UnitTest {
 }

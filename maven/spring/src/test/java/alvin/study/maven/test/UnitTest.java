@@ -1,4 +1,7 @@
 package alvin.study.maven.test;
 
-public class UnitTest {
+/**
+ * 单元测试超类
+ */
+public abstract class UnitTest {
 }

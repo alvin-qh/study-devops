@@ -23,7 +23,8 @@ class HelloControllerTest extends WebTest {
                 }).returnResult()
                 .getResponseBody();
 
-        assertNull(resp.getError());
+        assertEquals(0, resp.getRetCode());
+        assertEquals("OK", resp.getErrMsg());
         assertEquals("Alvin", resp.getPayload().getName());
         assertTrue(resp.getPayload().getTimestamp().compareTo(LocalDateTime.now(ZoneOffset.UTC)) <= 0);
     }

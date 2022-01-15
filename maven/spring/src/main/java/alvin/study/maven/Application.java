@@ -34,14 +34,17 @@ public class Application {
         app.run(args);
     }
 
+    /**
+     * 自定义 Jackson mapper 规则
+     */
     @Bean
     @Primary
-    public Jackson2ObjectMapperBuilderCustomizer addCustomizer() {
+    public Jackson2ObjectMapperBuilderCustomizer addJacksonMapperCustomizer() {
         return new Jackson2ObjectMapperBuilderCustomizer() {
             @Override
             public void customize(Jackson2ObjectMapperBuilder builder) {
-                builder.featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-                builder.serializationInclusion(JsonInclude.Include.NON_NULL);
+                builder.featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES); // 遇到未知字段不报错
+                builder.serializationInclusion(JsonInclude.Include.NON_NULL); // null 字段不序列化
             }
         };
     }
