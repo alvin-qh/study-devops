@@ -37,6 +37,7 @@
         <scope>import</scope>
       </dependency>
 
+      <!-- google guava utils -->
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
@@ -99,24 +100,28 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- 引入 spirngboot web test starter -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${version.guava}</version>
     </dependency>
 
+    <!-- 引入 commons lang3 -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>${version.apache-lang3}</version>
     </dependency>
 
+    <!-- 引入 JUnit5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
 
+    <!-- 引入 lombok 插件 -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -154,12 +159,12 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>${version.spring-boot}</version>
         <configuration>
-          <mainClass>alvin.study.maven.Application</mainClass>
+          <mainClass>alvin.study.maven.Application</mainClass>          <!-- 指定入口类 -->
         </configuration>
         <executions>
           <execution>
             <goals>
-              <goal>repackage</goal>
+              <goal>repackage</goal>              <!-- 默认执行插件的 repackage goal -->
             </goals>
           </execution>
         </executions>

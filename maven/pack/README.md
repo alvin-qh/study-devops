@@ -1,5 +1,15 @@
 # 执行和打包
 
+- [执行和打包](#执行和打包)
+  - [1. 通过 maven 执行程序](#1-通过-maven-执行程序)
+    - [1.1. 引入插件](#11-引入插件)
+    - [1.2. 定义不同的执行入口](#12-定义不同的执行入口)
+    - [1.3. 公共配置](#13-公共配置)
+  - [2. 打包](#2-打包)
+    - [2.1. Thin jar](#21-thin-jar)
+    - [2.2. Fat jar](#22-fat-jar)
+    - [2.2. Fat jar with shade](#22-fat-jar-with-shade)
+
 ## 1. 通过 maven 执行程序
 
 > 参考 [插件主页](https://www.mojohaus.org/exec-maven-plugin/examples/example-exec-for-java-programs.html)

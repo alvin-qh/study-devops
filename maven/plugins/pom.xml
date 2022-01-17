@@ -1,0 +1,183 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>alvin.study</groupId>
+  <artifactId>study-maven-plugins</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>study-maven-plugins</name>
+  <url>http://study.maven.alvin</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+    <failsOnError></failsOnError>
+
+    <version.junit>5.8.2</version.junit>
+    <version.guava>31.0.1-jre</version.guava>
+    <version.checkstyle>9.2.1</version.checkstyle>
+    <version.spotbugs>4.5.3</version.spotbugs>
+
+    <version.maven-compiler>3.8.1</version.maven-compiler>
+    <version.maven-surefire>2.22.2</version.maven-surefire>
+    <version.maven-checkstyle>3.1.2</version.maven-checkstyle>
+    <version.maven-site>3.10.0</version.maven-site>
+    <version.maven-pi-report>3.1.2</version.maven-pi-report>
+    <version.maven-jxr>3.1.1</version.maven-jxr>
+    <version.maven-spotbugs>4.5.2.0</version.maven-spotbugs>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- junit 5 bom -->
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${version.junit}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- 引入 JUnit5 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- 编译插件 -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.maven-compiler}</version>
+        <configuration>
+          <source>11</source>
+          <target>11</target>
+        </configuration>
+      </plugin>
+
+      <!-- 单元测试插件 -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.maven-surefire}</version>
+      </plugin>
+
+      <!-- code checkstyle 插件，代码检查 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${version.maven-checkstyle}</version>
+        <dependencies>
+          <dependency>            <!-- 配置 checkstyle 版本 -->
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${version.checkstyle}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <configLocation>checkstyle.xml</configLocation>          <!-- 指定检查规则 -->
+          <encoding>UTF-8</encoding>
+          <consoleOutput>true</consoleOutput>          <!-- 错误信息输出到终端 -->
+          <failsOnError>true</failsOnError>          <!-- 失败后中断构建 -->
+          <linkXRef>true</linkXRef>          <!-- 生成代码链接 -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>checkstyle-check</id>
+            <phase>validate</phase>            <!-- 绑定到 validate 任务上，绑定 check goal -->
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- 代码网站信息插件 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>${version.maven-site}</version>
+      </plugin>
+
+      <!-- 静态代码分析插件 -->
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${version.maven-spotbugs}</version>
+        <dependencies>
+          <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs</artifactId>
+            <version>${version.spotbugs}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+          <linkXRef>true</linkXRef>
+        </configuration>
+        <executions>
+          <execution>
+            <id>spotbugs-check</id>
+            <phase>compile</phase>            <!-- 绑定到 validate 任务上，绑定 check goal -->
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- 项目信息报告插件 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>${version.maven-pi-report}</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <!-- 在报告中生成 Checkstyle -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${version.maven-checkstyle}</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>checkstyle</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+        <configuration>
+          <configLocation>checkstyle.xml</configLocation>
+        </configuration>
+      </plugin>
+
+      <!-- 报告中代码链接生成插件 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>${version.maven-jxr}</version>
+      </plugin>
+
+      <!-- 报告中生成精通代码检查报告 -->
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${version.maven-spotbugs}</version>
+      </plugin>
+    </plugins>
+  </reporting>
+</project>
