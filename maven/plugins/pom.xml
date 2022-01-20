@@ -90,15 +90,17 @@
           <failsOnError>true</failsOnError>          <!-- 失败后中断构建 -->
           <linkXRef>true</linkXRef>          <!-- 生成代码链接 -->
         </configuration>
+        <!--
         <executions>
           <execution>
             <id>checkstyle-check</id>
-            <phase>validate</phase>            <!-- 绑定到 validate 任务上，绑定 check goal -->
+            <phase>validate</phase>
             <goals>
               <goal>check</goal>
             </goals>
           </execution>
         </executions>
+        -->
       </plugin>
 
       <!-- 代码网站信息插件 -->
@@ -126,15 +128,17 @@
           <failsOnError>true</failsOnError>
           <linkXRef>true</linkXRef>
         </configuration>
+        <!--
         <executions>
           <execution>
             <id>spotbugs-check</id>
-            <phase>compile</phase>            <!-- 绑定到 validate 任务上，绑定 check goal -->
+            <phase>compile</phase>
             <goals>
               <goal>check</goal>
             </goals>
           </execution>
         </executions>
+        -->
       </plugin>
 
       <!-- 项目信息报告插件 -->

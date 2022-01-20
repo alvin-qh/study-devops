@@ -4,12 +4,17 @@
   - [1. Checkstyle 插件](#1-checkstyle-插件)
     - [1.1. 代码检查](#11-代码检查)
       - [1.1.1. 配置插件](#111-配置插件)
-      - [1.2. 执行代码检查](#12-执行代码检查)
+      - [1.1.2. 执行代码检查](#112-执行代码检查)
+      - [1.2.3. 忽略插件](#123-忽略插件)
     - [1.2. 生成报告](#12-生成报告)
       - [1.2.1. 项目网站信息生成插件](#121-项目网站信息生成插件)
       - [1.2.2. 配置报告插件](#122-配置报告插件)
       - [1.2.3. 在报告中生成源码链接](#123-在报告中生成源码链接)
   - [2. SpotBugs 插件](#2-spotbugs-插件)
+    - [2.1. 检查代码](#21-检查代码)
+      - [2.1.1. 配置插件](#211-配置插件)
+      - [2.1.2. 执行代码检查](#212-执行代码检查)
+    - [2.2. 生成报告](#22-生成报告)
 
 ## 1. Checkstyle 插件
 
@@ -44,6 +49,7 @@
                 <failsOnError>true</failsOnError>
                 <linkXRef>true</linkXRef>
             </configuration>
+            <!--
             <executions>
                 <execution>
                     <id>validate</id>
@@ -53,6 +59,7 @@
                     </goals>
                 </execution>
             </executions>
+            -->
         </plugin>
     </plugins>
 </build>
@@ -71,7 +78,9 @@
 - `checkstyle:checkstyle-aggregate` 在多模块项目中执行所有的 checkstyle 并统一生成报告
 - `checkstyle:help` 显示帮助信息
 
-#### 1.2. 执行代码检查
+可以在 `executions` 标签中配置 `check goal` 和 `validate` 任务的关联，这样在执行 `$ mvn validate` 的时候同时执行 `checkstyle:check`
+
+#### 1.1.2. 执行代码检查
 
 ```bash
 $ mvn checkstyle:check
@@ -98,7 +107,13 @@ Audit done.
 
 表示有两处代码样式不符合要求，并给出原因
 
-另外，配置中将 `goal check` 绑定到 `validate` 指令上，所以在 `$ mvn compile` 时即可以自动执行 Checkstyle
+#### 1.2.3. 忽略插件
+
+可以在通过 `-Dcheckstyle.skip=true` 跳过插件，以防止因代码样式的原因打断构建过程，例如：
+
+```bash
+$ mvn clean compile -Dcheckstyle.skip=true
+```
 
 ### 1.2. 生成报告
 
@@ -159,10 +174,8 @@ $ mvn site
 
 此时通过 `$ mvn site` 即可在生成的报告中加入 Checkstyle 报告
 
-若 Checkstyle 插件绑定了其它任务，例如 `validate`，则需要在执行命令时跳过 Checkstyle 任务，否则会由于无法通过代码检测而中断生成报告的任务
-
 ```bash
-$ mvn site -Dcheckstyle.skip
+$ mvn site
 ```
 
 #### 1.2.3. 在报告中生成源码链接
@@ -187,4 +200,109 @@ $ mvn site -Dcheckstyle.skip
 
 [`spotbugs-maven-plugin`](https://spotbugs.github.io/spotbugs-maven-plugin/index.html)
 
-SpotBugs 用于取代已过时的 FindBugs 插件
+SpotBugs 用于取代已过时的 FindBugs 插件，目标是对代码进行静态检查，找出代码中的隐含缺陷和安全缺陷
+
+### 2.1. 检查代码
+
+#### 2.1.1. 配置插件
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>${version.maven-spotbugs}</version>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs</artifactId>
+                    <version>${version.spotbugs}</version>
+                </dependency>
+            </dependencies>
+            <configuration>
+                <encoding>UTF-8</encoding>
+                <consoleOutput>true</consoleOutput>
+                <failsOnError>true</failsOnError>
+                <linkXRef>true</linkXRef>
+            </configuration>
+            <!--
+            <executions>
+                <execution>
+                    <id>spotbugs-check</id>
+                    <phase>compile</phase>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                </execution>
+            </executions>
+            -->
+        </plugin>
+    </plugins>
+</build>
+```
+
+- `dependency` 设置插件依赖的 spotbugs 主体
+- `configLocation` 设置检查规则文件路径
+- `consoleOutput` 检查结果是否输出在控制台
+- `failsOnError` 如果发现错误则停止构建
+- `linkXRef` 错误信息连接到源代码
+
+插件的 `goal` 为：
+
+- `spotbugs:check` 执行 checkstyle 并将错误输出到控制台，根据配置可能会导致构建失败
+- `spotbugs:spotbugs` 执行 checkstyle 并尝试生成报告
+- `spotbugs:gui` 在多模块项目中执行所有的 checkstyle 并统一生成报告
+- `spotbugs:help` 显示帮助信息
+
+可以在 `executions` 标签中配置 `check goal` 和 `compile` 任务的关联，这样在执行 `$ mvn compile` 的时候同时执行 `spotbugs:check`
+
+#### 2.1.2. 执行代码检查
+
+```bash
+$ mvn compile spotbugs:check
+```
+
+或
+
+```bash
+$ mvn compile spotbugs:spotbugs
+```
+
+注意，`spotbugs-maven-plugin` 插件必须工作在 `.class` 文件上，所以必须先执行编译任务。输出
+
+```plain
+[INFO] --- spotbugs-maven-plugin:4.5.2.0:check (default-cli) @ study-maven-plugins ---
+[INFO] BugInstance size is 1
+[INFO] Error size is 0
+[INFO] Total bugs: 1
+[ERROR] Medium: Dead store to a in alvin.study.maven.invalid.bugs.UselessClass.run() [alvin.study.maven.invalid.bugs.UselessClass] At UselessClass.java:[line 5] DLS_DEAD_LOCAL_STORE
+[INFO]
+
+
+To see bug detail using the Spotbugs GUI, use the following command "mvn spotbugs:gui"
+```
+
+表示有一处代码有隐含的缺陷，需要修正
+
+### 2.2. 生成报告
+
+```xml
+<reporting>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jxr-plugin</artifactId>
+            <version>${version.maven-jxr}</version>
+        </plugin>
+
+        <plugin>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>${version.maven-spotbugs}</version>
+        </plugin>
+    </plugins>
+</reporting>
+```
+
+通过 `$ mvn compile site` 命令可生成代码精通检查报告
