@@ -15,6 +15,7 @@
       - [2.1.1. 配置插件](#211-配置插件)
       - [2.1.2. 执行代码检查](#212-执行代码检查)
     - [2.2. 生成报告](#22-生成报告)
+      - [2.2.3. 忽略插件](#223-忽略插件)
 
 ## 1. Checkstyle 插件
 
@@ -250,9 +251,9 @@ SpotBugs 用于取代已过时的 FindBugs 插件，目标是对代码进行静�
 
 插件的 `goal` 为：
 
-- `spotbugs:check` 执行 checkstyle 并将错误输出到控制台，根据配置可能会导致构建失败
-- `spotbugs:spotbugs` 执行 checkstyle 并尝试生成报告
-- `spotbugs:gui` 在多模块项目中执行所有的 checkstyle 并统一生成报告
+- `spotbugs:check` 执行 spotbugs 并将错误输出到控制台，根据配置可能会导致构建失败
+- `spotbugs:spotbugs` 执行 spotbugs 并尝试生成报告
+- `spotbugs:gui` 通过可视化 UI 显示错误信息
 - `spotbugs:help` 显示帮助信息
 
 可以在 `executions` 标签中配置 `check goal` 和 `compile` 任务的关联，这样在执行 `$ mvn compile` 的时候同时执行 `spotbugs:check`
@@ -306,3 +307,11 @@ To see bug detail using the Spotbugs GUI, use the following command "mvn spotbug
 ```
 
 通过 `$ mvn compile site` 命令可生成代码精通检查报告
+
+#### 2.2.3. 忽略插件
+
+可以在通过 `-Dspotbugs.skip=true` 跳过插件，以防止因代码样式的原因打断构建过程，例如：
+
+```bash
+$ mvn clean compile -Dcheckstyle.skip=true
+```
