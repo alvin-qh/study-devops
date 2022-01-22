@@ -10,14 +10,20 @@
 
   <!-- 项目属性 -->
   <properties>
+    <!-- 指定源码编码 -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- 指定报告输出编码 -->
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- 指定源码 JDK 版本 -->
     <maven.compiler.source>11</maven.compiler.source>
+    <!-- 指定编译结果 JDK 版本 -->
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
 
+    <!-- 定义依赖版本 -->
     <version.junit>5.8.2</version.junit>
     <version.guava>31.0.1-jre</version.guava>
 
+    <!-- 定义插件版本 -->
     <version.maven-compiler>3.8.1</version.maven-compiler>
     <version.maven-surefire>2.22.2</version.maven-surefire>
     <version.maven-exec>3.0.0</version.maven-exec>
@@ -30,6 +36,7 @@
   <!-- 依赖声明，所有子项目可使用声明后的依赖 -->
   <dependencyManagement>
     <dependencies>
+      <!-- 定义 JUnit 5 依赖 BOM -->
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
@@ -37,6 +44,8 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <!-- 定义 Guava 依赖 -->
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
@@ -47,11 +56,14 @@
 
   <!-- 依赖引用 -->
   <dependencies>
+    <!-- 引入 JUnit 5 依赖 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>      <!-- 使用被声明的依赖，无需指定版本 -->
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>      <!-- 依赖仅在测试时引入 -->
     </dependency>
+
+    <!-- 引入 Guava 依赖 -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -86,11 +98,15 @@
           <execution>
             <id>main</id>
             <goals>
+              <!-- 使用 java 这个 goal，可以执行当前 Java 项目的指定入口类，通过 mvn exec:java@main 执行 -->
               <goal>java</goal>
             </goals>
             <configuration>
+              <!-- 指定入口类 -->
               <mainClass>alvin.study.maven.Main</mainClass>
+              <!-- 指定执行路径 -->
               <workingdir>${project.root.directory}</workingdir>
+              <!-- 指定传入 main 方法的参数 -->
               <arguments>
                 <argument>12</argument>
                 <argument>13</argument>
@@ -100,38 +116,51 @@
           <execution>
             <id>dir</id>
             <goals>
+              <!-- 使用 exec 这个 goal，可以执行任意进程，通过 mvn exec:exec@dir 执行 -->
               <goal>exec</goal>
             </goals>
+            <!-- 配置插件 -->
             <configuration>
+              <!-- 执行的命令 -->
               <executable>ls</executable>
+              <!-- 命令行参数 -->
               <arguments>
                 <argument>-al</argument>
               </arguments>
             </configuration>
           </execution>
         </executions>
+        <!-- 全局配置，对所有的 execution 生效 -->
         <configuration>
+          <!-- 配置执行进程的环境变量 -->
           <environmentVariables>
             <WORK_DIR>./target</WORK_DIR>
           </environmentVariables>
         </configuration>
       </plugin>
 
-      <!-- thin jar 打包插件 -->
+      <!-- thin jar 打包插件。该插件打包不包括依赖的 jar 内容，所以需要通过 classpath 参数指定依赖所在的位置-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${version.maven-jar}</version>
         <configuration>
+          <!-- 设定 jar 文件名称 -->
           <finalName>${project.artifactId}-${project.version}</finalName>
+          <!-- 定义 META-INF/MANIFEST.MF 的内容  -->
           <archive>
             <index>true</index>
             <manifest>
+              <!-- 入口类 -->
               <mainClass>alvin.study.maven.Main</mainClass>
+              <!-- 增加依赖路径（外部路径） -->
               <addClasspath>true</addClasspath>
+              <!-- 定义依赖路径的前缀 -->
               <classpathPrefix>./lib/</classpathPrefix>
+              <!-- 不为依赖生成特殊唯一版本后缀 -->
               <useUniqueVersions>false</useUniqueVersions>              <!-- 依赖是否使用带有时间戳的唯一版本号, 如:xxx-1.3.0-20121225.012733.jar -->
             </manifest>
+            <!-- 增加自定义 META-INF/MANIFEST.MF 文件内容 -->
             <manifestEntries>
               <mode>development</mode>
               <url>${project.url}</url>
@@ -140,7 +169,7 @@
         </configuration>
       </plugin>
 
-      <!-- 依赖 copy 插件依赖 -->
+      <!-- 复制依赖，配合 maven-jar-plugin 插件，将依赖复制到希望的位置 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -148,27 +177,33 @@
         <executions>
           <execution>
             <id>copy</id>
+            <!-- 附加到 package 任务上 -->
             <phase>package</phase>
             <goals>
+              <!-- 执行 copy-dependencies 这个 goal，拷贝依赖 -->
               <goal>copy-dependencies</goal>
             </goals>
             <configuration>
+              <!-- 指定将依赖拷贝到的位置 -->
               <outputDirectory>${project.build.directory}/lib</outputDirectory>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <!-- 打包 fat jar，将依赖打包到 jar 文件中 -->
+      <!-- 打包 fat jar，将依赖打包到 jar 文件中，该插件有一些缺陷，已经很少使用 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>${version.maven-assembly}</version>
         <configuration>
+          <!-- 定义打包 jar 文件的名称 -->
           <finalName>${project.artifactId}-${project.version}-fat</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
+          <appendAssemblyId>true</appendAssemblyId>
           <archive>
+            <!-- 定义 META-INF/MANIFEST.MF 的内容  -->
             <manifest>
+              <!-- 定义入口类 -->
               <mainClass>alvin.study.maven.Main</mainClass>
             </manifest>
           </archive>
@@ -179,37 +214,64 @@
         <executions>
           <execution>
             <id>make-assembly</id>
+            <!-- 附加在 package 任务上 -->
             <phase>package</phase>
             <goals>
+              <!-- 执行 single 这个 goal，表示进行单一 jar 文件打包 -->
               <goal>single</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
 
-      <!-- 打包 fat jar，将依赖打包到 jar 文件中 -->
+      <!-- 打包 fat jar，将依赖打包到 jar 文件中，该插件可以定义各类转换器和过滤器，以保证打包的正确性 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>${version.maven-shade}</version>
         <configuration>
+          <!-- 定义输出的 jar 文件名 -->
           <finalName>${project.artifactId}-${project.version}-shade</finalName>
+          <!-- 是否创建一个 pom 文件来描述打包的依赖 -->
           <createDependencyReducedPom>false</createDependencyReducedPom>
-          <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-            <mainClass>alvin.study.maven.Main</mainClass>
-          </transformer>
-          <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-            <resource>META-INF/spring.handlers</resource>
-          </transformer>
-          <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-            <resource>META-INF/spring.schemas</resource>
-          </transformer>
+          <!-- 定义所需要的转换器 -->
+          <transformers>
+            <!-- 处理 META-INF/MANIFEST.MF 文件内容 -->
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+              <manifestEntries>
+                <!-- 定义入口类 -->
+                <Main-Class>alvin.study.maven.Main</Main-Class>
+              </manifestEntries>
+            </transformer>
+            <!-- 将指定的资源文件进行合并，以防重名冲突 -->
+            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+              <!-- 要合并的文件 -->
+              <resource>META-INF/spring.handlers</resource>
+            </transformer>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+              <resource>META-INF/spring.schemas</resource>
+            </transformer>
+          </transformers>
+          <filters>
+            <!-- 过滤器，在 jar 文件中排除指定的文件 -->
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/DEPENDENCIES</exclude>
+                <exclude>META-INF/LICENSE*</exclude>
+                <exclude>META-INF/NOTICE*</exclude>
+                <exclude>META-INF/MANIFEST*</exclude>
+              </excludes>
+            </filter>
+          </filters>
         </configuration>
         <executions>
           <execution>
             <id>make-shade</id>
+            <!-- 附加到 package 任务上 -->
             <phase>package</phase>
             <goals>
+              <!-- 执行 shade 这个 goal，进行打包 -->
               <goal>shade</goal>
             </goals>
           </execution>

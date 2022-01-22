@@ -8,6 +8,7 @@
         "codehaus",
         "Dcheckstyle",
         "Deserialization",
+        "Dexec",
         "Dspotbugs",
         "JDBC",
         "lambok",

@@ -330,17 +330,18 @@ $ mvn compile package
 ```xml
 <configuration>
     ...
-    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-        <mainClass>alvin.study.maven.Main</mainClass>
-    </transformer>
-    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-        <resource>META-INF/spring.handlers</resource>
-    </transformer>
-    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-        <resource>META-INF/spring.schemas</resource>
-    </transformer>
+    <transformers>
+        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+            <manifestEntries>
+                <Main-Class>alvin.study.maven.Main</Main-Class>
+            </manifestEntries>
+        </transformer>
+        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+            <resource>META-INF/spring.handlers</resource>
+        </transformer>
+    </transformers>
 </configuration>
 ```
 
-- `org.apache.maven.plugins.shade.resource.ManifestResourceTransformer` 对主 `META-INF/MANIFEST.MF` 进行冲突处理
-- `org.apache.maven.plugins.shade.resource.AppendingTransformer` 对指定位置的资源冲突进行处理
+- `org.apache.maven.plugins.shade.resource.ManifestResourceTransformer` 生成 `jar` 文件的 `META-INF/MANIFEST.MF` 文件内容
+- `org.apache.maven.plugins.shade.resource.AppendingTransformer` 将符合指定文件名的多个文件内容进行合并，防止资源冲突
