@@ -18,6 +18,7 @@
         "spotbugs",
         "Springboot",
         "springframework",
+        "subprojects",
         "webflux",
         "workingdir"
     ],
