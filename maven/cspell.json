@@ -11,7 +11,6 @@
         "Dexec",
         "Dspotbugs",
         "JDBC",
-        "lambok",
         "projectlombok",
         "puppycrawl",
         "Servlet",

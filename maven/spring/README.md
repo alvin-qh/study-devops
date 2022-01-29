@@ -147,7 +147,7 @@ spring:
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${version.lambok}</version>
+            <version>${version.lombok}</version>
         </dependency>
     </dependencies>
 <dependencyManagement>
@@ -177,7 +177,7 @@ spring:
             <path>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>${version.lambok}</version>
+                <version>${version.lombok}</version>
             </path>
         </annotationProcessorPaths>
     </configuration>

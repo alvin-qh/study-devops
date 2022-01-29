@@ -20,7 +20,7 @@
     <version.apache-lang3>3.12.0</version.apache-lang3>
     <version.junit>5.8.2</version.junit>
     <version.guava>31.0.1-jre</version.guava>
-    <version.lambok>1.18.22</version.lambok>
+    <version.lombok>1.18.22</version.lombok>
 
     <version.maven-compiler>3.8.1</version.maven-compiler>
     <version.maven-surefire>2.22.2</version.maven-surefire>
@@ -57,7 +57,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>${version.lambok}</version>
+        <version>${version.lombok}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -141,7 +141,7 @@
             <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
-              <version>${version.lambok}</version>
+              <version>${version.lombok}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
