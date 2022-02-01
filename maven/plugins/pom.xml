@@ -15,12 +15,18 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
-    <failsOnError></failsOnError>
+
+    <jdbc.url.h2>jdbc:h2:${project.basedir}/.data/dev</jdbc.url.h2>
+    <jdbc.user.h2>dev</jdbc.user.h2>
+    <jdbc.password.h2>password</jdbc.password.h2>
+    <failsOnError/>
 
     <version.junit>5.8.2</version.junit>
     <version.guava>31.0.1-jre</version.guava>
     <version.checkstyle>9.2.1</version.checkstyle>
     <version.spotbugs>4.5.3</version.spotbugs>
+    <version.spotbugs>4.5.3</version.spotbugs>
+    <version.h2>2.1.210</version.h2>
 
     <version.maven-compiler>3.8.1</version.maven-compiler>
     <version.maven-surefire>2.22.2</version.maven-surefire>
@@ -29,6 +35,7 @@
     <version.maven-pi-report>3.1.2</version.maven-pi-report>
     <version.maven-jxr>3.1.1</version.maven-jxr>
     <version.maven-spotbugs>4.5.2.0</version.maven-spotbugs>
+    <version.maven-flyway>8.4.3</version.maven-flyway>
   </properties>
 
   <dependencyManagement>
@@ -45,6 +52,13 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- 引入 H2 DB 连接驱动 -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${version.h2}</version>
+    </dependency>
+
     <!-- 引入 JUnit5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -146,6 +160,25 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
         <version>${version.maven-pi-report}</version>
+      </plugin>
+
+      <!-- DB Migration 插件 -->
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>${version.maven-flyway}</version>
+        <configuration>
+          <!-- 数据库连接 -->
+          <url>${jdbc.url.h2}</url>
+          <!-- 用户名 -->
+          <user>${jdbc.user.h2}</user>
+          <!-- 密码 -->
+          <password>${jdbc.password.h2}</password>
+          <!-- 脚本文件位置 -->
+          <locations>
+            <location>filesystem:${project.basedir}/src/main/resources/migration</location>
+          </locations>
+        </configuration>
       </plugin>
     </plugins>
   </build>

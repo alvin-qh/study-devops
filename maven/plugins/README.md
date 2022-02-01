@@ -16,6 +16,10 @@
       - [2.1.2. 执行代码检查](#212-执行代码检查)
     - [2.2. 生成报告](#22-生成报告)
       - [2.2.3. 忽略插件](#223-忽略插件)
+  - [3. Database Migration](#3-database-migration)
+    - [3.1. 配置插件](#31-配置插件)
+    - [3.2. 生成 Migration 脚本文件](#32-生成-migration-脚本文件)
+    - [3.3. 使用插件](#33-使用插件)
 
 ## 1. Checkstyle 插件
 
@@ -314,4 +318,84 @@ To see bug detail using the Spotbugs GUI, use the following command "mvn spotbug
 
 ```bash
 $ mvn clean compile -Dcheckstyle.skip=true
+```
+
+## 3. Database Migration
+
+[`flyway-maven-plugin`](https://flywaydb.org/documentation/usage/maven/)
+
+软件升级时，时常需要对数据库同时进行升级操作，即 "DB Migration"，通常使用 Flyway 进行
+
+Maven 对 Flyway 提供插件，可以通过 Maven 命令对 Flyway 进行操作
+
+### 3.1. 配置插件
+
+首先，在依赖中配置所使用的数据库驱动，以 H2 驱动为例
+
+```xml
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>${version.h2}</version>
+</dependency>
+```
+
+其次，在构建插件中添加 Flyway 插件
+
+```xml
+<plugin>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-maven-plugin</artifactId>
+    <version>${version.maven-flyway}</version>
+    <configuration>
+        <url>${jdbc.url.h2}</url>
+        <user>${jdbc.user.h2}</user>
+        <password>${jdbc.password.h2}</password>
+        <locations>
+            <location>
+                filesystem:${project.basedir}/src/main/resources/migration
+            </location>
+        </locations>
+    </configuration>
+</plugin>
+```
+
+其中的参数可以统一通过 `<properties>` 元素定义
+
+```xml
+<properties>
+    <jdbc.url.h2>jdbc:h2:${project.basedir}/.data/dev</jdbc.url.h2>
+    <jdbc.user.h2>dev</jdbc.user.h2>
+    <jdbc.password.h2>password</jdbc.password.h2>
+</properties>
+```
+
+### 3.2. 生成 Migration 脚本文件
+
+Migration 脚本文件的命名规则为 `V<版本号>__<说明文字>.sql` 组成，一般用 "<日期>_<时间>" 表示版本号，所以一个符合标准的脚本文件命名可以是 `V20211201_1336__create_init_db.sql`
+
+可以通过一个脚本生成对应的脚本文件，参见 [`new-migration.file.sh`](./new-migration-file.sh)
+
+```bash
+$ bash new-migration-file.sh "create init db"
+```
+
+即可生成数据库 Migration 脚本文件，参见 [`src/main/resources/migration/V20220201_2247__create_init_db.sql`](./src/main/resources/migration/V20220201_2247__create_init_db.sql) 文件
+
+### 3.3. 使用插件
+
+`flyway-maven-plugin` 插件拥有如下的 `goals`
+
+- `migrate` 进行 Migration 操作，合并数据库
+- `clean` 删除配置已配置 schemas 中的所有对象
+- `info` 显式所有 migration 的详细信息
+- `validate` 验证所有指定的 migration 脚本
+- `undo` 撤回最后一次 migration 操作
+- `baseline` 将数据库恢复到基线状态，取消所有的 migration 执行操作
+- `repair` 修复记录 schema 历史的表信息
+
+如要执行最新版本的数据库 migration 操作，则只需执行
+
+```bash
+$ mvn flyway:migrate
 ```
