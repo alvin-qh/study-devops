@@ -27,7 +27,7 @@
     <jdbc.password.h2>password</jdbc.password.h2>
     <failsOnError/>
 
-    <project.timestamp>${timestamp}</project.timestamp>
+    <build.timestamp>${timestamp}</build.timestamp>
 
     <version.junit>5.8.2</version.junit>
     <version.guava>31.0.1-jre</version.guava>
