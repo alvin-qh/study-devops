@@ -27,6 +27,8 @@
     <jdbc.password.h2>password</jdbc.password.h2>
     <failsOnError/>
 
+    <project.timestamp>${timestamp}</project.timestamp>
+
     <version.junit>5.8.2</version.junit>
     <version.guava>31.0.1-jre</version.guava>
     <version.checkstyle>9.2.1</version.checkstyle>
@@ -213,7 +215,6 @@
           <doCheck>true</doCheck>
           <doUpdate>true</doUpdate>
           <shortRevisionLength>5</shortRevisionLength>
-          <timestampPropertyName>buildtimestamp</timestampPropertyName>
         </configuration>
       </plugin>
     </plugins>
