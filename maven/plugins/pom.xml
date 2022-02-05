@@ -213,6 +213,7 @@
           <doCheck>true</doCheck>
           <doUpdate>true</doUpdate>
           <shortRevisionLength>5</shortRevisionLength>
+          <timestampPropertyName>buildtimestamp</timestampPropertyName>
         </configuration>
       </plugin>
     </plugins>
