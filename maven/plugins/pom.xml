@@ -11,8 +11,8 @@
   <url>http://study.maven.alvin</url>
 
   <scm>
-    <connection>scm:git:ssh://git@gitee.com:alvin-qh/study-devops.git</connection>
-    <developerConnection>scm:git:ssh://git@gitee.com:alvin-qh/study-devops.git</developerConnection>
+    <connection>scm:git:git@gitee.com:alvin-qh/study-devops.git</connection>
+    <developerConnection>scm:git:git@gitee.com:alvin-qh/study-devops.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
