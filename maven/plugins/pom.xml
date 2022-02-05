@@ -10,6 +10,13 @@
   <name>study-maven-plugins</name>
   <url>http://study.maven.alvin</url>
 
+  <scm>
+    <connection>scm:git:ssh://git@github.com:alvin-qh/study-devops.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:alvin-qh/study-devops.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/alvin-qh/study-devops</url>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -37,6 +44,7 @@
     <version.maven-jxr>3.1.1</version.maven-jxr>
     <version.maven-spotbugs>4.5.2.0</version.maven-spotbugs>
     <version.maven-flyway>${version.flyway}</version.maven-flyway>
+    <version.maven-build-number>3.0.0</version.maven-build-number>
   </properties>
 
   <dependencyManagement>
@@ -188,6 +196,26 @@
           </locations>
         </configuration>
       </plugin>
+
+      <!-- 版本号生成插件 -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>${version.maven-build-number}</version>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <doCheck>true</doCheck>
+          <doUpdate>true</doUpdate>
+          <revisionOnScmFailure>unknownbuild</revisionOnScmFailure>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -217,7 +245,7 @@
         <version>${version.maven-jxr}</version>
       </plugin>
 
-      <!-- 报告中生成精通代码检查报告 -->
+      <!-- 报告中生成静态代码检查报告 -->
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
