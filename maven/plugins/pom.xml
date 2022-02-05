@@ -213,7 +213,7 @@
           <doCheck>true</doCheck>
           <doUpdate>true</doUpdate>
           <shortRevisionLength>5</shortRevisionLength>
-          <format>{0,number}</format>
+          <format>{0}</format>
           <items>
             <item>scmVersion</item>
             <item>buildNumber</item>
