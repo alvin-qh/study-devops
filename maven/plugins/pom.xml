@@ -10,6 +10,7 @@
   <name>study-maven-plugins</name>
   <url>http://study.maven.alvin</url>
 
+  <!-- 配置远程代码库 -->
   <scm>
     <connection>scm:git:git@gitee.com:alvin-qh/study-devops.git</connection>
     <developerConnection>scm:git:git@gitee.com:alvin-qh/study-devops.git</developerConnection>
@@ -203,22 +204,28 @@
         <version>${version.maven-build-number}</version>
         <executions>
           <execution>
+            <!-- 关联到 validate 任务 -->
             <phase>validate</phase>
             <goals>
+              <!-- 执行 create goal，创建版本信息 -->
               <goal>create</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <doCheck>true</doCheck>
+          <!-- 不检查远程代码库 -->
+          <doCheck>false</doCheck>
+          <!-- 更新远程代码库 -->
           <doUpdate>true</doUpdate>
-          <shortRevisionLength>5</shortRevisionLength>
+          <!-- git 版本号长度 -->
+          <shortRevisionLength>8</shortRevisionLength>
         </configuration>
       </plugin>
     </plugins>
 
     <resources>
       <resource>
+        <!-- 将 version.properties 文件内容进行替换后复制 -->
         <directory>${project.basedir}/src/main/resources</directory>
         <filtering>true</filtering>
         <includes>

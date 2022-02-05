@@ -20,6 +20,9 @@
     - [3.1. 配置插件](#31-配置插件)
     - [3.2. 生成 Migration 脚本文件](#32-生成-migration-脚本文件)
     - [3.3. 使用插件](#33-使用插件)
+  - [4. 代码库版本插件](#4-代码库版本插件)
+    - [4.1. 配置插件](#41-配置插件)
+    - [4.2. 使用插件](#42-使用插件)
 
 ## 1. Checkstyle 插件
 
@@ -31,43 +34,39 @@
 
 #### 1.1.1. 配置插件
 
-在插件中增加 checkstyle 插件
+在 `<build>` 标签的 `<plugins>` 标签中配置如下插件
 
 ```xml
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${version.maven-checkstyle}</version>
-            <dependencies>
-                <dependency>
-                    <groupId>com.puppycrawl.tools</groupId>
-                    <artifactId>checkstyle</artifactId>
-                    <version>${version.checkstyle}</version>
-                </dependency>
-            </dependencies>
-            <configuration>
-                <configLocation>checkstyle.xml</configLocation>
-                <encoding>UTF-8</encoding>
-                <consoleOutput>true</consoleOutput>
-                <failsOnError>true</failsOnError>
-                <linkXRef>true</linkXRef>
-            </configuration>
-            <!--
-            <executions>
-                <execution>
-                    <id>validate</id>
-                    <phase>validate</phase>
-                    <goals>
-                        <goal>check</goal>
-                    </goals>
-                </execution>
-            </executions>
-            -->
-        </plugin>
-    </plugins>
-</build>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-checkstyle-plugin</artifactId>
+    <version>${version.maven-checkstyle}</version>
+    <dependencies>
+        <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${version.checkstyle}</version>
+        </dependency>
+    </dependencies>
+    <configuration>
+        <configLocation>checkstyle.xml</configLocation>
+        <encoding>UTF-8</encoding>
+        <consoleOutput>true</consoleOutput>
+        <failsOnError>true</failsOnError>
+        <linkXRef>true</linkXRef>
+    </configuration>
+    <!--
+    <executions>
+        <execution>
+            <id>validate</id>
+            <phase>validate</phase>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+    -->
+</plugin>
 ```
 
 - `dependency` 设置插件依赖的 checkstyle 主体
@@ -126,18 +125,14 @@ $ mvn clean compile -Dcheckstyle.skip=true
 
 #### 1.2.1. 项目网站信息生成插件
 
-引入以下插件，用来为当前项目产生网站信息
+在 `<build>` 标签的 `<plugins>` 标签中配置如下插件，用来为当前项目产生网站信息
 
 ```xml
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-site-plugin</artifactId>
-            <version>${version.maven-site}</version>
-        </plugin>
-    </plugins>
-</build>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-site-plugin</artifactId>
+    <version>${version.maven-site}</version>
+</plugin>
 ```
 
 之后即可在 `<reporting>` 标签下定义各类报告生成的规格
@@ -152,29 +147,24 @@ $ mvn site
 
 [`maven-jxr-plugin`](https://maven.apache.org/jxr/maven-jxr-plugin/index.html)
 
-`maven-checkstyle-plugin` 插件同时可以用作报告插件，配置如下：
+`maven-checkstyle-plugin` 插件同时可以用作报告插件，在 `<reporting>` 标签的 `<plugins>` 标签中配置如下插件
 
 ```xml
-<reporting>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${version.maven-checkstyle}</version>
-            <reportSets>
-                <reportSet>
-                    <reports>
-                        <report>checkstyle</report>
-                    </reports>
-                </reportSet>
-            </reportSets>
-
-            <configuration>
-                <configLocation>checkstyle.xml</configLocation>
-            </configuration>
-        </plugin>
-    </plugins>
-</reporting>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-checkstyle-plugin</artifactId>
+    <version>${version.maven-checkstyle}</version>
+    <reportSets>
+        <reportSet>
+            <reports>
+                <report>checkstyle</report>
+            </reports>
+        </reportSet>
+    </reportSets>
+    <configuration>
+        <configLocation>checkstyle.xml</configLocation>
+    </configuration>
+</plugin>
 ```
 
 此时通过 `$ mvn site` 即可在生成的报告中加入 Checkstyle 报告
@@ -187,16 +177,14 @@ $ mvn site
 
 [`maven-jxr-plugin`](https://maven.apache.org/jxr/maven-jxr-plugin/index.html)
 
+在 `<reporting>` 标签的 `<plugins>` 标签中配置如下插件
+
 ```xml
-<reporting>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jxr-plugin</artifactId>
-            <version>${version.maven-jxr}</version>
-        </plugin>
-    </plugins>
-</reporting>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-jxr-plugin</artifactId>
+    <version>${version.maven-jxr}</version>
+</plugin>
 ```
 
 此时，报告中出现文件名和行数的地方都会生成连接到源码的超链接
@@ -211,40 +199,38 @@ SpotBugs 用于取代已过时的 FindBugs 插件，目标是对代码进行静�
 
 #### 2.1.1. 配置插件
 
+在 `<build>` 标签的 `<plugins>` 标签中配置如下插件
+
 ```xml
-<build>
-    <plugins>
-        <plugin>
+<plugin>
+    <groupId>com.github.spotbugs</groupId>
+    <artifactId>spotbugs-maven-plugin</artifactId>
+    <version>${version.maven-spotbugs}</version>
+    <dependencies>
+        <dependency>
             <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs-maven-plugin</artifactId>
-            <version>${version.maven-spotbugs}</version>
-            <dependencies>
-                <dependency>
-                    <groupId>com.github.spotbugs</groupId>
-                    <artifactId>spotbugs</artifactId>
-                    <version>${version.spotbugs}</version>
-                </dependency>
-            </dependencies>
-            <configuration>
-                <encoding>UTF-8</encoding>
-                <consoleOutput>true</consoleOutput>
-                <failsOnError>true</failsOnError>
-                <linkXRef>true</linkXRef>
-            </configuration>
-            <!--
-            <executions>
-                <execution>
-                    <id>spotbugs-check</id>
-                    <phase>compile</phase>
-                    <goals>
-                        <goal>check</goal>
-                    </goals>
-                </execution>
-            </executions>
-            -->
-        </plugin>
-    </plugins>
-</build>
+            <artifactId>spotbugs</artifactId>
+            <version>${version.spotbugs}</version>
+        </dependency>
+    </dependencies>
+    <configuration>
+        <encoding>UTF-8</encoding>
+        <consoleOutput>true</consoleOutput>
+        <failsOnError>true</failsOnError>
+        <linkXRef>true</linkXRef>
+    </configuration>
+    <!--
+    <executions>
+        <execution>
+            <id>spotbugs-check</id>
+            <phase>compile</phase>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+    -->
+</plugin>
 ```
 
 - `dependency` 设置插件依赖的 spotbugs 主体
@@ -292,22 +278,20 @@ To see bug detail using the Spotbugs GUI, use the following command "mvn spotbug
 
 ### 2.2. 生成报告
 
-```xml
-<reporting>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jxr-plugin</artifactId>
-            <version>${version.maven-jxr}</version>
-        </plugin>
+在 `<reporting>` 标签的 `<plugins>` 标签中配置如下插件
 
-        <plugin>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs-maven-plugin</artifactId>
-            <version>${version.maven-spotbugs}</version>
-        </plugin>
-    </plugins>
-</reporting>
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-jxr-plugin</artifactId>
+    <version>${version.maven-jxr}</version>
+</plugin>
+
+<plugin>
+    <groupId>com.github.spotbugs</groupId>
+    <artifactId>spotbugs-maven-plugin</artifactId>
+    <version>${version.maven-spotbugs}</version>
+</plugin>
 ```
 
 通过 `$ mvn compile site` 命令可生成代码精通检查报告
@@ -340,7 +324,7 @@ Maven 对 Flyway 提供插件，可以通过 Maven 命令对 Flyway 进行操作
 </dependency>
 ```
 
-其次，在构建插件中添加 Flyway 插件
+其次，在构建插件中添加 Flyway 插件，在 `<build>` 标签的 `<plugins>` 标签中配置如下插件
 
 ```xml
 <plugin>
@@ -399,3 +383,83 @@ $ bash new-migration-file.sh "create init db"
 ```bash
 $ mvn flyway:migrate
 ```
+
+## 4. 代码库版本插件
+
+[`buildnumber-maven-plugin`](https://www.mojohaus.org/buildnumber-maven-plugin/)
+
+可以获取 git 信息，为当前项目生成版本信息，包括“构建编号”，“构建时间戳”，“分支信息”等
+
+### 4.1. 配置插件
+
+在 `<build>` 标签的 `<plugins>` 标签中配置如下插件
+
+```xml
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>buildnumber-maven-plugin</artifactId>
+    <version>${version.maven-build-number}</version>
+    <executions>
+        <execution>
+        <phase>validate</phase>
+        <goals>
+            <goal>create</goal>
+        </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <doCheck>false</doCheck>
+        <doUpdate>true</doUpdate>
+        <shortRevisionLength>8</shortRevisionLength>
+    </configuration>
+</plugin>
+```
+
+- `executions` 将 `create` goal 关联到 `validate` 任务上
+- `configuration` 配置版本生成的方式
+  - `doCheck` 是否检查代码库
+  - `doUpdate` 是否更新代码库
+  - `shortRevisionLength` 版本号长度
+
+需要配置 Maven 的 `<scm>` 标签，才能获取到 git 的版本
+
+```xml
+<scm>
+    <connection>scm:git:git@gitee.com:alvin-qh/study-devops.git</connection>
+    <developerConnection>scm:git:git@gitee.com:alvin-qh/study-devops.git</developerConnection>
+    <tag>HEAD</tag>
+</scm>
+```
+
+若要将版本号信息写入文件，则需要定义一个包含可替换变量占位符的文件，例如本例中为 [`src/main/resources/version.properties`](src/main/resources/version.properties) 文件
+
+```properties
+groupId=${project.groupId}
+artifactId=${project.artifactId}
+version=${project.version}
+buildNumber=${buildNumber}
+branch=${scmBranch}
+timestamp=${timestamp}
+```
+
+通过 `<build>` 标签下的 `<resources>` 标签中，可以设置在编译时，将该文件内容进行替换
+
+```xml
+<resource>
+    <directory>${project.basedir}/src/main/resources</directory>
+    <filtering>true</filtering>
+    <includes>
+        <include>**/version.properties</include>
+    </includes>
+</resource>
+```
+
+### 4.2. 使用插件
+
+因为 `create` goal 已经绑定到 `validate` 任务，所以 Maven 的构建生命周期内，会自动生成版本信息
+
+```bash
+$ mvn clean compile
+```
+
+此时可以在构建结果 `target/classes` 中找到 `version.properties` 文件，内容为已替换过的版本信息
