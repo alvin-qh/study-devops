@@ -27,8 +27,6 @@
     <jdbc.password.h2>password</jdbc.password.h2>
     <failsOnError/>
 
-    <project.build.number>${buildNumber}</project.build.number>
-
     <version.junit>5.8.2</version.junit>
     <version.guava>31.0.1-jre</version.guava>
     <version.checkstyle>9.2.1</version.checkstyle>
@@ -215,11 +213,6 @@
           <doCheck>true</doCheck>
           <doUpdate>true</doUpdate>
           <shortRevisionLength>5</shortRevisionLength>
-          <format>{0}</format>
-          <items>
-            <item>timestamp</item>
-            <item>buildNumber</item>
-          </items>
         </configuration>
       </plugin>
     </plugins>
