@@ -212,7 +212,6 @@
         <configuration>
           <doCheck>true</doCheck>
           <doUpdate>true</doUpdate>
-          <revisionOnScmFailure>unknownbuild</revisionOnScmFailure>
         </configuration>
       </plugin>
     </plugins>
