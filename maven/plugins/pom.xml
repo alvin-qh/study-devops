@@ -215,6 +215,7 @@
           <shortRevisionLength>5</shortRevisionLength>
           <format>{0,number}</format>
           <items>
+            <item>scmVersion</item>
             <item>buildNumber</item>
             <item>timestamp</item>
           </items>
