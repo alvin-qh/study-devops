@@ -119,7 +119,7 @@ $ kafka-configs.sh --alter \
 删除主题的某个配置，恢复默认配置（或配置文件定义配置）
 
 ```bash
-$ docker exec -it kf01 kafka-configs.sh --alter \
+$ kafka-configs.sh --alter \
     --entity-type topics \
     --entity-name test1 \
     --delete-config retention.ms \
@@ -214,7 +214,7 @@ $ kafka-topics.sh --delete \
 ### 1.7. 获取未正确同步的主题副本
 
 ```bash
-$ kafka-topics.sh kafka-topics.sh --describe \
+$ kafka-topics.sh --describe \
     --under-replicated-partitions \
     --bootstrap-server localhost:9092,kf02:9092
 ```
@@ -238,7 +238,7 @@ $ kafka-console-producer.sh \
 可以通过 `<` 管道操作符，将文件内容送入 Kafka
 
 ```bash
-$ docker exec -it kf01 kafka-console-producer.sh \
+$ kafka-console-producer.sh \
     --topic test1 \
     --bootstrap-server localhost:9092,kf02:9092 < data.txt
 ```
@@ -248,7 +248,7 @@ $ docker exec -it kf01 kafka-console-producer.sh \
 ### 2.3. 发送 Key/Value 键值对
 
 ```bash
-$ docker exec -it kf01 kafka-console-producer.sh \
+$ kafka-console-producer.sh \
     --topic test1 \
     --property parse.key=true \
     --property key.separator=: \
@@ -277,7 +277,7 @@ $ kafka-console-consumer.sh \
 显示 key 和 value，并显示时间戳
 
 ```bash
-$ docker exec -it kf01 kafka-console-consumer.sh \
+$ kafka-console-consumer.sh \
     --topic test1 \
     --group g1 \
     --formatter kafka.tools.DefaultMessageFormatter \
