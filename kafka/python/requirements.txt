@@ -1,3 +1,5 @@
 kazoo
 kafka-python
 pytest
+autopep8
+mypy

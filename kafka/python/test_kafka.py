@@ -11,7 +11,7 @@ import kafka as ka
 BOOTSTRAP_SERVERS = conf.HOSTS.split(",")
 
 
-def setup_function():
+def setup_function() -> None:
     """
     测试开始
     """
@@ -21,7 +21,7 @@ def setup_function():
         pass
 
 
-def _create_new_topic():
+def _create_new_topic() -> None:
     """
     创建新主题
     """
@@ -44,7 +44,7 @@ def _create_new_topic():
         admin_client.close()
 
 
-def teardown_function():
+def teardown_function() -> None:
     """
     测试结束
     关闭 Kafka 连接
@@ -64,7 +64,7 @@ def teardown_function():
         admin_client.close()
 
 
-def test_topic():
+def test_topic() -> None:
     """
     测试主题操作
     """
@@ -139,7 +139,7 @@ def test_simple_record() -> None:
         consumer.close()
 
 
-def test_read_and_commit_manual():
+def test_read_and_commit_manual() -> None:
     """
     接收消息并手动提交 offset
     即消息处理成功后，进行提交
@@ -193,7 +193,7 @@ def test_read_and_commit_manual():
         consumer.close()
 
 
-def test_seek_consumer_offset():
+def test_seek_consumer_offset() -> None:
     """
     测试移动 consumer 的 offset
     """
@@ -250,7 +250,7 @@ def test_seek_consumer_offset():
         consumer.close()
 
 
-def test_kv_record():
+def test_kv_record() -> None:
     """
     测试 producer 发送 Key/Value 键值对消息
     """
@@ -305,7 +305,7 @@ def test_kv_record():
         consumer.close()
 
 
-def test_json_deserializer():
+def test_json_deserializer() -> None:
     """
     测试 producer 发送编码信息和 consumer 解码信息
     """
