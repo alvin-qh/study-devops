@@ -3,7 +3,7 @@
 错误 `Failed to start Elasticsearch. Error opening log file '/gc.log': Permission denied`
 
 ```bash
-$ chmod -R 755 ./logs ./plugins
+chmod -R 755 ./plugins
 ```
 
 ---
@@ -20,5 +20,5 @@ $ chmod -R 755 ./logs ./plugins
 即时生效，重启失效
 
 ```bash
-$ sudo sysctl -w vm.max_map_count=262144
+sudo sysctl -w vm.max_map_count=262144
 ```
