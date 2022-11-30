@@ -10,7 +10,7 @@ from kazoo.retry import KazooRetry
 zk = KazooClient(hosts=conf.HOSTS)
 
 
-def setup_function():
+def setup_function() -> None:
     # 连接到 zookeeper
     zk.start()
 
@@ -19,11 +19,11 @@ def setup_function():
     zk.delete("/alvin", recursive=True)
 
 
-def teardown_function():
+def teardown_function() -> None:
     zk.stop()
 
 
-def test_create_node():
+def test_create_node() -> None:
     """
     测试创建节点
     """
@@ -57,7 +57,7 @@ def test_create_node():
         pass
 
 
-def test_ensure_node():
+def test_ensure_node() -> None:
     """
     确保节点路径存在
     注意，如果 ensure_path 的参数原本表示一个节点，则会将节点删除，作为一个路径
@@ -88,7 +88,7 @@ def test_ensure_node():
     assert r == b"node ensure"
 
 
-def test_update_node():
+def test_update_node() -> None:
     path = "/alvin/study"
 
     # 创建节点路径
@@ -130,7 +130,7 @@ def test_update_node():
     assert stat.version == 2  # 此时节点版本号为 2
 
 
-def test_child_node():
+def test_child_node() -> None:
     path = "/alvin/study"
 
     # 创建节点路径
@@ -160,7 +160,7 @@ def test_child_node():
         assert stat.version == 0
 
 
-def test_retry():
+def test_retry() -> None:
     """
     retry 可以在失败后自动重试，保证命令执行成功
     """

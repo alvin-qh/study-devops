@@ -9,7 +9,7 @@ from kazoo.handlers.gevent import AsyncResult, SequentialGeventHandler
 zk = KazooClient(hosts=conf.HOSTS, handler=SequentialGeventHandler())
 
 
-def setup_function():
+def setup_function() -> None:
     # 连接到 zookeeper
     event = zk.start_async()
     event.wait(timeout=30)
@@ -19,11 +19,11 @@ def setup_function():
     zk.delete("/alvin", recursive=True)
 
 
-def teardown_function():
+def teardown_function() -> None:
     zk.stop()
 
 
-def test_create_node_async():
+def test_create_node_async() -> None:
     """
     测试创建节点
     """
@@ -31,7 +31,7 @@ def test_create_node_async():
     sem = BoundedSemaphore()  # 表示工作完毕的信号量
 
     def ensure_path_callback(async_obj: AsyncResult) -> None:
-        """
+        """ 
         路径创建后的回调
         """
         if not async_obj.successful():  # 判断路径是否创建成功

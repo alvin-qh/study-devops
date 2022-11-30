@@ -7,7 +7,7 @@ from kazoo.client import KazooClient
 zk = KazooClient(hosts=conf.HOSTS)
 
 
-def setup_function():
+def setup_function() -> None:
     # 连接到 zookeeper
     zk.start()
 
@@ -16,11 +16,11 @@ def setup_function():
     zk.delete("/alvin", recursive=True)
 
 
-def teardown_function():
+def teardown_function() -> None:
     zk.stop()
 
 
-def test_transaction():
+def test_transaction() -> None:
     """
     Zookeeper 的 transaction 即批处理，要求要么一次全部成功，要么一次全部失败
     在多并发情况下，要同时设置多个结点的值，可以使用事务，将批任务作为一个原子提交

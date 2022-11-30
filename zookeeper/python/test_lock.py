@@ -10,7 +10,7 @@ from kazoo.client import KazooClient
 zk = KazooClient(hosts=conf.HOSTS)
 
 
-def setup_function():
+def setup_function() -> None:
     # 连接到 zookeeper
     zk.start()
 
@@ -19,7 +19,7 @@ def setup_function():
     zk.delete("/alvin", recursive=True)
 
 
-def teardown_function():
+def teardown_function() -> None:
     zk.stop()
 
 
@@ -59,7 +59,7 @@ class ThreadGroup:
             t.join()
 
 
-def test_distributed_lock():
+def test_distributed_lock() -> None:
     """
     测试 zookeeper 用于分布式锁
     """

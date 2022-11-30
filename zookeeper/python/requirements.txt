@@ -1,3 +1,5 @@
 pytest
 kazoo
 gevent
+autopep8
+mypy

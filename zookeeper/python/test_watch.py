@@ -10,7 +10,7 @@ from kazoo.protocol.states import ZnodeStat
 zk = KazooClient(hosts=conf.HOSTS)
 
 
-def setup_function():
+def setup_function() -> None:
     # 连接到 zookeeper
     zk.start()
 
@@ -19,7 +19,7 @@ def setup_function():
     zk.delete("/alvin", recursive=True)
 
 
-def teardown_function():
+def teardown_function() -> None:
     zk.stop()
 
 
@@ -48,7 +48,7 @@ def test_low_level_watch_api():
     zk.set(node, b"updated")
 
 
-def test_high_level_watch_api():
+def test_high_level_watch_api() -> None:
     """
     高阶 API 监听节点变化
     """
@@ -88,7 +88,7 @@ def test_high_level_watch_api():
     ]
 
 
-def test_connection_listener():
+def test_connection_listener() -> None:
     """
     监听连接变化情况
     """
