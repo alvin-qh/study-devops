@@ -1,10 +1,14 @@
-from datetime import date
-
-import conf
-
 from elasticsearch import Elasticsearch
 
-es = Elasticsearch(hosts=conf.HOSTS)
+es = Elasticsearch([
+    "http://127.0.0.1:9200",
+])
+
+# es = Elasticsearch([
+#     "http://127.0.0.1:9200",
+#     "http://127.0.0.1:9201",
+#     "http://127.0.0.1:9202"
+# ])
 
 INDEX_NAME = "person"
 
@@ -19,7 +23,7 @@ def teardown_function():
         es.indices.delete(index=INDEX_NAME)  # 删除已存在的索引
 
 
-def test_connetion():
+def test_connection():
     """
     测试服务器连通性
     """
@@ -39,8 +43,10 @@ def test_create_index():
 def _create_person_index():
     index_settings = {
         "settings": {
-            "number_of_shards": 1,
-            "number_of_replicas": 1
+            "index": {
+                "number_of_shards": 1,
+                "number_of_replicas": 1
+            }
         },
         "mappings": {
             "properties": {
