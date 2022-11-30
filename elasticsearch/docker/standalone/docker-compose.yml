@@ -1,15 +1,15 @@
-version: "3.7"
+version: "3.9"
 services:
   es:
-    image: elasticsearch:7.16.2
+    image: elasticsearch:8.5.2
     container_name: es
     environment:
       - node.name=es
       - discovery.type=single-node
       - bootstrap.memory_lock=true
-      # - xpack.security.enabled=true
-      # - xpack.security.audit.enabled=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.security.audit.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - 9200:9200
       - 9300:9300
@@ -18,30 +18,28 @@ services:
     volumes:
       - es_log:/usr/share/elasticsearch/logs
       - es_data:/usr/share/elasticsearch/data
-      - ./es_plugins:/usr/share/elasticsearch/plugins
+      - ./plugins:/usr/share/elasticsearch/plugins
       # - ./elasticsearch.keystore:/usr/share/elasticsearch/config/elasticsearch.keystore
     ulimits:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
     restart: always
     privileged: true
   kibana:
-    image: kibana:7.16.2
+    image: kibana:8.5.2
     container_name: kibana
     depends_on:
       - es
     environment:
       - SERVER_NAME=kibana
       - ELASTICSEARCH_HOSTS=["http://es:9200"]
+      - I18N_LOCALE=en_US
       # - MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED=true
       # - ELASTICSEARCH_USERNAME=elastic
       # - ELASTICSEARCH_PASSWORD=dQUtviHdUCryzvBVLR8O
     ports:
-      - 5601:5601
+      - 15601:5601
     networks:
       - es_network
     # volumes:
@@ -53,11 +51,4 @@ networks:
   es_network:
 volumes:
   es_data:
-    # name: es_data # 使用实际分配的卷
-    driver_opts: # 使用临时卷
-      type: tmpfs
-      device: tmpfs
   es_log:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs

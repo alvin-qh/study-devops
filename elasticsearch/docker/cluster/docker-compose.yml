@@ -1,17 +1,13 @@
 version: "3.7"
 services:
   es1:
-    image: elasticsearch:7.16.2
+    image: elasticsearch:8.5.2
     container_name: es1
+    env_file:
+      - conf.env
     environment:
       - node.name=es1
       - network.host=es1
-      - discovery.seed_hosts=es1,es2,es3
-      - cluster.initial_master_nodes=es1,es2
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      - ES_JAVA_OPTS=-Des.transport.cname_in_publish_address=true  # disable warning
     ports:
       - 9200:9200
       - 9300:9300
@@ -25,21 +21,15 @@ services:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
     restart: always
     privileged: true
   es2:
-    image: elasticsearch:7.16.2
+    image: elasticsearch:8.5.2
     container_name: es2
+    env_file:
+      - conf.env
     environment:
       - node.name=es2
-      - discovery.seed_hosts=es1,es2,es3
-      - cluster.initial_master_nodes=es1,es2
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - 9201:9200
       - 9301:9300
@@ -53,21 +43,15 @@ services:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
     restart: always
     privileged: true
   es3:
-    image: elasticsearch:7.16.2
+    image: elasticsearch:8.5.2
     container_name: es3
+    env_file:
+      - conf.env
     environment:
       - node.name=es3
-      - discovery.seed_hosts=es1,es2,es3
-      - cluster.initial_master_nodes=es1,es2
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - 9202:9200
       - 9302:9300
@@ -81,13 +65,10 @@ services:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
     restart: always
     privileged: true
   kibana:
-    image: kibana:7.16.2
+    image: kibana:8.5.2
     container_name: kibana
     depends_on:
       - es1
@@ -96,8 +77,9 @@ services:
     environment:
       - SERVER_NAME=kibana
       - ELASTICSEARCH_HOSTS=["http://es1:9200","http://es2:9200","http://es3:9200"]
+      - I18N_LOCALE=en_US
     ports:
-      - 5601:5601
+      - 15601:5601
     networks:
       - es_network
     restart: always
@@ -106,27 +88,8 @@ networks:
   es_network:
 volumes:
   es_data1:
-    # name: es_data1 # 使用实际分配的卷
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
   es_log1:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
   es_data2:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
   es_log2:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
   es_data3:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
   es_log3:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
