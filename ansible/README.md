@@ -17,15 +17,15 @@
 在本机上执行如下命令，生成密钥：
 
 ```bash
-$ ssh-keygen -t rsa -P '' -C <username>
+ssh-keygen -t rsa -P '' -C <username>
 ```
 
 #### 1.2.2. 将生成的公钥文件拷贝到虚拟机
 
 ```bash
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub <username>@192.168.100.2
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub <username>@192.168.100.3
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub <username>@192.168.100.4
+ssh-copy-id -i ~/.ssh/id_rsa.pub <username>@192.168.100.2
+ssh-copy-id -i ~/.ssh/id_rsa.pub <username>@192.168.100.3
+ssh-copy-id -i ~/.ssh/id_rsa.pub <username>@192.168.100.4
 ```
 
 #### 1.2.3. 配置 ssh config 文件
@@ -57,7 +57,7 @@ Host vsrv03
 ##### 下载并安装 pyenv 工具链
 
 ```bash
-$ curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
 ```
 
 ##### 设置环境变量
@@ -75,13 +75,13 @@ eval "$(pyenv virtualenv-init -)"
 ##### 列出可按照的 Python 版本
 
 ```bash
-$ pyenv install --list
+pyenv install --list
 ```
 
 ##### 安装所需版本的 Python 解释器
 
 ```bash
-$ pyenv install <version>
+pyenv install <version>
 ```
 
 ## 2. 执行前准备
@@ -89,5 +89,5 @@ $ pyenv install <version>
 ### 2.1. 创建 ssh 的 control path 目录
 
 ```bash
-$ mkdir .cp
+mkdir .cp
 ```

@@ -52,13 +52,13 @@ Playbook 是一个 `yaml` 文件，由 "play" 和 "task" 构成，每个 "task" 
 单主机
 
 ```bash
-$ ansible-playbook ping.yml --tags G1
+ansible-playbook ping.yml --tags G1
 ```
 
 多主机
 
 ```bash
-$ ansible-playbook ping.yml --tags G2
+ansible-playbook ping.yml --tags G2
 ```
 
 #### 1.1.2. 通过 become 用户执行
@@ -74,7 +74,7 @@ tasks:
 使用 become 用户权限
 
 ```bash
-$ ansible-playbook ping.yml --tags G3 \
+ansible-playbook ping.yml --tags G3 \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
 ```
@@ -91,7 +91,7 @@ $ ansible-playbook ping.yml --tags G3 \
 内置变量一般以 `ansible_` 为前缀
 
 ```bash
-$ ansible-playbook vars.yml --tags G1
+ansible-playbook var.yml --tags G1
 ```
 
 #### 1.2.2. 自定义变量
@@ -107,13 +107,13 @@ vars:
 无外部扩展变量时
 
 ```bash
-$ ansible-playbook vars.yml --tags G2
+ansible-playbook var.yml --tags G2
 ```
 
 具备外部扩展变量时
 
 ```bash
-$ ansible-playbook vars.yml --tags G2 -e "user_name=Emma user_age=32" 
+ansible-playbook var.yml --tags G2 -e "user_name=Emma user_age=32"
 ```
 
 #### 1.2.3. 引入变量文件
@@ -129,7 +129,7 @@ tasks:
 使用外部变量文件
 
 ```bash
-$ ansible-playbook vars.yml --tags G3
+ansible-playbook var.yml --tags G3
 ```
 
 变量中可以使用加密内容，并通过 `vault-id` 进行解密
@@ -151,9 +151,9 @@ tasks:
   - name: Run when value of remote environment variable "RUNNING_STATUS" is "OK"
     when: ansible_env.RUNNING_STATUS == "OK"
     # or ansible_env["RUNNING_STATUS"] == "OK"
-    
+
   - name: Show value of remote environment variable "NAME"
-    debug: 
+    debug:
     msg: "The value is: {{ ansible_env.NAME }}"
 ```
 
@@ -162,7 +162,7 @@ tasks:
 ```yml
   tasks:
     - name: Show value of local environment variable "HOST"
-      debug: 
+      debug:
         msg: "The value is: {{ lookup('env', 'HOST') }}"
       when: (lookup('env', 'HOST') is defined)
 ```
@@ -170,7 +170,7 @@ tasks:
 使用环境变量
 
 ```bash
-$ VAR_MSG="HELLO WORLD" ansible-playbook vars.yml --tags G4
+VAR_MSG="HELLO WORLD" ansible-playbook var.yml --tags G4
 ```
 
 #### 1.2.5. facts 变量
@@ -181,14 +181,14 @@ $ VAR_MSG="HELLO WORLD" ansible-playbook vars.yml --tags G4
 tasks:
   - name: Show ansible facts variables
     debug:
-      msg: 
+      msg:
         - "Architecture: {{ ansible_facts.architecture }}"
 ```
 
 使用 facts 变量
 
 ```bash
-$ ansible-playbook vars.yml --tags G5
+ansible-playbook var.yml --tags G5
 ```
 
 #### 1.2.6. 在任务中设置变量值
@@ -204,7 +204,7 @@ tasks:
 ```
 
 ```bash
-$ ansible-playbook vars.yml --tags G6
+ansible-playbook var.yml --tags G6
 ```
 
 ### 1.3. 条件执行
@@ -225,7 +225,7 @@ tasks:
 使用 `when` 处理条件
 
 ```bash
-$ ansible-playbook cond.yml --tags G1
+ansible-playbook cond.yml --tags G1
 ```
 
 #### 1.3.2. 组合条件
@@ -237,14 +237,14 @@ tasks:
   - name: Run shell command if target distribution is "Debian" and version ge than 10
     shell: uname -sa
     when: >
-      ansible_facts.distribution == "Debian" and 
+      ansible_facts.distribution == "Debian" and
       (ansible_facts.distribution_major_version | int) >= 10
 ```
 
 使用组合条件
 
 ```bash
-$ ansible-playbook cond.yml --tags G2
+ansible-playbook cond.yml --tags G2
 ```
 
 #### 1.3.3. 在注册的变量上使用条件
@@ -266,7 +266,7 @@ tasks:
 使用注册变量进行条件处理
 
 ```bash
-$ ansible-playbook cond.yml --tags G3
+ansible-playbook cond.yml --tags G3
 ```
 
 #### 1.3.4. 将操作结果作为条件变量
@@ -284,7 +284,7 @@ tasks:
     when: False # 导致任务被跳过
 
   - name: Execute if latest task is skipped
-    debug: 
+    debug:
       msg: "command {{ cmd }} is skipped"
     when: (cmd_result is skipped)  # 判断任务是否被跳过
 
@@ -295,7 +295,7 @@ tasks:
     register: cmd_result
 
   - name: Show "{{ cmd }}" result if it succeeded
-    debug: 
+    debug:
       msg: "{{ cmd_result.msg }}"
     when: (cmd_result is succeeded)
 
@@ -306,7 +306,7 @@ tasks:
     register: cmd_result
 
   - name: Show "{{ cmd }}" result if it failed
-    debug: 
+    debug:
       msg: "{{ cmd_result.msg }}"
     when: (cmd_result is failed)
 ```
@@ -314,19 +314,19 @@ tasks:
 令任务跳过
 
 ```bash
-$ ansible-playbook cond.yml --tags G4
+ansible-playbook cond.yml --tags G4
 ```
 
 令任务成功
 
 ```bash
-$ CMD="ls -al" ansible-playbook cond.yml --tags G4
+CMD="ls -al" ansible-playbook cond.yml --tags G4
 ```
 
 令任务失败
 
 ```bash
-$ CMD="bad_command" ansible-playbook cond.yml --tags G4
+CMD="bad_command" ansible-playbook cond.yml --tags G4
 ```
 
 ### 1.4. 循环
@@ -364,7 +364,7 @@ tasks:
 使用循环
 
 ```bash
-$ ansible-playbook loop.yml --tags G1
+ansible-playbook loop.yml --tags G1
 ```
 
 #### 1.4.2. 遍历多集合组合后的结果
@@ -401,7 +401,7 @@ tasks:
 遍历多个集合
 
 ```bash
-$ ansible-playbook loop.yml --tags G2
+ansible-playbook loop.yml --tags G2
 ```
 
 #### 1.4.3. 对前一个任务结果进行遍历
@@ -415,7 +415,7 @@ tasks:
       cmd: ls -al
       chdir: /
     register: ls_result # 将 ls 执行的结果存入变量
-      
+
   - name: Loop by task result
     debug:
       msg: "Item is: {{ item }}"
@@ -425,7 +425,7 @@ tasks:
 遍历任务输出结果
 
 ```bash
-$ ansible-playbook loop.yml --tags G3
+ansible-playbook loop.yml --tags G3
 ```
 
 #### 1.4.4. 对字典进行遍历
@@ -445,7 +445,7 @@ tasks:
 ```
 
 ```bash
-$ ansible-playbook loop.yml --tags G4
+ansible-playbook loop.yml --tags G4
 ```
 
 #### 1.4.5. 遍历文件列表
@@ -463,8 +463,8 @@ tasks:
 
 遍历文件列表
 
-```
-$ ansible-playbook loop.yml --tags G5
+```bash
+ansible-playbook loop.yml --tags G5
 ```
 
 ### 1.5. Block
@@ -483,10 +483,10 @@ tasks:
     block: # 子任务组
       - name: Step 1
         shell: /usr/bin/true
-        
+
       - name: Step 2
         shell: /usr/bin/false
-        
+
       - name: Step 3
         shell: /usr/bin/true
     when: ...
@@ -497,7 +497,7 @@ tasks:
 执行任务组
 
 ```bash
-$ ansible-playbook block.yml --tags G1
+ansible-playbook block.yml --tags G1
 ```
 
 #### 1.5.2. 利用任务组处理错误
@@ -510,24 +510,24 @@ tasks:
     block: # 任务组
       - name: Normal task
         shell: /usr/bin/true
-        
+
       - name: Raise error
         shell: /usr/bin/false
-        
+
       - name: Never executed
         shell: /usr/bin/true
-        
+
     rescue: # 处理 block 错误
       - name: Error handle task
-        debug: 
+        debug:
           msg: "Errors be caught"
-          
+
       - name: Raise error again
         command: /bin/false
 
       - name: Never executed
         shell: /usr/bin/true
-          
+
     always: # 在 block 执行完毕后执行
       - name: Always executed
         shell: /usr/bin/true
@@ -536,7 +536,7 @@ tasks:
 错误处理
 
 ```bash
-$ ansible-playbook block.yml --tags G2
+ansible-playbook block.yml --tags G2
 ```
 
 #### 1.5.3. 因错误终止任务
@@ -566,7 +566,7 @@ tasks:
 出现错误时停止任务
 
 ```bash
-$ ansible-playbook block.yml --tags G3
+ansible-playbook block.yml --tags G3
 ```
 
 ### 1.6. 错误处理
@@ -587,7 +587,7 @@ tasks:
 忽略错误任务
 
 ```bash
-$ ansible-playbook error.yml --tags G1
+ansible-playbook error.yml --tags G1
 ```
 
 #### 1.6.2. 忽略无法访问的远程主机
@@ -600,18 +600,18 @@ tasks:
   - name: This executes, fails, and the failure is ignored
     command: /bin/true
     ignore_unreachable: True
-      
+
   - meta: clear_host_errors  # optional
-    
+
   - name: This executes, fails, and ends the play for this host
     command: /bin/true
-    
+
   - name: This task never execute
     command: /bin/true
 ```
 
 ```bash
-$ ansible-playbook error.yml --tags G2
+ansible-playbook error.yml --tags G2
 ```
 
 #### 1.6.3. 定义任务失败
@@ -644,7 +644,7 @@ tasks:
 为任务定义失败条件
 
 ```bash
-$ ansible-playbook error.yml --tags G3
+ansible-playbook error.yml --tags G3
 ```
 
 #### 1.6.4. 定义 "changed" 状态
@@ -674,7 +674,7 @@ tasks:
 ```
 
 ```bash
-$ ansible-playbook error.yml --tags G4
+ansible-playbook error.yml --tags G4
 ```
 
 #### 1.6.5. 确保命令执行返回成功
@@ -685,7 +685,7 @@ $ ansible-playbook error.yml --tags G4
 tasks:
   - name: Run this shell command and ignore the result
     shell: /usr/bin/bad_command || /usr/bin/true
-      
+
   - name: Run this raw command and ignore the result
     raw: /usr/bin/bad_command || /usr/bin/true
 ```
@@ -693,7 +693,7 @@ tasks:
 保证命令行执行返回正确状态
 
 ```bash
-$ ansible-playbook error.yml --tags G5
+ansible-playbook error.yml --tags G5
 ```
 
 #### 1.6.6. Aborting a play on all hosts
@@ -717,7 +717,7 @@ tasks:
 ```
 
 ```bash
-$ ansible-playbook error.yml --tags G6-1
+ansible-playbook error.yml --tags G6-1
 ```
 
 可以通过剧本的 `max_fail_percentage` 属性，设置最大错误比率的阈值，超过该阈值则停止整个剧本
@@ -742,7 +742,7 @@ serial: 10
 约束错误比率
 
 ```bash
-$ ansible-playbook error.yml --tags G6-2
+ansible-playbook error.yml --tags G6-2
 ```
 
 可以通过剧本的 `serial` 属性定义多少连续工作同时执行
@@ -772,7 +772,7 @@ tasks:
 设置前置和后置任务
 
 ```bash
-$ ansible-playbook adv.yml --tags G1
+ansible-playbook adv.yml --tags G1
 ```
 
 ### 2.2. 导入外部剧本
@@ -789,7 +789,7 @@ $ ansible-playbook adv.yml --tags G1
 外部导入剧本
 
 ```bash
-$ ansible-playbook adv.yml --tags G2
+ansible-playbook adv.yml --tags G2
 ```
 
 ### 2.3. 导入外部任务
@@ -807,5 +807,5 @@ tasks: Import external task
 外部导入任务
 
 ```bash
-$ ansible-playbook adv.yml --tags G3
+ansible-playbook adv.yml --tags G3
 ```

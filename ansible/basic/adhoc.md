@@ -7,51 +7,51 @@
   - [2. 各类模块](#2-各类模块)
     - [2.1. Ping 模块](#21-ping-模块)
     - [2.2. Raw 模块](#22-raw-模块)
-      - [执行远程命令行](#执行远程命令行)
-      - [增加扩展参数](#增加扩展参数)
+      - [2.2.1. 执行远程命令行](#221-执行远程命令行)
+      - [2.2.2. 增加扩展参数](#222-增加扩展参数)
     - [2.3. Shell 模块](#23-shell-模块)
-      - [执行 shell 命令](#执行-shell-命令)
-      - [使用附加参数执行 shell 命令](#使用附加参数执行-shell-命令)
+      - [2.3.1. 执行 shell 命令](#231-执行-shell-命令)
+      - [2.3.2. 使用附加参数执行 shell 命令](#232-使用附加参数执行-shell-命令)
     - [2.4. 软件安装](#24-软件安装)
       - [2.4.1. Yum 模块](#241-yum-模块)
-        - [安装并升级软件包](#安装并升级软件包)
-        - [设置软件仓库](#设置软件仓库)
+        - [2.4.1.1. 安装并升级软件包](#2411-安装并升级软件包)
+        - [2.4.1.2. 设置软件仓库](#2412-设置软件仓库)
       - [2.4.2. Apt 模块](#242-apt-模块)
-        - [安装并升级软件包](#安装并升级软件包-1)
+        - [2.4.2.1. 安装并升级软件包](#2421-安装并升级软件包)
     - [2.5. Template 模块](#25-template-模块)
-      - [使用模板输出文件](#使用模板输出文件)
+      - [2.5.1. 使用模板输出文件](#251-使用模板输出文件)
     - [2.6. Copy 模块](#26-copy-模块)
-      - [复制文件](#复制文件)
-      - [复制文件和目录](#复制文件和目录)
-      - [复制目录](#复制目录)
-      - [复制内容](#复制内容)
+      - [2.6.1. 复制文件](#261-复制文件)
+      - [2.6.2. 复制文件和目录](#262-复制文件和目录)
+      - [2.6.3. 复制目录](#263-复制目录)
+      - [2.6.4. 复制内容](#264-复制内容)
     - [2.7. 用户和组](#27-用户和组)
-      - [添加用户](#添加用户)
-      - [删除用户](#删除用户)
+      - [2.7.1. 添加用户](#271-添加用户)
+      - [2.7.2. 删除用户](#272-删除用户)
     - [2.8. Group 模块](#28-group-模块)
-      - [创建用户组](#创建用户组)
-      - [删除用户组](#删除用户组)
+      - [2.8.1. 创建用户组](#281-创建用户组)
+      - [2.8.2. 删除用户组](#282-删除用户组)
     - [2.9. Service 模块](#29-service-模块)
-      - [启动服务](#启动服务)
-      - [停止服务](#停止服务)
+      - [2.9.1. 启动服务](#291-启动服务)
+      - [2.9.2. 停止服务](#292-停止服务)
     - [2.10. Get Url 模块](#210-get-url-模块)
     - [2.11. Fetch 模块](#211-fetch-模块)
     - [2.12. File 模块](#212-file-模块)
-      - [创建和删除文件](#创建和删除文件)
-      - [更改文件模式](#更改文件模式)
-      - [创建和删除文件连接](#创建和删除文件连接)
-      - [创建和删除目录](#创建和删除目录)
+      - [2.12.1. 创建和删除文件](#2121-创建和删除文件)
+      - [2.12.2. 更改文件模式](#2122-更改文件模式)
+      - [2.12.3. 创建和删除文件连接](#2123-创建和删除文件连接)
+      - [2.12.4. 创建和删除目录](#2124-创建和删除目录)
     - [2.12. Pip 模块](#212-pip-模块)
     - [2.13. Synchronize 模块](#213-synchronize-模块)
     - [2.14. Unarchive 模块](#214-unarchive-模块)
-      - [tar 文件](#tar-文件)
-      - [gz 文件](#gz-文件)
-      - [zip 文件](#zip-文件)
+      - [2.14.1. tar 文件](#2141-tar-文件)
+      - [2.14.2. gz 文件](#2142-gz-文件)
+      - [2.14.3. zip 文件](#2143-zip-文件)
 
 Ansible 具备一系列内置模块，用于执行各类远程任务，例如文件复制、软件安装等
 
 ```bash
-$ ansible <pattern> <options>
+ansible <pattern> <options>
 ```
 
 - `pattern` 即 `inventory` 中定义的远程服务器
@@ -78,7 +78,7 @@ $ ansible <pattern> <options>
 ### 1.1. 列出服务器列表
 
 ```bash
-$ ansible group_debian --list
+ansible group_debian --list
 
   hosts (3):
     debian1
@@ -91,13 +91,13 @@ $ ansible group_debian --list
 使用 Ansible 内置模块
 
 ```bash
-$ ansible <pattern> -m <module> -a "<args>"
+ansible <pattern> -m <module> -a "<args>"
 ```
 
 例如，使用 `shell` 模块执行远程命令行：
 
 ```bash
-$ ansible group_debian1 -m shell -a "ps aux"  # 列出远程服务器的进程
+ansible group_debian1 -m shell -a "ps aux"  # 列出远程服务器的进程
 ```
 
 ## 2. 各类模块
@@ -109,25 +109,25 @@ $ ansible group_debian1 -m shell -a "ps aux"  # 列出远程服务器的进程
 检查各主机的 ssh 连通性
 
 ```bash
-$ ansible group_debian1 -m ping
+ansible group_debian1 -m ping
 ```
 
 ### 2.2. Raw 模块
 
 > [raw](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/raw_module.html)
 
-#### 执行远程命令行
+#### 2.2.1. 执行远程命令行
 
 ```bash
-$ ansible group_debian1 -m raw -a "ps -aux"
+ansible group_debian1 -m raw -a "ps -aux"
 ```
 
 - `-a` 表示传递给 raw 模块的参数，这里即为 shell 命令字符串
 
-#### 增加扩展参数
+#### 2.2.2. 增加扩展参数
 
 ```bash
-$ ansible group_debian1 -m raw \
+ansible group_debian1 -m raw \
     -a "ls -al executable=/bin/bash"
 ```
 
@@ -149,21 +149,21 @@ $ ansible group_debian1 -m raw \
 - `stdin_add_newline` 取值 `no` 或 `yes`（默认值），即在输入内容中增加换行
 - `warn`: 取值 `no` 或 `yes`（默认值），允许显示警告信息
 
-#### 执行 shell 命令
+#### 2.3.1. 执行 shell 命令
 
 执行 `ls` 命令
 
 ```bash
-$ ansible group_debian1 -m shell \
+ansible group_debian1 -m shell \
     -a "ls -al"
 ```
 
-#### 使用附加参数执行 shell 命令
+#### 2.3.2. 使用附加参数执行 shell 命令
 
 产生 `ok.txt` 文件，如果文件已存在则不执行命令
 
 ```bash
-$ ansible group_debian1 -m shell \
+ansible group_debian1 -m shell \
     -a "echo 'OK' > ok.txt creates=ok.txt"
 ```
 
@@ -174,12 +174,12 @@ $ ansible group_debian1 -m shell \
 > [yum](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html)
 > [yum_repository](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_repository_module.html)
 
-##### 安装并升级软件包
+##### 2.4.1.1. 安装并升级软件包
 
 安装 `epel-release` 软件包
 
 ```bash
-$ ansible group_centos1 -m yum \
+ansible group_centos1 -m yum \
     -a "name=epel-release state=present use_backend=dnf" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -190,7 +190,7 @@ $ ansible group_centos1 -m yum \
 安装 `htop` 软件包
 
 ```bash
-$ ansible group_centos1 -m yum \
+ansible group_centos1 -m yum \
     -a "name=htop state=present update_cache=yes use_backend=dnf" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -201,7 +201,7 @@ $ ansible group_centos1 -m yum \
 卸载 `htop` 软件包
 
 ```bash
-$ ansible group_centos1 -m yum \
+ansible group_centos1 -m yum \
     -a "name=htop state=absent autoremove=yes use_backend=dnf" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -212,7 +212,7 @@ $ ansible group_centos1 -m yum \
 更新软件包
 
 ```bash
-$ ansible group_centos1 -m yum \
+ansible group_centos1 -m yum \
     -a "name=* state=latest use_backend=dnf" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -220,12 +220,12 @@ $ ansible group_centos1 -m yum \
 
 - `name=*` 表示更新所有软件包
 
-##### 设置软件仓库
+##### 2.4.1.2. 设置软件仓库
 
 以 `docker` 安装为例，首先卸载旧的 `docker` 软件包，包括：`docker`, `docker-engine` 和 `docker.io`
 
 ```bash
-$ ansible group_centos1 -m yum \
+ansible group_centos1 -m yum \
     -a "name={{ names }} autoremove=yes state=absent use_backend=dnf" \
     -e "{names: ['docker', 'docker-engine', 'docker.io']}" \
     -e "@var/become.yml" \
@@ -235,7 +235,7 @@ $ ansible group_centos1 -m yum \
 安装 `docker` 相关依赖软件包
 
 ```bash
-$ ansible group_centos1 -m yum \
+ansible group_centos1 -m yum \
     -a "name={{ names }} state=present use_backend=dnf" \
     -e "@var/become.yml" \
     -e "{names: ['yum-utils', 'device-mapper-persistent-data', 'lvm2']}" \
@@ -245,7 +245,7 @@ $ ansible group_centos1 -m yum \
 设置 `docker` 软件仓库，下载 `docker` 的 `repo` 文件
 
 ```bash
-$ ansible group_centos1 -m get_url \
+ansible group_centos1 -m get_url \
     -a "url=https://download.docker.com/linux/centos/docker-ce.repo dest=/etc/yum.repos.d/docker-ce.repo timeout=20" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -254,7 +254,7 @@ $ ansible group_centos1 -m get_url \
 将软件源的地址替换为国内镜像地址
 
 ```bash
-$ ansible group_centos1 -m raw \
+ansible group_centos1 -m raw \
     -a "sed -i 's+download.docker.com+mirrors.tuna.tsinghua.edu.cn/docker-ce+' /etc/yum.repos.d/docker-ce.repo" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -263,7 +263,7 @@ $ ansible group_centos1 -m raw \
 安装 `docker`
 
 ```bash
-$ ansible group_centos1 -m yum \
+ansible group_centos1 -m yum \
     -a "name=docker-ce update_cache=yes state=present use_backend=dnf" \
     -e "@var/become.yml"  \
     --vault-id vault/vault-id
@@ -275,27 +275,27 @@ $ ansible group_centos1 -m yum \
 > [apt_key](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_key_module.html)
 > [apt_repository](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html)
 
-##### 安装并升级软件包
+##### 2.4.2.1. 安装并升级软件包
 
 安装 `htop` 软件
 
 ```bash
-$ ansible group_debian1 -m apt \
+ansible group_debian1 -m apt \
     -a "name=htop state=present install_recommends=true update_cache=yes" \
     -e "@var/become.yml" \
-    --vault-id vault/vault-id
+    --vault-id vault/vault-id;
 ```
 
 卸载 `htop` 软件包
 
 ```bash
-$ ansible group_debian1 -m apt \
+ansible group_debian1 -m apt \
     -a "name=htop state=absent purge=yes" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id;
 
 # 卸载无效的依赖包
-$ ansible group_debian1 -m apt \
+ansible group_debian1 -m apt \
     -a "autoremove=yes purge=yes" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id;
@@ -305,13 +305,13 @@ $ ansible group_debian1 -m apt \
 
 ```bash
 # apt update
-$ ansible group_debian1 -m apt \
+ansible group_debian1 -m apt \
     -a "update_cache=yes" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id;
 
 # apt upgrade
-$ ansible group_centos1 -m yum \
+ansible group_centos1 -m yum \
     -a "name=* state=latest update_cache=yes" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -323,12 +323,12 @@ $ ansible group_centos1 -m yum \
 
 [template](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html)
 
-通过“模板”在目标主机上输出文件
+通过"模板"在目标主机上输出文件
 
-#### 使用模板输出文件
+#### 2.5.1. 使用模板输出文件
 
 ```bash
-$ ansible group_debian1 -m template \
+ansible group_debian1 -m template \
     -a "src=./template/test_template.txt dest=~/test_template.txt \
         owner=alvin mode=u=rw,g=r,o=r backup=yes" \
     -e "dynamic_name=Alvin"
@@ -344,10 +344,10 @@ $ ansible group_debian1 -m template \
 
 将文件从本机复制到远程主机
 
-#### 复制文件
+#### 2.6.1. 复制文件
 
 ```bash
-$ ansible group_debian1 -m copy \
+ansible group_debian1 -m copy \
     -a "src=./ansible.cfg dest=~/ force=yes"
 ```
 
@@ -355,39 +355,39 @@ $ ansible group_debian1 -m copy \
 - `dest` 远程主机目标文件路径
 - `force` 是否强制拷贝（覆盖目标文件）
 
-#### 复制文件和目录
+#### 2.6.2. 复制文件和目录
 
 ```bash
-$ ansible group_debian1 -m copy \
+ansible group_debian1 -m copy \
     -a "src=./conf/ dest=~/target force=yes"
 ```
 
-#### 复制目录
+#### 2.6.3. 复制目录
 
 ```bash
-$ ansible group_debian1 -m copy \
+ansible group_debian1 -m copy \
     -a "src=./conf dest=~/target force=yes"
 ```
 
-#### 复制内容
+#### 2.6.4. 复制内容
 
 ```bash
-$ ansible group_debian1 -m copy \
+ansible group_debian1 -m copy \
     -a "content='Hello World' dest=~/target.txt force=yes"
 ```
 
-- `content` 要复制的字符串，需要使用“引号”包围
+- `content` 要复制的字符串，需要使用"引号"包围
 
 ### 2.7. 用户和组
 
-#### 添加用户
+#### 2.7.1. 添加用户
 
 [user](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html)
 
 在远程主机上创建一个新用户
 
 ```bash
-$ ansible group_debian1 -m user \
+ansible group_debian1 -m user \
     -a "name=test password={{'test'|password_hash('sha512')}} \
         append=yes createhome=yes shell=/bin/bash \
         generate_ssh_key='yes' groups='sudo,root' state='present'" \
@@ -407,7 +407,7 @@ $ ansible group_debian1 -m user \
 给创建的用户赋予 sudo 权限
 
 ```bash
-$ ansible group_debian1 -m copy \
+ansible group_debian1 -m copy \
     -a "content='test ALL=(ALL:ALL) ALL\n' dest='/etc/sudoers.d/test' \
         force='yes' mode='u=r,g=r'" \
     -e "@var/become.yml" \
@@ -423,7 +423,7 @@ $ ansible group_debian1 -m copy \
 这一步完成后，即可以通过 `ssh test@host` 命令登录远程主机
 
 ```bash
-$ ansible group_debian1 -m authorized_key \
+ansible group_debian1 -m authorized_key \
     -a "user=test key={{lookup('file', '~/.ssh/id_rsa.pub')}} state=present" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -433,10 +433,10 @@ $ ansible group_debian1 -m authorized_key \
 - `key` 本机 key file 的路径
 - `state=present` 创建密钥文件，`absent` 表示删除密钥文件
 
-#### 删除用户
+#### 2.7.2. 删除用户
 
 ```bash
-$ ansible group_debian1 -m user \
+ansible group_debian1 -m user \
     -a "user=test remove=yes state=absent" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -448,19 +448,19 @@ $ ansible group_debian1 -m user \
 
 Group 模块用于创建用户组
 
-#### 创建用户组
+#### 2.8.1. 创建用户组
 
 ```bash
-$ ansible group_debian1 -m group \
+ansible group_debian1 -m group \
     -a "name=test state=present" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
 ```
 
-#### 删除用户组
+#### 2.8.2. 删除用户组
 
 ```bash
-$ ansible group_debian1 -m group \
+ansible group_debian1 -m group \
     -a "name=test state=absent" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
@@ -472,22 +472,22 @@ $ ansible group_debian1 -m group \
 
 用于启动或停止远程主机的服务
 
-#### 启动服务
+#### 2.9.1. 启动服务
 
 启动远程主机的 `sshd` 服务
 
 ``` bash
-$ ansible group_debian1 -m service \
+ansible group_debian1 -m service \
     -a "name='sshd' state='started'" \
     -e "@var/become.yml"  \
 ```
 
-#### 停止服务
+#### 2.9.2. 停止服务
 
 停止远程主机的 `sshd` 服务
 
 ``` bash
-$ ansible group_debian1 -m service \
+ansible group_debian1 -m service \
     -a "name='sshd' state='stopped'" \
     -e "@var/become.yml"  \
 ```
@@ -499,7 +499,7 @@ $ ansible group_debian1 -m service \
 从指定的 URL 上下载内容，并存储在远程主机上
 
 ```bash
-$ ansible group_debian1 -m get_url \
+ansible group_debian1 -m get_url \
     -a "url=https://www.learningcontainer.com/download/sample-text-file/?wpdmdl=1669&refresh=5f918bb1200901603374001 dest='~/test.txt' timeout=20"
 ```
 
@@ -510,7 +510,7 @@ $ ansible group_debian1 -m get_url \
 将远程主机的文件拉取到本地存储
 
 ```bash
-$ ansible group_debian1 -m fetch \
+ansible group_debian1 -m fetch \
     -a "src=/home/alvin/.bashrc dest=~/ansible_backup/ flat=no"
 ```
 
@@ -524,12 +524,12 @@ $ ansible group_debian1 -m fetch \
 
 在远程主机上进行文件操作
 
-#### 创建和删除文件
+#### 2.12.1. 创建和删除文件
 
 在远程主机上创建文件
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=/home/alvin/test.txt mode=0644 state=touch"
 ```
 
@@ -539,30 +539,30 @@ $ ansible group_debian1 -m file \
 删除远程主机上的文件
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=/home/alvin/test.txt state=absent"
 ```
 
 - `state=absent` 删除文件
 
-#### 更改文件模式
+#### 2.12.2. 更改文件模式
 
 修改远程主机的文件
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=/home/alvin/test.txt modification_time=now access_time=202010010000.0"
 ```
 
 - `modification_time` 设置文件最后被修改的时间
 - `access_time` 设置文件最后访问的时间
 
-#### 创建和删除文件连接
+#### 2.12.3. 创建和删除文件连接
 
 创建远程主机文件软连接
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "src=/home/alvin/test.txt dest=/home/alvin/test-slink.txt \
         owner=alvin group=alvin state=link"
 ```
@@ -572,19 +572,19 @@ $ ansible group_debian1 -m file \
 创建远程主机文件硬连接
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "src=/home/alvin/test.txt dest=/home/alvin/test-hlink.txt \
         owner=alvin group=alvin state=hard"
 ```
 
 - `state=hard` 创建文件硬链接
 
-#### 创建和删除目录
+#### 2.12.4. 创建和删除目录
 
 创建路径
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=/home/alvin/test_dir mode=0755 state=directory"
 ```
 
@@ -593,7 +593,7 @@ $ ansible group_debian1 -m file \
 删除路径
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=/home/alvin/test_dir mode=0755 state=absent"
 ```
 
@@ -604,7 +604,7 @@ $ ansible group_debian1 -m file \
 在远程主机上安装 pip 和 venv 依赖
 
 ```bash
-$ ansible group_debian1 -m apt \
+ansible group_debian1 -m apt \
     -a "name={{names}} state=present update_cache=yes \
         autoclean=yes autoremove=yes" \
     -e "{names: [python3-venv, python3-pip]}" \
@@ -615,13 +615,13 @@ $ ansible group_debian1 -m apt \
 在远程主机创建 `pip.conf` 文件
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=~/.pip state=directory";
 
-$ ansible group_debian1 -m template \
+ansible group_debian1 -m template \
     -a "src=./pip/pip.conf dest=~/.pip/pip.conf";
 
-$ ansible group_debian1 -m pip \
+ansible group_debian1 -m pip \
     -a "name=virtualenv state=present";
 ```
 
@@ -631,11 +631,11 @@ $ ansible group_debian1 -m pip \
 
 ```bash
 # 创建 python 代码路径
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=~/test_pip state=directory";
 
 # 创建 .venv 虚拟环境路径
-$ ansible group_debian1 -m pip \
+ansible group_debian1 -m pip \
     -a "chdir=~/test_pip name=wheel virtualenv=.venv \
         virtualenv_command='python3 -m venv' state=present";
 ```
@@ -644,11 +644,11 @@ $ ansible group_debian1 -m pip \
 
 ```bash
 # 拷贝 requirements.txt 到目标主机
-$ ansible group_debian1 -m template \
+ansible group_debian1 -m template \
     -a "src=./pip/requirements.txt dest=~/test_pip/requirements.txt";
 
 # 安装 requirements.txt 中包含的 python 依赖包
-$ ansible group_debian1 -m pip \
+ansible group_debian1 -m pip \
     -a "chdir=~/test_pip requirements=requirements.txt \
         virtualenv=.venv virtualenv_command='python3 -m venv' \
         state=present";
@@ -661,14 +661,14 @@ $ ansible group_debian1 -m pip \
 同步操作依赖 Linux 的 rsync 包，须事先安装
 
 ```bash
-$ ansible group_debian1 -m apt \
+ansible group_debian1 -m apt \
     -a "name=rsync state=present install_recommends=true update_cache=yes" \
     -e "@var/become.yml" \
     --vault-id vault/vault-id
 ```
 
 ```bash
-$ ansible group_debian1 -m synchronize \
+ansible group_debian1 -m synchronize \
     -a "src=./hosts/ dest=~/remote_hosts/ \
         delete=yes checksum=yes \
         use_ssh_args=yes mode=push"
@@ -678,43 +678,43 @@ $ ansible group_debian1 -m synchronize \
 
 用于将远程主机上的归档文件解包
 
-#### tar 文件
+#### 2.14.1. tar 文件
 
 将 tar 文件复制到远程主机并解包
 
 ```bash
 # 创建存放解包文件的路径
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=~/test_unarchive/tar state=directory";
 
 # 解包 tar 文件
-$ ansible group_debian1 -m unarchive \
+ansible group_debian1 -m unarchive \
     -a "src=./archive/test.tar dest=~/test_unarchive/tar";
 ```
 
 - `src` 本机 tar 文件路径
 - `dest` 远程主机解包路径
 
-#### gz 文件
+#### 2.14.2. gz 文件
 
 将 gz 文件复制到远程机器上并解压
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=~/test_unarchive/gz state=directory";
 
 # Unarchive tar file
-$ ansible group_debian1 -m unarchive \
+ansible group_debian1 -m unarchive \
     -a "src=./archive/test.tar.gz dest=~/test_unarchive/gz";
 ```
 
-#### zip 文件
+#### 2.14.3. zip 文件
 
 ```bash
-$ ansible group_debian1 -m file \
+ansible group_debian1 -m file \
     -a "path=~/test_unarchive/zip state=directory";
 
 # Unarchive tar file
-$ ansible group_debian1 -m unarchive \
+ansible group_debian1 -m unarchive \
     -a "src=./archive/test.zip dest=~/test_unarchive/zip";
 ```

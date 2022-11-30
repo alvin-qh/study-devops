@@ -124,5 +124,5 @@ roles
 当为 `role` 属性添加标记（`tags`）后，role 之下的所有任务都会被标注同样的标记
 
 ```bash
-$ ansible-playbook role.yml
+ansible-playbook role.yml
 ```

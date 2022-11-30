@@ -7,16 +7,16 @@
     - [1.3. 配置 ssh](#13-配置-ssh)
   - [2. Ansible 命令行模式](#2-ansible-命令行模式)
     - [2.1. ping 模块](#21-ping-模块)
-      - [执行最基本的 `ping` 模块](#执行最基本的-ping-模块)
-      - [指定远程用户](#指定远程用户)
-      - [以 `sudo` 权限执行](#以-sudo-权限执行)
-      - [指定 `sudo` 密码](#指定-sudo-密码)
-      - [以 `root` 用户执行](#以-root-用户执行)
-      - [通过 `expect` 脚本自动输入密码](#通过-expect-脚本自动输入密码)
+      - [2.1.1. 执行最基本的 `ping` 模块](#211-执行最基本的-ping-模块)
+      - [2.1.2. 指定远程用户](#212-指定远程用户)
+      - [2.1.3. 以 `sudo` 权限执行](#213-以-sudo-权限执行)
+      - [2.1.4. 指定 `sudo` 密码](#214-指定-sudo-密码)
+      - [2.1.5. 以 `root` 用户执行](#215-以-root-用户执行)
+      - [2.1.6. 通过 `expect` 脚本自动输入密码](#216-通过-expect-脚本自动输入密码)
     - [2.2. 执行远程命令](#22-执行远程命令)
-      - [执行一个远程命令](#执行一个远程命令)
-      - [执行命令失败（权限不足）](#执行命令失败权限不足)
-      - [通过 `become` 提权](#通过-become-提权)
+      - [2.2.1. 执行一个远程命令](#221-执行一个远程命令)
+      - [2.2.2. 执行命令失败（权限不足）](#222-执行命令失败权限不足)
+      - [2.2.3. 通过 `become` 提权](#223-通过-become-提权)
 
 ## 1. 基本设置
 
@@ -57,23 +57,23 @@ Ansible 命令行模式，即通过 `ansible` 命令执行 Ansible 内置的模�
 执行内置模块
 
 ```bash
-$ ansible <主机名> -m <模块名> [参数]
+ansible <主机名> -m <模块名> [参数]
 ```
 
 执行命令行
 
 ```bash
-$ ansible <主机名> -a "<命令行>" [参数]
+ansible <主机名> -a "<命令行>" [参数]
 ```
 
 ### 2.1. ping 模块
 
 `ping` **模块**用于测试本地机器和远程机器的 ssh 连通性
 
-#### 执行最基本的 `ping` 模块
+#### 2.1.1. 执行最基本的 `ping` 模块
 
 ```bash
-$ ansible group_debian1 -m ping
+ansible group_debian1 -m ping
 
 debian1 | SUCCESS => {
     "changed": false,
@@ -81,10 +81,10 @@ debian1 | SUCCESS => {
 }
 ```
 
-#### 指定远程用户
+#### 2.1.2. 指定远程用户
 
 ```bash
-$ ansible group_debian1 -m ping --user=alvin --ask-become-pass
+ansible group_debian1 -m ping --user=alvin --ask-become-pass
 
 BECOME password:
 debian1 | SUCCESS => {
@@ -96,10 +96,10 @@ debian1 | SUCCESS => {
 - `--user` 指定远程用户
 - `--ask-become-pass` 要求输入密码
 
-#### 以 `sudo` 权限执行
+#### 2.1.3. 以 `sudo` 权限执行
 
 ```bash
-$ ansible group_debian1 -m ping -b --ask-become-pass
+ansible group_debian1 -m ping -b --ask-become-pass
 
 BECOME password:
 debian1 | SUCCESS => {
@@ -113,10 +113,10 @@ debian1 | SUCCESS => {
 
 `become` 方式即通过 `sudo` 方式提升权限来执行模块
 
-#### 指定 `sudo` 密码
+#### 2.1.4. 指定 `sudo` 密码
 
 ```bash
-$ ansible group_debian1 -m ping -b --extra-vars "ansible_become_pass=<password>"
+ansible group_debian1 -m ping -b --extra-vars "ansible_become_pass=<password>"
 
 debian1 | SUCCESS => {
     "changed": false,
@@ -126,10 +126,10 @@ debian1 | SUCCESS => {
 
 - `--extra-vars` 设置扩展参数，`ansible_become_pass` 表示设置 `sudo` 用户密码
 
-#### 以 `root` 用户执行
+#### 2.1.5. 以 `root` 用户执行
 
 ```bash
-$ ansible group_debian1 -m ping -b --become-method=su --extra-vars "ansible_become_pass=<password>"
+ansible group_debian1 -m ping -b --become-method=su --extra-vars "ansible_become_pass=<password>"
 
 debian1 | SUCCESS => {
     "changed": false,
@@ -139,10 +139,10 @@ debian1 | SUCCESS => {
 
 - `--become-method` 切换用户的命令，默认为 `sudo`。`su` 表示切换到 `root` 用户
 
-#### 通过 `expect` 脚本自动输入密码
+#### 2.1.6. 通过 `expect` 脚本自动输入密码
 
 ```bash
-$ expect -c '
+expect -c '
   set timeout -1;
   spawn ansible group_debian1 -m ping -b --ask-become-pass
   expect {
@@ -160,28 +160,28 @@ debian1 | SUCCESS => {
 
 ### 2.2. 执行远程命令
 
-#### 执行一个远程命令
+#### 2.2.1. 执行一个远程命令
 
 ```bash
-$ ansible group_debian1 -a "echo Hello World"
+ansible group_debian1 -a "echo Hello World"
 
 debian1 | CHANGED | rc=0 >>
 Hello World
 ```
 
-#### 执行命令失败（权限不足）
+#### 2.2.2. 执行命令失败（权限不足）
 
 ```bash
-$ ansible group_debian1 -a "ifconfig"
+ansible group_debian1 -a "ifconfig"
 
 debian1 | FAILED | rc=2 >>
 [Errno 2] No such file or directory: b'ifconfig': b'ifconfig'
 ```
 
-#### 通过 `become` 提权
+#### 2.2.3. 通过 `become` 提权
 
 ```bash
-$ ansible group_debian1 -b -a "ifconfig" --extra-vars "ansible_become_pass=<password>"
+ansible group_debian1 -b -a "ifconfig" --extra-vars "ansible_become_pass=<password>"
 
 debian1 | CHANGED | rc=0 >>
 eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500

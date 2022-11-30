@@ -35,7 +35,7 @@
     # 因前一个任务未忽略错误，所以该任务无法被执行
     - name: This task never execute
       debug:
-        msg: "Cannot execute"
+        msg: Cannot execute
 
 # 定义失败条件
 - name: Defining failure
