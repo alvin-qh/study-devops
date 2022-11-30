@@ -4,7 +4,9 @@ services:
     image: zookeeper
     container_name: zk01
     volumes:
-      - zk_data1:/usr/local/zookeeper
+      - zk_data1:/data
+      - zk_logs1:/logs
+      - zk_datalog1:/datalog
     networks:
       - kafka_network
     ports:
@@ -19,7 +21,9 @@ services:
     image: zookeeper
     container_name: zk02
     volumes:
-      - zk_data2:/usr/local/zookeeper
+      - zk_data2:/data
+      - zk_logs2:/logs
+      - zk_datalog2:/datalog
     networks:
       - kafka_network
     ports:
@@ -92,7 +96,23 @@ volumes:
     driver_opts:
       type: tmpfs
       device: tmpfs
+  zk_logs1:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  zk_datalog1:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
   zk_data2:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  zk_logs2:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  zk_datalog2:
     driver_opts:
       type: tmpfs
       device: tmpfs
