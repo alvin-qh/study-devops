@@ -1,53 +1,50 @@
----
-version: "3"
+version: "3.9"
 services:
   percona-master:
-    image: "percona:latest"
-    container_name: "percona-master"
-    restart: "always"
-    environment:
-      MYSQL_USER: "root"
-      MYSQL_ROOT_PASSWORD: "root"
+    image: percona
+    container_name: percona-master
+    restart: always
+    env_file:
+      - conf.env
     ports:
-      - "13306:3306"
+      - 13306:3306
     volumes:
-      - "percona_master_v:/var/lib/mysql"
-      - "./log-master:/var/log/mysql"
-      - "./master.cnf:/etc/my.cnf:ro"
+      - percona_master_data:/var/lib/mysql
+      - ./log-master:/var/log/mysql
+      - ./master.cnf:/etc/my.cnf:ro
     networks:
-      - "percona_n"
+      - percona_network
   percona-slave:
-    image: "percona:latest"
-    container_name: "percona-slave"
-    restart: "always"
-    environment:
-      MYSQL_USER: "root"
-      MYSQL_ROOT_PASSWORD: "root"
+    image: percona
+    container_name: percona-slave
+    restart: always
+    env_file:
+      - conf.env
     ports:
-      - "23306:3306"
+      - 23306:3306
     volumes:
-      - "percona_slave_v:/var/lib/mysql"
-      - "./log-slave:/var/log/mysql"
-      - "./slave.cnf:/etc/my.cnf:ro"
+      - percona_slave_data:/var/lib/mysql
+      - ./log-slave:/var/log/mysql
+      - ./slave.cnf:/etc/my.cnf:ro
     networks:
-      - "percona_n"
+      - percona_network
   proxysql:
-    image: "severalnines/proxysql:latest"
-    container_name: "proxysql"
-    restart: "always"
+    image: severalnines/proxysql
+    container_name: proxysql
+    restart: always
     environment:
-      MONITOR_CONFIG_CHANGE: "true"
+      MONITOR_CONFIG_CHANGE: true
     ports:
-      - "6033:6033"
-      - "6032:6032"
-      - "6080:6080"
+      - 6033:6033
+      - 6032:6032
+      - 6080:6080
     volumes:
-      - "./proxysql.cnf:/etc/proxysql.cnf:ro"
-      - "./proxysql:/var/lib/proxysql:rw"
+      - ./proxysql.cnf:/etc/proxysql.cnf:ro
+      - ./proxysql:/var/lib/proxysql:rw
     networks:
-      - "percona_n"
+      - percona_network
 networks:
-  percona_n:
+  percona_network:
 volumes:
-  percona_master_v:
-  percona_slave_v:
+  percona_master_data:
+  percona_slave_data:

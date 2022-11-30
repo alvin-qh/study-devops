@@ -1,6 +1,6 @@
 # Master-Slave Replication
 
-## 结构
+## 1. 结构
 
 - `docker-compose.yml`：docker-compose 配置文件
 - `master.cnf`：主数据库配置文件
@@ -8,11 +8,11 @@
 - `slave.cnf`：从数据库配置文件
 - `log-slave`：从数据库日志文件
 
-## 设置
+## 2. 设置
 
-### Master 数据库
+### 2.1. Master 数据库
 
-#### 创建同步数据库
+#### 2.1.1. 创建同步数据库
 
 ```sql
 mysql> CREATE DATABASE `mysql_proxy` DEFAULT CHARACTER SET utf8mb4;
@@ -20,7 +20,7 @@ mysql> CREATE DATABASE `mysql_proxy` DEFAULT CHARACTER SET utf8mb4;
 
 > 创建的库（`mysql_proxy`）应该和`master.cnf`文件中的`binlog-do-db`配置相匹配
 
-#### 创建同步账号
+#### 2.1.2. 创建同步账号
 
 ```sql
 mysql> CREATE USER 'repl'@'%' IDENTIFIED BY '123456';   # 创建用户
@@ -28,7 +28,7 @@ mysql> GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';    # 授权该用户可复�
 mysql> flush privileges;
 ```
 
-#### 查看 Master 状态
+#### 2.1.3. 查看 Master 状态
 
 ```sql
 mysql> show master status;
@@ -39,9 +39,9 @@ mysql> show master status;
 +------------------+----------+--------------+--------------------------+-------------------+
 ```
 
-### Slave 数据库
+### 2.2. Slave 数据库
 
-####  启动、停止和重置 Slave
+#### 2.2.1. 启动、停止和重置 Slave
 
 - 配置 Slave
 
@@ -73,7 +73,7 @@ mysql> stop slave;
 mysql> reset slave;
 ```
 
-#### 查看 Slave 状态
+#### 2.2.2. 查看 Slave 状态
 
 ```sql
 mysql> show slave status\G;
