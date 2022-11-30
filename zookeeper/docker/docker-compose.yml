@@ -12,9 +12,10 @@ services:
     restart: always
     volumes:
       - zk_data1:/usr/local/zookeeper
+    env_file:
+      - config.env
     environment:
       - ZOO_MY_ID=1 # 当前实例的 ID
-      - ZOO_SERVERS=server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181 # 集群中的服务地址
   zk02:
     image: zookeeper:3.7.0
     ports:
@@ -26,9 +27,10 @@ services:
     restart: always
     volumes:
       - zk_data2:/usr/local/zookeeper
+    env_file:
+      - config.env
     environment:
       - ZOO_MY_ID=2
-      - ZOO_SERVERS=server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181
 volumes:
   zk_data1:
     driver_opts:
