@@ -34,13 +34,13 @@
 对容器中命令执行，集群为 `localhost:9092,zk02:9092`
 
 ```bash
-$ docker exec -it kf01 <command>
+docker exec -it kf01 <command>
 ```
 
 直接调用命令，在 Kafka 路径下，集群为 `localhost:9092,localhost:9093`
 
 ```bash
-$ bin/<command>
+bin/<command>
 ```
 
 ## 1. 主题
@@ -50,7 +50,7 @@ $ bin/<command>
 创建一个 `5` 分区，`2` 副本的主题
 
 ```bash
-$ kafka-topics.sh --create \
+kafka-topics.sh --create \
     --partitions 5 \
     --replication-factor 2 \
     --topic test1 \
@@ -70,7 +70,7 @@ Created topic test1.
 创建一个覆盖 Kafka 配置的主题
 
 ```bash
-$ kafka-topics.sh --create \
+kafka-topics.sh --create \
     --partitions 5 \
     --replication-factor 2 \
     --topic test1 \
@@ -91,7 +91,7 @@ Created topic test1.
 将主题的分区扩展到 `10`
 
 ```bash
-$ kafka-topics.sh --alter \
+kafka-topics.sh --alter \
     --partitions 10 \
     --topic test1 \
     --bootstrap-server localhost:9092,kf02:9092
@@ -104,7 +104,7 @@ $ kafka-topics.sh --alter \
 将主题的回收时间设置为 `3` 天
 
 ```bash
-$ kafka-configs.sh --alter \
+kafka-configs.sh --alter \
     --entity-type topics \
     --entity-name test1 \
     --add-config retention.ms=259200000 \
@@ -119,7 +119,7 @@ $ kafka-configs.sh --alter \
 删除主题的某个配置，恢复默认配置（或配置文件定义配置）
 
 ```bash
-$ kafka-configs.sh --alter \
+kafka-configs.sh --alter \
     --entity-type topics \
     --entity-name test1 \
     --delete-config retention.ms \
@@ -131,7 +131,7 @@ $ kafka-configs.sh --alter \
 ### 1.3. 列举所有主题
 
 ```bash
-$ kafka-topics.sh --list \
+kafka-topics.sh --list \
     --exclude-internal \
     --bootstrap-server localhost:9092,kf02:9092
 ```
@@ -145,7 +145,7 @@ $ kafka-topics.sh --list \
 获取 test1 主题详情
 
 ```bash
-$ kafka-topics.sh --describe \
+kafka-topics.sh --describe \
     --topic test1 \
     --bootstrap-server localhost:9092,kf02:9092
 
@@ -160,7 +160,7 @@ Topic: test1    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 10      Replicat
 #### 1.4.2. 获取所有主题详情
 
 ```bash
-$ kafka-topics.sh --describe \
+kafka-topics.sh --describe \
     --bootstrap-server localhost:9092,kf02:9092
 ```
 
@@ -169,7 +169,7 @@ $ kafka-topics.sh --describe \
 所谓特殊配置，就是通过 [1.2.2. 修改主题的配置](#122-修改主题的配置) 的方法修改的主题配置
 
 ```bash
-$ kafka-topics.sh kafka-topics.sh --describe \
+kafka-topics.sh kafka-topics.sh --describe \
     --topic test1 \
     --topics-with-overrides \
     --bootstrap-server localhost:9092,kf02:9092
@@ -184,7 +184,7 @@ Topic: test1    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 5      Replicati
 查看 test1 主题的分区偏移量
 
 ```bash
-$ kafka-run-class.sh kafka.tools.GetOffsetShell \
+kafka-run-class.sh kafka.tools.GetOffsetShell \
     --topic test1 \
     --bootstrap-server localhost:9092,kf02:9092
 
@@ -204,7 +204,7 @@ test1:4:0
 删除 test1 主题
 
 ```bash
-$ kafka-topics.sh --delete \
+kafka-topics.sh --delete \
     --topic test1 \
     --bootstrap-server localhost:9092,kf02:9092
 ```
@@ -214,7 +214,7 @@ $ kafka-topics.sh --delete \
 ### 1.7. 获取未正确同步的主题副本
 
 ```bash
-$ kafka-topics.sh --describe \
+kafka-topics.sh --describe \
     --under-replicated-partitions \
     --bootstrap-server localhost:9092,kf02:9092
 ```
@@ -226,7 +226,7 @@ $ kafka-topics.sh --describe \
 开启生产者 Shell，在命令提示符后输入数据
 
 ```bash
-$ kafka-console-producer.sh \
+kafka-console-producer.sh \
     --topic test1 \
     --bootstrap-server localhost:9092,kf02:9092
 
@@ -238,17 +238,17 @@ $ kafka-console-producer.sh \
 可以通过 `<` 管道操作符，将文件内容送入 Kafka
 
 ```bash
-$ kafka-console-producer.sh \
+kafka-console-producer.sh \
     --topic test1 \
     --bootstrap-server localhost:9092,kf02:9092 < data.txt
 ```
 
-这个命令无法通过 `$ docker exec` 在容器中直接使用
+这个命令无法通过 `docker exec` 在容器中直接使用
 
 ### 2.3. 发送 Key/Value 键值对
 
 ```bash
-$ kafka-console-producer.sh \
+kafka-console-producer.sh \
     --topic test1 \
     --property parse.key=true \
     --property key.separator=: \
@@ -265,7 +265,7 @@ $ kafka-console-producer.sh \
 开启消费者控制台，生产者发送的内容会直接显示出来
 
 ```bash
-$ kafka-console-consumer.sh \
+kafka-console-consumer.sh \
     --topic test1 --group g1 \
     --bootstrap-server localhost:9092,kf02:9092
 ```
@@ -277,7 +277,7 @@ $ kafka-console-consumer.sh \
 显示 key 和 value，并显示时间戳
 
 ```bash
-$ kafka-console-consumer.sh \
+kafka-console-consumer.sh \
     --topic test1 \
     --group g1 \
     --formatter kafka.tools.DefaultMessageFormatter \
@@ -298,7 +298,7 @@ $ kafka-console-consumer.sh \
 显示还未被删除的所有消息记录
 
 ```bash
-$ kafka-console-consumer.sh \
+kafka-console-consumer.sh \
     --topic test1 --group g1 \
     --from-beginning \
     --bootstrap-server localhost:9092,kf02:9092
@@ -315,7 +315,7 @@ Kafka 将集群，Brokers 和主题的信息存储在 Kafka 中，以达到集�
 获取集群 id。Kafka 的集群信息存储在 Zookeeper 的 `/cluster/id` 路径下
 
 ```json
-$ bash zkCli.sh get /cluster/id
+bash zkCli.sh get /cluster/id
 
 >
 {
@@ -329,7 +329,7 @@ $ bash zkCli.sh get /cluster/id
 查看所有的 broker id 列表
 
 ```json
-$ bash zkCli.sh ls /brokers/ids
+bash zkCli.sh ls /brokers/ids
 
 >
 [1, 2]
@@ -340,7 +340,7 @@ $ bash zkCli.sh ls /brokers/ids
 显示 broker id 为 `1` 的 broker 详细信息
 
 ```json
-$ bash zkCli.sh get /brokers/ids/1
+bash zkCli.sh get /brokers/ids/1
 
 >
 {
@@ -365,7 +365,7 @@ $ bash zkCli.sh get /brokers/ids/1
 显示所有的主题列表
 
 ```json
-$ bash zkCli.sh ls /brokers/topics
+bash zkCli.sh ls /brokers/topics
 
 >
 [__consumer_offsets, test1]
@@ -378,7 +378,7 @@ $ bash zkCli.sh ls /brokers/topics
 查看主题 `test1` 的详情
 
 ```json
-$ bash zkCli.sh get /brokers/topics/test1
+bash zkCli.sh get /brokers/topics/test1
 
 >
 {
