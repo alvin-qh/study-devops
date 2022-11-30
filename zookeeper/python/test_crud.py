@@ -15,7 +15,7 @@ def setup_function():
     zk.start()
 
     # 删除指定路径下的所有子节点
-    # recursive 表示是否“递归的”删除下属所有子路径和子节点
+    # recursive 表示是否递归的删除下属所有子路径和子节点
     zk.delete("/alvin", recursive=True)
 
 
@@ -113,7 +113,7 @@ def test_update_node():
     assert stat.version == 1
 
     # 使用错误的版本无法正确更新节点
-    # 所以版本号可以作为“乐观锁”，保证更新节点时没有别的进程更新节点
+    # 所以版本号可以作为乐观锁，保证更新节点时没有别的进程更新节点
     try:
         zk.set(node, b"update again", version=0)
         pytest.fail("can not run here")

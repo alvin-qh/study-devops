@@ -15,7 +15,7 @@ def setup_function():
     zk.start()
 
     # 删除指定路径下的所有子节点
-    # recursive 表示是否“递归的”删除下属所有子路径和子节点
+    # recursive 表示是否递归的删除下属所有子路径和子节点
     zk.delete("/alvin", recursive=True)
 
 
@@ -27,6 +27,7 @@ class ThreadGroup:
     """
     线程组类，将多个功能一致，参数相同的线程组织在一起
     """
+    _group: List[threading.Thread]
 
     def __init__(self, target: Callable, *args, **kwargs) -> None:
         self._group = []  # 保存线程的数组
