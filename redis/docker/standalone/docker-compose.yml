@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+      - ../redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - redis_network
+networks:
+  redis_network:
+    driver: bridge
+volumes:
+  redis_data:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs

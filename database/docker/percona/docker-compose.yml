@@ -1,24 +1,24 @@
-version: "3"
+version: "3.9"
 services:
   percona:
-    image: "percona:8"
-    container_name: "percona"
-    restart: "always"
+    image: percona:8
+    container_name: percona
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3306:3306"
+      - 3306:3306
     volumes:
-      - "percona_data:/var/lib/mysql"
-      - "./log:/var/log/mysql/"
-      - "./my.cnf:/etc/my.cnf:rw"
+      - percona_data:/var/lib/mysql
+      - ./log:/var/log/mysql/
+      - ./my.cnf:/etc/my.cnf:ro
     networks:
-      - "percona_network"
+      - percona_network
 networks:
   percona_network:
     external: false
 volumes:
   percona_data:
     driver_opts:
-      type: "tmpfs"
-      device: "tmpfs"
+      type: tmpfs
+      device: tmpfs
