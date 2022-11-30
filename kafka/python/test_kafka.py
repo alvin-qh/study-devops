@@ -29,7 +29,7 @@ def _create_new_topic():
     new_topic = NewTopic(
         conf.TOPIC,  # 主题名称
         num_partitions=5,  # 主题分区
-        replication_factor=2,  # 主题副本
+        replication_factor=3,  # 主题副本
     )
 
     admin_client = ka.KafkaAdminClient(
@@ -58,6 +58,8 @@ def teardown_function():
     try:
         # 删除主题
         admin_client.delete_topics([conf.TOPIC])
+    except:
+        pass
     finally:
         admin_client.close()
 
@@ -68,7 +70,8 @@ def test_topic():
     """
     admin_client = ka.KafkaAdminClient(
         client_id=conf.CLIENT_ID,
-        bootstrap_servers=BOOTSTRAP_SERVERS,
+       security_protocol="PLAINTEXT",
+       bootstrap_servers=BOOTSTRAP_SERVERS,
     )
 
     try:
@@ -81,12 +84,12 @@ def test_topic():
         assert desc[0]["topic"] == conf.TOPIC
         assert len(desc[0]["partitions"]) == 5
         assert desc[0]["partitions"][0]["partition"] == 0
-        assert set(desc[0]["partitions"][0]["replicas"]) == {1, 2}
+        assert set(desc[0]["partitions"][0]["replicas"]) == {1, 2, 3}
     finally:
         admin_client.close()
 
 
-def test_simple_record():
+def test_simple_record() -> None:
     """
     测试 producer 发送简单消息
     """
