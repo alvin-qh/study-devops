@@ -1,7 +1,7 @@
-version: "3.7"
+version: "3.9"
 services:
   zk01:
-    image: zookeeper:3.7.0
+    image: zookeeper
     container_name: zk01
     volumes:
       - zk_data1:/usr/local/zookeeper
@@ -9,13 +9,14 @@ services:
       - kafka_network
     ports:
       - 2181
+    env_file:
+      - zookeeper.env
     environment:
       - ZOO_MY_ID=1 # zookeeper id
-      - ZOO_SERVERS=server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181 # zookeeper 集群情况
     privileged: true
     restart: always
   zk02:
-    image: zookeeper:3.7.0
+    image: zookeeper
     container_name: zk02
     volumes:
       - zk_data2:/usr/local/zookeeper
@@ -23,33 +24,23 @@ services:
       - kafka_network
     ports:
       - 2181
+    env_file:
+      - zookeeper.env
     environment:
       - ZOO_MY_ID=2
-      - ZOO_SERVERS=server.1=zk01:2888:3888;2181 server.2=zk02:2888:3888;2181
     privileged: true
     restart: always
   kf01:
-    image: bitnami/kafka:3.0.0
+    image: bitnami/kafka
     container_name: kf01
     ports:
-      - "9093:9093"
+      - 9093:9093
+    env_file:
+      - kafka.env
     environment:
-      - ALLOW_PLAINTEXT_LISTENER=yes # 允许未加密的监听器
       - KAFKA_CFG_BROKER_ID=1 # broker id
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zk01:2181,zk02:2181 # zookeeper 集群地址
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT # 定义侦听器的 alias，CLIENT 表示内部监听，EXTERNAL 表示外部监听（都是 PLAINTEXT 监听）
       - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093 # 本地监听 9092 端口，对外监听 9093 端口. 对外监听端口可以通过端口映射进行暴露
       - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kf01:9092,EXTERNAL://localhost:9093 # 该部分会注册到 zookeeper 里被集群其它节点或客户端发现
-      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT # 指定集群内部各 broker 使用的监听器
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true # 允许自动创建主题（生成环境禁用）
-      - KAFKA_CFG_LOG_RETENTION_HOURS=1 # 消息在服务端保留时长（生产环境可设置长一些）
-      - KAFKA_CFG_LOG_CLEARUP_POLICY=delete # 消息清理策略，删除
-      - KAFKA_CFG_LOG_RETENTION_BYTES=-1 # 消息在服务端保留的最大容量，-1 表示无限制
-      - KAFKA_CFG_LOG_SEGMENT_DELETE_DELAY_MS=60000 # segment 文件删除延迟时间
-      - KAFKA_CFG_LOG_CLEANUP_INTERVAL_MINS=3 # 检查日志是否可以删除的周期，单位 分钟
-      - KAFKA_CFG_LOG_ROLL_HOURS=1 # 存储记录的滚动时间，即每隔一小时产生一个新的 sagement 文件
-      - KAFKA_CFG_LOG_RETENTION_CHECK_INTERVAL_MS=120000 # 消息保留检测间隔时间
-      # - JMX_PORT=9999
     networks:
       - kafka_network
     volumes:
@@ -58,31 +49,38 @@ services:
       - zk01
       - zk02
   kf02:
-    image: bitnami/kafka:3.0.0
+    image: bitnami/kafka
     container_name: kf02
     ports:
-      - "9094:9094"
+      - 9094:9094
+    env_file:
+      - kafka.env
     environment:
-      - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_BROKER_ID=2
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zk01:2181,zk02:2181
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9094
       - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kf02:9092,EXTERNAL://localhost:9094
-      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-      - KAFKA_CFG_LOG_RETENTION_HOURS=1
-      - KAFKA_CFG_LOG_CLEARUP_POLICY=delete
-      - KAFKA_CFG_LOG_RETENTION_BYTES=536870912
-      - KAFKA_CFG_LOG_SEGMENT_DELETE_DELAY_MS=60000
-      - KAFKA_CFG_LOG_CLEANUP_INTERVAL_MINS=3
-      - KAFKA_CFG_LOG_ROLL_HOURS=1
-      - KAFKA_CFG_LOG_RETENTION_CHECK_INTERVAL_MS=120000
-      # - JMX_PORT=9999
     networks:
       - kafka_network
     volumes:
       - kf_data2:/bitnami/kafka
+    depends_on:
+      - zk01
+      - zk02
+  kf03:
+    image: bitnami/kafka
+    container_name: kf03
+    ports:
+      - 9095:9095
+    env_file:
+      - kafka.env
+    environment:
+      - KAFKA_CFG_BROKER_ID=3
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9095
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kf03:9092,EXTERNAL://localhost:9095
+    networks:
+      - kafka_network
+    volumes:
+      - kf_data3:/bitnami/kafka
     depends_on:
       - zk01
       - zk02
@@ -103,6 +101,10 @@ volumes:
       type: tmpfs
       device: tmpfs
   kf_data2:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  kf_data3:
     driver_opts:
       type: tmpfs
       device: tmpfs
