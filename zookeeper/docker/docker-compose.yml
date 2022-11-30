@@ -2,7 +2,7 @@ version: "3.9"
 services:
   # Zookper 集群
   zk01:
-    image: zookeeper:3.7.0
+    image: zookeeper
     ports:
       - 2181:2181
     container_name: zk01
@@ -17,7 +17,7 @@ services:
     environment:
       - ZOO_MY_ID=1 # 当前实例的 ID
   zk02:
-    image: zookeeper:3.7.0
+    image: zookeeper
     ports:
       - 2182:2181
     container_name: zk02
