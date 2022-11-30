@@ -1,0 +1,18 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "acks",
+        "backoff",
+        "CLEARUP",
+        "gevent",
+        "nums",
+        "partitioner",
+        "rawlink",
+        "RCVBUFF",
+        "sagement",
+        "SNDBUFF",
+        "Znode"
+    ],
+    "flagWords": []
+}
