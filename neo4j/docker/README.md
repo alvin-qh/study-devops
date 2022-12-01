@@ -5,5 +5,5 @@
 ### 1.1. Set permissions of docker volumes
 
 ```bash
-$ chmod -R 755 ./import ./plugins ./conf
+chmod -R 755 ./import ./plugins ./conf
 ```
