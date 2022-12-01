@@ -1,7 +1,11 @@
 package alvin.docker.app;
 
-import alvin.docker.app.common.error.ClientError;
-import alvin.docker.core.Context;
+import static alvin.docker.utils.Values.nullElse;
+import static javax.servlet.RequestDispatcher.ERROR_STATUS_CODE;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,11 +21,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
-import static alvin.docker.utils.Values.nullElse;
-import static javax.servlet.RequestDispatcher.ERROR_STATUS_CODE;
+import alvin.docker.app.common.error.ClientError;
+import alvin.docker.core.context.Context;
 
 @Controller
 @ControllerAdvice

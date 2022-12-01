@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import alvin.docker.app.common.ApplicationInfo;
-import alvin.docker.core.Context;
+import alvin.docker.core.context.Context;
 
 @Component
 public class CrossDomainInterceptor implements HandlerInterceptor {

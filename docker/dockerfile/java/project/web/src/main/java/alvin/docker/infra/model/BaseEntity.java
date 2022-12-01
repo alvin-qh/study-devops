@@ -1,8 +1,5 @@
 package alvin.docker.infra.model;
 
-import lombok.Getter;
-import lombok.ToString;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.GeneratedValue;
@@ -10,22 +7,26 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
-@ToString(onlyExplicitlyIncluded = true)
+import lombok.Getter;
+
+@Getter
 @MappedSuperclass
-public abstract class BaseEntity implements Identity, Cloneable {
+public abstract class BaseEntity implements Identity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Access(AccessType.FIELD)
-    @ToString.Include
-    @Getter
     private Long id;
 
     @Override
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException ignore) {
-            return null;
+    public boolean equals(Object obj) {
+        if (!this.getClass().isInstance(obj)) {
+            return false;
         }
+        return id.equals(((BaseEntity) obj).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

@@ -1,110 +1,59 @@
-apply from: 'depends.gradle'
-
-apply plugin: 'idea'
-//apply plugin: "org.ajoberstar.grgit"
-
-import org.gradle.internal.logging.text.StyledTextOutputFactory
-
-//ext {
-//    git = org.ajoberstar.grgit.Grgit.open(file('.'))
-//}
-
-idea {
-    project {
-        jdkName = '11'
-        languageLevel = '11'
-    }
-}
+apply from: "gradle/depends.gradle"
 
 buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-        jcenter()
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
     }
+    jcenter()
+  }
 }
 
 allprojects {
-    apply plugin: 'idea'
-    apply plugin: "jacoco"
-    apply plugin: 'java'
-    apply plugin: 'checkstyle'
+  apply plugin: "java"
 
-    sourceCompatibility = '11'
-    targetCompatibility = '11'
+  sourceCompatibility = "11"
+  targetCompatibility = "11"
 
-    ext {
-        out = services.get(StyledTextOutputFactory).create("dockerjava")
-        projectVersion = [
-                version: "0.1.${System.getenv("GO_PIPELINE_COUNTER") ?: '0'}".toString()
-        ]
+  ext {
+    out = services.get(org.gradle.internal.logging.text.StyledTextOutputFactory).create("dockerjava")
+  }
+
+  group = "alvin.study"
+
+  repositories {
+    maven {
+      url "https://maven.aliyun.com/nexus/content/groups/public/"
     }
+    jcenter()
+  }
 
-    group = 'alvin.docker'
-    version = projectVersion.version
-
-    repositories {
-        maven {
-            url 'https://maven.aliyun.com/nexus/content/groups/public/'
-        }
-        jcenter()
+  sourceSets {
+    //noinspection GroovyAssignabilityCheck
+    main {
+      output.resourcesDir = java.outputDir
     }
+  }
 
-    sourceSets {
-        //noinspection GroovyAssignabilityCheck
-        main {
-            output.resourcesDir = java.outputDir
-        }
-    }
-
-    checkstyle {
-        toolVersion = "7.1"
-    }
-
-    checkstyleMain {
-        configFile = file("${rootProject.projectDir}/.config/checkstyle/checkstyle.xml")
-    }
-
-    checkstyleTest {
-        configFile = file("${rootProject.projectDir}/.config/checkstyle/checkstyle-test.xml")
-    }
-
-    test {
-        useJUnitPlatform()
-    }
-
-    jacoco {
-        toolVersion = "0.8.5"
-        reportsDir = file("$buildDir/customJacocoReportDir")
-    }
+  test {
+    useJUnitPlatform()
+  }
 }
 
 subprojects {
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-    }
+  tasks.withType(JavaCompile) {
+      options.encoding = "UTF-8"
+  }
 
-    task checkStyle(dependsOn: [checkstyleMain, checkstyleTest]) {
-    }
+  dependencies {
+    annotationProcessor annotations.main.common
+    testAnnotationProcessor annotations.test.common
 
-    checkStyle.mustRunAfter check
+    compileOnly compiles.main.common
+    testCompileOnly compiles.test.common
 
-    dependencies {
-        annotationProcessor annotations.main.common
-        testAnnotationProcessor annotations.test.common
-
-        compileOnly compiles.main.common
-        testCompileOnly compiles.test.common
-
-        implementation libs.main.common
-        testImplementation libs.test.common,
-            libs.test.guava
-    }
-}
-
-def readVersion() {
-    Properties properties = new Properties()
-    properties.load(project.file('version.properties').newDataInputStream())
-    return properties.getProperty("version")
+    implementation libs.main.common
+    testImplementation libs.test.common,
+        libs.test.guava
+  }
 }

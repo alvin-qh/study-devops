@@ -1,13 +1,15 @@
 package alvin.docker.infra.repo;
 
-import alvin.docker.infra.model.FeedbackBuilder;
-import alvin.docker.testing.IntegrationTestSupport;
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import javax.inject.Inject;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import org.junit.jupiter.api.Test;
+
+import alvin.docker.infra.model.FeedbackBuilder;
+import alvin.docker.infra.repository.FeedbackRepository;
+import alvin.docker.testing.IntegrationTestSupport;
 
 
 class FeedbackRepositoryTest extends IntegrationTestSupport {

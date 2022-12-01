@@ -1,13 +1,5 @@
 package alvin.docker;
 
-import alvin.docker.core.Context;
-import alvin.docker.core.I18nProvider;
-import alvin.docker.core.web.ContextImpl;
-import alvin.docker.utils.Times;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -17,12 +9,21 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.annotation.RequestScope;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import alvin.docker.core.context.I18nProvider;
+import alvin.docker.core.context.WebContext;
+import alvin.docker.utils.Times;
+
 @Configuration
 public class MainConfig {
     @Bean
     @RequestScope
     Context context() {
-        return new ContextImpl();
+        return new WebContext();
     }
 
     @Bean

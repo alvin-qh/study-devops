@@ -3,98 +3,27 @@ plugins {
     id "io.spring.dependency-management" version "${VER_GRADLE_SPRING_DEPENDENCY_MANAGEMENT}"
 }
 
-import org.apache.tools.ant.filters.ReplaceTokens
-import org.gradle.internal.logging.text.StyledTextOutput.Style
-
 dependencies {
     annotationProcessor annotations.main.spring
 
     compileOnly compiles.main.spring
 
-    implementation libs.main.common,
-            libs.main.springBoot,
-            libs.main.jackson,
-            libs.main.db.h2,
-            libs.main.db.migration
+    implementation libs.main.springBoot,
+        libs.main.db.h2
+
     testImplementation libs.test.common,
-            libs.test.springBoot
+        libs.test.springBoot
 }
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
-    afterEvaluate {
-        classDirectories.from = files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: ['resources/**'])
-        })
-    }
-}
-
-task coverage(dependsOn: jacocoTestReport) {
-    doLast {
-        def thresholds = parseXml("${projectDir}/thresholds.xml").coverage[0]
-        def report = parseXml("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
-
-        failIfBelowThreshold(thresholds, report, 'line')
-        failIfBelowThreshold(thresholds, report, 'branch')
-    }
-}
-coverage.shouldRunAfter test
-
-task prePush(dependsOn: [check, test, coverage]) {
-}
-
-task(versionize) {
-    doLast {
-        copy {
-            from 'src/main/resources/application.yml'
-            into sourceSets.main.java.outputDir
-            filter(ReplaceTokens, tokens: [version: projectVersion.version])
-        }
-    }
-}
-
-versionize.shouldRunAfter processResources
 
 bootJar {
-    dependsOn versionize
-
     archiveBaseName = project.group
 
     manifest {
-        attributes 'Implementation-Title': 'Docker Java Demo'
-        attributes 'Implementation-Version': projectVersion.version
+        attributes "Implementation-Title": "Docker Java Demo"
+        attributes "Implementation-Version": "1.0-RELEASE"
     }
 
-    exclude 'META-INF/*.DSA'
-    exclude 'META-INF/*.SF'
-    exclude 'META-INF/*.RSA'
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.RSA"
 }
-
-def failIfBelowThreshold(thresholds, report, type) {
-    def threshold = thresholds[type][0].text().toFloat()
-    def actual = calculateCoverage(report, type)
-    if (actual < threshold) {
-        def msg = '%1s coverage %2.1f%% below threshold %3.1f%%'
-        ant.fail(String.format(msg, type, actual * 100, threshold * 100))
-    } else {
-        def msg = String.format('> you may increase the %1s coverage to %2.1f%%', type, actual * 100)
-        ext.out.withStyle(Style.Info).println(msg)
-    }
-}
-
-static def parseXml(path) {
-    def parser = new XmlSlurper(false, false, true)
-    parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
-    parser.setFeature("http://xml.org/sax/features/namespaces", false)
-    return parser.parse(new File(path))
-}
-
-static def calculateCoverage(report, type) {
-    def counter = report.counter.find { it.@type == type.toUpperCase() }
-    def missed = counter.@missed.toFloat()
-    def covered = counter.@covered.toFloat()
-    return covered / (covered + missed)
-}
-
