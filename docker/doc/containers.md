@@ -7,12 +7,12 @@
 [`docker run`](https://docs.docker.com/engine/reference/commandline/run/)
 
 ```bash
-$ docker run --name 'test' -it alpine ls /
+docker run --name 'test' -it alpine ls /
 ```
 
 使用 alpine 镜像创建一个名为 `test` 的容器，并在容器内执行 `ls /` 命令
 
-`-it` 表示开启“交互式终端”，即将容器的输入输出定向到当前输入输出上
+`-it` 表示开启"交互式终端"，即将容器的输入输出定向到当前输入输出上
 
 ### 1.2. 启动和停止容器
 
@@ -21,13 +21,13 @@ $ docker run --name 'test' -it alpine ls /
 [`docker stop`](https://docs.docker.com/engine/reference/commandline/container_stop/)
 
 ```bash
-$ docker start -a 'test'
+docker start -a 'test'
 ```
 
 启动名为 `test` 的容器，并将输入输出关联到宿主机的标准输入输出上
 
 ```bash
-$ docker stop -t 10 'test'
+docker stop -t 10 'test'
 ```
 
 停止一个容器，并在 10 秒后杀死相关进程
@@ -39,11 +39,11 @@ $ docker stop -t 10 'test'
 [`docker container restart`](https://docs.docker.com/engine/reference/commandline/container_restart/)
 
 ```bash
-$ docker restart 'test'
+docker restart 'test'
 ```
 
 ```bash
-$ docker container restart 'test'
+docker container restart 'test'
 ```
 
 重启名为 `test` 的容器
@@ -55,11 +55,11 @@ $ docker container restart 'test'
 [`docker container restart`](https://docs.docker.com/engine/reference/commandline/container_logs/)
 
 ```bash
-$ docker logs --tail 100 'test`
+docker logs --tail 100 'test`
 ```
 
 ```bash
-$ docker container logs --tail 100 'test`
+docker container logs --tail 100 'test`
 ```
 
 输出名为 `test` 容器的后 100 行日志
@@ -71,11 +71,11 @@ $ docker container logs --tail 100 'test`
 [`docker container rm`](https://docs.docker.com/engine/reference/commandline/container_rm/)
 
 ```bash
-$ docker rm -f 'test'
+docker rm -f 'test'
 ```
 
 ```bash
-$ docker container rm -f 'test'
+docker container rm -f 'test'
 ```
 
 强制删除名为 `test` 的容器，如果没有 `-f` 参数，则容器必须在停止状态才能删除。
@@ -85,12 +85,12 @@ $ docker container rm -f 'test'
 [`docker run`](https://docs.docker.com/engine/reference/commandline/run/)
 
 ```bash
-$ docker run --rm --name 'test' -itd alpine /bin/sh -c "while true; do echo hello world; sleep 1; done"
+docker run --rm --name 'test' -itd alpine /bin/sh -c "while true; do echo hello world; sleep 1; done"
 ```
 
 启动 alpine 镜像的容器，容器命名为 `test`
 
-`-it` 表示开启“交互式终端”，即将容器的输入输出定向到当前输入输出上
+`-it` 表示开启"交互式终端"，即将容器的输入输出定向到当前输入输出上
 
 `-d` 表示后台启动（Daemon方式）
 
@@ -103,11 +103,11 @@ $ docker run --rm --name 'test' -itd alpine /bin/sh -c "while true; do echo hell
 [`docker container attach`](https://docs.docker.com/engine/reference/commandline/container_attach/)
 
 ```bash
-$ docker attach -it 'test'
+docker attach -it 'test'
 ```
 
 ```bash
-$ docker container attach -it 'test'
+docker container attach -it 'test'
 ```
 
 附加到已执行的 `test` 容器上
@@ -115,7 +115,7 @@ $ docker container attach -it 'test'
 ### 1.8. 在运行容器中执行命令
 
 ```bash
-$ docker exec -it 'test' ls /
+docker exec -it 'test' ls /
 ```
 
 在已运行的 `test` 容器中执行 `ls` 命令
@@ -127,11 +127,11 @@ $ docker exec -it 'test' ls /
 [`docker container rename`](https://docs.docker.com/engine/reference/commandline/container_rename/)
 
 ```bash
-$ docker rename 'test' 'test-alpha'
+docker rename 'test' 'test-alpha'
 ```
 
 ```bash
-$ docker container rename 'test' 'test-alpha'
+docker container rename 'test' 'test-alpha'
 ```
 
 给容器重新命名
@@ -143,11 +143,11 @@ $ docker container rename 'test' 'test-alpha'
 [`docker container kill`](https://docs.docker.com/engine/reference/commandline/container_kill/)
 
 ```bash
-$ docker kill --signal=9 'test'
+docker kill --signal=9 'test'
 ```
 
 ```bash
-$ docker container kill --signal=9 'test'
+docker container kill --signal=9 'test'
 ```
 
 ### 1.11. 删除容器
@@ -157,11 +157,11 @@ $ docker container kill --signal=9 'test'
 [`docker container rm`](https://docs.docker.com/engine/reference/commandline/container_rm/)
 
 ```bash
-$ docker rm 'test'
+docker rm 'test'
 ```
 
 ```bash
-$ docker container rm 'test'
+docker container rm 'test'
 ```
 
 ## 2. 查看容器
@@ -173,11 +173,11 @@ $ docker container rm 'test'
 [`docker ps`](https://docs.docker.com/engine/reference/commandline/ps/)
 
 ```bash
-$ docker ps -as
+docker ps -as
 ```
 
 ```bash
-$ docker container ls -as
+docker container ls -as
 ```
 
 列出容器
@@ -193,11 +193,11 @@ $ docker container ls -as
 [`docker container inspect`](https://docs.docker.com/engine/reference/commandline/container_inspect/)
 
 ```bash
-$ docker inspect -s 'test'
+docker inspect -s 'test'
 ```
 
 ```bash
-$ docker container inspect -s 'test'
+docker container inspect -s 'test'
 ```
 
 查看 `test` 容器的详情
@@ -209,17 +209,17 @@ $ docker container inspect -s 'test'
 对于 `docker ps` 和 `docker ls` 等命令支持过滤器（filter），可以过滤出符合条件的结果，例如：
 
 ```bash
-$ docker ps -f "name=test" -f "status=exited"
+docker ps -f "name=test" -f "status=exited"
 ```
 
-根据容器的“名称”和“状态”过滤结果
+根据容器的"名称"和"状态"过滤结果
 
 ### 2.4.2. 结果格式化
 
 可以定义 `docker ps`，`docker ls` 和 `docker inspect` 等命令的结果格式，例如：
 
 ```bash
-$ docker inspect -s -f '{{.Id}}{{", "}}{{.Name}}' 'test'
+docker inspect -s -f '{{.Id}}{{", "}}{{.Name}}' 'test'
 ```
 
 显示容器的详情，并输出 ID 和 Name 两个字段
