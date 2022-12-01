@@ -1,7 +1,7 @@
-version: "3.7"
+version: "3.9"
 services:
   neo4j:
-    image: neo4j:4.1.4
+    image: neo4j
     container_name: neo4j
     volumes:
       - neo4j_data:/data
@@ -12,6 +12,7 @@ services:
     environment:
       - NEO4J_AUTH=neo4j/neo4j_
       - NEO4J_dbms_security_auth_enabled=false
+    restart: always
     networks:
       - neo4j_network
     ports:
@@ -22,10 +23,4 @@ networks:
   neo4j_network:
 volumes:
   neo4j_data:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
   neo4j_log:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs

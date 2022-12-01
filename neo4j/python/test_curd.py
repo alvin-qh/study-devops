@@ -1,13 +1,14 @@
-from itertools import repeat
-
 import conf
 
 import neo4j
 
-driver: neo4j.BoltDriver
+driver: neo4j.Driver
 
 
-def setup_function():
+def setup_function() -> None:
+    """
+    初始化每次测试
+    """
     # 连接到 neo4j
     global driver
     driver = neo4j.GraphDatabase.driver(
@@ -29,11 +30,15 @@ DELETE n
         """)
 
 
-def teardown_function():
+def teardown_function() -> None:
+    """
+    结束测试
+    """
+    # 关闭 neo4j 连接
     driver.close()
 
 
-def test_create_node():
+def test_create_node() -> None:
     """
     测试创建一个节点
     """
@@ -66,7 +71,7 @@ RETURN person
     }
 
 
-def test_merge_node():
+def test_merge_node() -> None:
     """
     测试创建一个节点
     """
@@ -97,7 +102,7 @@ MERGE (person: Person {id: $id, name: $name, gender: $gender, birthday: $birthda
         })
 
 
-def test_update_node():
+def test_update_node() -> None:
     """
     测试更新一个节点
     """
@@ -129,6 +134,8 @@ RETURN person
             "birthday": "1981-03-17",
         }).single()
 
+        assert r is not None
+
     # 查看执行后结果
     person = r["person"]
 
@@ -136,7 +143,7 @@ RETURN person
     assert person["birthday"] == "1981-03-17"
 
 
-def test_query_node():
+def test_query_node() -> None:
     """
     测试查询一个节点
     """
@@ -181,7 +188,7 @@ RETURN person
     assert r[0]["person"]["name"] == "Alvin"
 
 
-def test_delete_node():
+def test_delete_node() -> None:
     """
     测试删除一个节点
     """
@@ -211,6 +218,8 @@ RETURN person
         r = session.run(statement, {  # 设置语句参数
             "id": 1,
         }).single()
+
+        assert r is not None
 
     assert r["person"].id
 
