@@ -1,9 +1,5 @@
 package alvin.docker.core.http;
 
-import static alvin.docker.utils.Values.nullElse;
-import static javax.servlet.RequestDispatcher.ERROR_STATUS_CODE;
-
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
@@ -13,22 +9,22 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import alvin.docker.core.context.Context;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
-@ControllerAdvice(basePackages = { "alvin.docker" })
-@RequiredArgsConstructor
-public class GlobalExceptionHandler {
-    private final Context context;
-
+@RestControllerAdvice(basePackages = { "alvin.docker" })
+public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
     private Object convertError(ClientError error) {
         if (context.getTarget() == Context.Target.API) {
             return new ResponseEntity<>(error, error.getStatus());
@@ -36,6 +32,8 @@ public class GlobalExceptionHandler {
         return new ModelAndView("errors/error_page", error.toMap(), error.getStatus());
     }
 
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Object handleAllExceptions(Exception exception) {
         return convertError(ClientError.fromException(exception));
