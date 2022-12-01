@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WebContext implements Context {
-    public static final String REQUEST_PATH = "request_path";
-    public static final String I18N = "i18n";
-
     private static final String CONTEXT_KEY_PREFIX = "_ctx_";
 
     private Map<String, Object> contextMap = new HashMap<>();

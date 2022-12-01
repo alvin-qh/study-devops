@@ -3,7 +3,6 @@ package alvin.docker.app.api.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.springframework.validation.BindingResult;
@@ -19,22 +18,17 @@ import alvin.docker.app.api.mapper.FeedbackMapper;
 import alvin.docker.app.api.model.FeedbackDto;
 import alvin.docker.app.api.model.FeedbackForm;
 import alvin.docker.app.api.model.Response;
-import alvin.docker.app.common.error.ClientError;
-import alvin.docker.app.common.error.HttpClientException;
 import alvin.docker.app.domain.service.FeedbackService;
+import alvin.docker.core.http.ClientError;
+import alvin.docker.core.http.error.HttpClientException;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/feedback")
+@RequiredArgsConstructor
 public class FeedbackController {
     private final FeedbackService feedbackService;
     private final FeedbackMapper feedbackMapper;
-
-    @Inject
-    public FeedbackController(FeedbackService feedbackService,
-                              FeedbackMapper feedbackMapper) {
-        this.feedbackService = feedbackService;
-        this.feedbackMapper = feedbackMapper;
-    }
 
     @GetMapping
     Response<List<FeedbackDto>> index() {

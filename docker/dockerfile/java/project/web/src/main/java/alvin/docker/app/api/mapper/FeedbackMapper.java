@@ -1,9 +1,10 @@
 package alvin.docker.app.api.mapper;
 
+import org.springframework.stereotype.Component;
+
 import alvin.docker.app.api.model.FeedbackDto;
 import alvin.docker.app.api.model.FeedbackForm;
 import alvin.docker.infra.model.Feedback;
-import org.springframework.stereotype.Component;
 
 @Component
 public class FeedbackMapper {

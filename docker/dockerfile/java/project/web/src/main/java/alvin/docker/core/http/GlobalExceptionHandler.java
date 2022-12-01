@@ -1,4 +1,4 @@
-package alvin.docker.app;
+package alvin.docker.core.http;
 
 import static alvin.docker.utils.Values.nullElse;
 import static javax.servlet.RequestDispatcher.ERROR_STATUS_CODE;
@@ -6,12 +6,10 @@ import static javax.servlet.RequestDispatcher.ERROR_STATUS_CODE;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -19,22 +17,17 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import alvin.docker.app.common.error.ClientError;
 import alvin.docker.core.context.Context;
+import lombok.RequiredArgsConstructor;
 
-@Controller
-@ControllerAdvice
-public class ErrorHandler implements ErrorController {
-    private static final String ERROR_URI = "/error";
-
+@RestController
+@ControllerAdvice(basePackages = { "alvin.docker" })
+@RequiredArgsConstructor
+public class GlobalExceptionHandler {
     private final Context context;
-
-    @Inject
-    public ErrorHandler(Context context) {
-        this.context = context;
-    }
 
     private Object convertError(ClientError error) {
         if (context.getTarget() == Context.Target.API) {
@@ -81,7 +74,7 @@ public class ErrorHandler implements ErrorController {
         return makeError(request);
     }
 
-    @GetMapping(value = ERROR_URI, produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_XHTML_XML_VALUE})
+    @GetMapping(value = ERROR_URI, produces = { MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_XHTML_XML_VALUE })
     public ModelAndView errorAsHtml(HttpServletRequest request) {
         final ClientError error = makeError(request);
         return new ModelAndView(getErrorPath(), error.toMap(), error.getStatus());
