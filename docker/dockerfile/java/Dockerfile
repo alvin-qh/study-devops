@@ -6,9 +6,9 @@ COPY project/web/src/front .
 
 WORKDIR /build/src
 
-RUN set -ex;        \
-    npm config set registry https://registry.npm.taobao.org;    \
-    npm run setup;  \
+RUN set -ex; \
+    npm config set registry https://registry.npm.taobao.org; \
+    npm run setup; \
     npm run package
 
 
@@ -20,7 +20,7 @@ WORKDIR /build
 COPY project .
 COPY --from=js-build /build/main /build/web/src/main
 
-RUN set -ex;    \
+RUN set -ex; \
     gradle bootjar --no-daemon
 
 

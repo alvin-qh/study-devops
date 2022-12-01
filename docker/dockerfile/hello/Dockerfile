@@ -6,7 +6,7 @@ WORKDIR /opt
 
 COPY project .
 
-RUN set -ex;	\
+RUN set -ex; \
 	chmod +x ./hello.sh
 
 ENV USER_NAME=alvin

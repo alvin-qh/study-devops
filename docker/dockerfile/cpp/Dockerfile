@@ -1,16 +1,16 @@
 # Step A
-FROM spritsail/alpine-cmake:latest as build
+FROM spritsail/alpine-cmake as build
 
 COPY project /build
 WORKDIR /build/make
 
-RUN set -ex;    \
-    cmake ..;   \
+RUN set -ex; \
+    cmake ..; \
     make
 
 
 # Step B
-FROM alpine:latest as prod
+FROM alpine as prod
 
 WORKDIR /app/
 

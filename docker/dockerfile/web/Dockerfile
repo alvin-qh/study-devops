@@ -1,17 +1,17 @@
 # Build
-FROM node:latest AS build
+FROM node AS build
 
 WORKDIR /build
 
 COPY project .
 
-RUN set -ex;            \
-    npm config set registry https://registry.npm.taobao.org;  \
-    npm run setup;      \
-    npm run package
+RUN set -ex; \
+    yarn config set registry http://registry.npm.taobao.org/; \
+    yarn install; \
+    yarn run build
 
 # Product
-FROM nginx:latest as prod
+FROM nginx as prod
 
 COPY project/nginx.conf /etc/nginx/nginx.conf
 COPY project/web.conf /etc/nginx/conf.d/default.conf
