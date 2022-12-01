@@ -13,3 +13,6 @@ indent_size = 2
 
 [*.{json,js,ts,es}]
 indent_size = 2
+
+[*.gradle]
+indent_size = 2
