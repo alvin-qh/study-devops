@@ -39,7 +39,7 @@
 启动测试服务器
 
 ```bash
-$ python app/app.py
+python app/app.py
 ```
 
 ### 2.1. 单机测试
@@ -49,7 +49,7 @@ $ python app/app.py
 进入 `testcase` 路径
 
 ```bash
-$ locust -f locustfiles/simple.py -P 8001
+locust -f testcase/locustfiles/simple.py -P 8001
 ```
 
 - `-f or --locustfile` 指定 Locust 测试文件
@@ -62,7 +62,7 @@ $ locust -f locustfiles/simple.py -P 8001
 在 `8001` 端口启动 Locust 测试 UI，测试目标 web 地址为 `http://localhost:3000`
 
 ```bash
-$ locust -f locustfiles/web.py -H http://localhost:3000 -P 8001
+locust -f testcase/locustfiles/web.py -H http://localhost:3000 -P 8001
 ```
 
 - `-H or --host` 指定要测试网站的 URL 地址
@@ -72,7 +72,7 @@ $ locust -f locustfiles/web.py -H http://localhost:3000 -P 8001
 #### 2.2.1. 启动 master 节点
 
 ```bash
-$ locust -f locustfiles/web.py -H http://localhost:3000 -P 8001 --master --master-port=5557
+locust -f testcase/locustfiles/web.py -H http://localhost:3000 -P 8001 --master --master-port=5557
 ```
 
 - `--master` 以 "主测试节点" 启动 Locust
@@ -81,7 +81,7 @@ $ locust -f locustfiles/web.py -H http://localhost:3000 -P 8001 --master --maste
 #### 2.2.2. 启动 slave 端
 
 ```bash
-$ locust -f locustfiles/web.py -H http://localhost:3000 --worker --master-host=localhost --master-port=5557
+locust -f testcase/locustfiles/web.py -H http://localhost:3000 --worker --master-host=localhost --master-port=5557
 ```
 
 - `--worker` 以 "从测试节点" 启动 Locust
@@ -89,14 +89,14 @@ $ locust -f locustfiles/web.py -H http://localhost:3000 --worker --master-host=l
 
 ### 2.3. 通过配置文件启动测试
 
-master 端，参见 [web.master.conf 配置文件](./testcase/web.master.conf)
+master 端，参见 [web.master.conf 配置文件](web.master.conf)
 
 ```bash
-$ locust --config web.master.conf
+locust --config web.master.conf
 ```
 
-slave 端，参见 [web.worker.conf 配置文件](./testcase/web.worker.conf)
+slave 端，参见 [web.worker.conf 配置文件](web.worker.conf)
 
 ```bash
-$ locust --config web.work.conf
+locust --config web.worker.conf
 ```

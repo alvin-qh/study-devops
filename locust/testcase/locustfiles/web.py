@@ -1,8 +1,5 @@
-import uuid
-
-from common.auth import login
-
 from locust import HttpUser, between, task
+from testcase.common.auth import login
 
 
 class WebUser(HttpUser):
@@ -25,4 +22,4 @@ class WebUser(HttpUser):
         with self.client.get('/', catch_response=True) as resp:
             # 下面这一步可以省略，非正确的 http 返回码会自动报告错误
             if resp.status_code != 200:  # 判断返回类型
-                resp.failure("Get index failed")  # 报告错误
+                resp.failure(f"Get index failed: {resp.status_code}")  # 报告错误

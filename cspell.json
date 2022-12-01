@@ -3,6 +3,7 @@
     "language": "en",
     "words": [
         "acks",
+        "appcontext",
         "autoclean",
         "autoremove",
         "backoff",
@@ -25,6 +26,9 @@
         "inet",
         "innodb",
         "isamchk",
+        "lastrowid",
+        "locustfile",
+        "locustfiles",
         "msandbox",
         "myisam",
         "myisamchk",
@@ -44,11 +48,14 @@
         "scopeid",
         "SNDBUFF",
         "stacksize",
+        "testcase",
         "tsinghua",
         "txqueuelen",
         "venv",
         "virtualenv",
         "vsrv",
+        "werkzeug",
+        "wtforms",
         "Znode"
     ],
     "flagWords": []
