@@ -1,6 +1,6 @@
 <configuration>
-    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -23,11 +23,11 @@
         </rollingPolicy>
     </appender>
 
-    <logger name="spring" level="ERROR"/>
-    <logger name="alvin" level="INFO"/>
+    <logger name="org.spring" level="ERROR" />
+    <logger name="alvin" level="INFO" />
 
     <root level="WARN">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
 </configuration>

@@ -1,4 +1,3 @@
----
 logging:
   config: classpath:logback-spring.xml
   file:
@@ -6,36 +5,91 @@ logging:
 
 server:
   port: 8080
+  max-http-header-size: 8KB
   servlet:
     context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
+  # 启用 Http2
+  http2:
+    enabled: true
+
+  # 启用压缩
+  compression:
+    enabled: true
+
+  # 内置 Tomcat 配置
+  # 参考 https://www.baeldung.com/spring-boot-configure-tomcat
+  tomcat:
+    uri-encoding: UTF-8
+    connection-timeout: 10s
+    max-connections: 10000
+    accept-count: 1000
+    max-swallow-size: 2MB
+    max-http-form-post-size: 5MB
+    keep-alive-timeout: 30000
+    max-keep-alive-requests: 10000
+    mbeanregistry:
+      enabled: true
+    threads:
+      max: 256
+      min-spare: 10
+
+# 配置 SpringBoot
 spring:
   application:
-    name: 'alvin.docker.java'
+    name: study-docker-java
 
+  main:
+    banner-mode: off
+
+  # 配置数据源和 Hikari 连接池
+  # 参考: https://github.com/brettwooldridge/HikariCP
   datasource:
+    # 配置默认连接池
     hikari:
+      pool-name: prod
       maximum-pool-size: 50
       connection-timeout: 30000
       idle-timeout: 30000
       max-lifetime: 590000
       minimum-idle: 5
-      connection-test-query: "select 1"
-    url: 'jdbc:h2:file:./data/data;mode=mysql'
-    username: 'sa'
-    password: 'sa~'
+      connection-test-query: select 1
+    url: jdbc:h2:./.data/dev;MODE=MYSQL;NON_KEYWORDS=USER
+    username: sa
+    password: sa~123
 
+  # 配置i18n, 该配置已在 alvin.study.conf.WebConfig#messageSource() 方法中以代码形式设置
+  messages:
+    basename: i18n.message # 设定 i18n 所在的路径和基础名称, 即 /i18n/message*.properties 文件
+
+  # h2 db 配置
   h2:
     console:
       path: /_mgr/h2
       enabled: true
 
+  flyway:
+    locations: classpath:/migration
+    baseline-on-migrate: true
+    table: schema_version
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+# 应用程序设置
 application:
-  version: '@version@'
   zone: UTC
   cross-domain:
     enabled: true
-    allow-origin: '*'
-    allow-headers: '*'
+    allow-origin: "*"
+    allow-headers: "*"
     allow-methods: PUT,POST,GET,DELETE,OPTIONS,PATCH
     max-age: 1728000

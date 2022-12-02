@@ -4,6 +4,10 @@ import java.util.Locale;
 
 import org.springframework.context.MessageSource;
 
+import com.google.common.base.Strings;
+
+import alvin.docker.common.util.Servlets;
+
 public class I18n {
     private final MessageSource messageSource;
     private final Locale locale;
@@ -30,5 +34,19 @@ public class I18n {
 
     public Locale getLocale() {
         return locale;
+    }
+
+    public static Locale createRequestLocale() {
+        var req = Servlets.request();
+        if (req == null) {
+            return Locale.ENGLISH;
+        }
+
+        var lang = req.getParameter("lang");
+        if (!Strings.isNullOrEmpty(lang)) {
+            return Locale.forLanguageTag(lang);
+        }
+
+        return req.getLocale();
     }
 }

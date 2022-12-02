@@ -13,6 +13,8 @@ dependencies {
 
     testImplementation libs.test.common,
         libs.test.springBoot
+
+    runtimeOnly libs.main.db.migration
 }
 
 bootJar {
