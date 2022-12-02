@@ -26,8 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class TableCleaner {
-    private static volatile boolean tableCleaned = false;
-
     // 获取 JPA 实体管理器
     @PersistenceContext
     private EntityManager em;
@@ -60,10 +58,6 @@ public class TableCleaner {
      */
     @Transactional
     public synchronized void clearAllTables(String... exclude) {
-        if (tableCleaned) {
-            return;
-        }
-
         var excludeSet = Set.of(exclude);
 
         // 从 EntityManager 对象中获取 Hibernate 的 Session 对象
@@ -99,7 +93,5 @@ public class TableCleaner {
             // 恢复外键约束
             em.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
         });
-
-        tableCleaned = true;
     }
 }

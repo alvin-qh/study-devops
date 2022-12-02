@@ -5,7 +5,7 @@ buildscript {
     maven {
       url "https://plugins.gradle.org/m2/"
     }
-    jcenter()
+    mavenCentral()
   }
 }
 
@@ -20,18 +20,19 @@ allprojects {
   }
 
   group = "alvin.study"
+  version = "1.0.0-RELEASE"
 
   repositories {
     maven {
       url "https://maven.aliyun.com/nexus/content/groups/public/"
     }
-    jcenter()
+    mavenCentral()
   }
 
   sourceSets {
     //noinspection GroovyAssignabilityCheck
     main {
-      output.resourcesDir = java.outputDir
+      output.resourcesDir = java.classesDirectory
     }
   }
 

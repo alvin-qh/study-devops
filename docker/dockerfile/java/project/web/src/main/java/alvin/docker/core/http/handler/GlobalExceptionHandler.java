@@ -24,10 +24,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.google.common.base.Joiner;
 
+import alvin.docker.core.http.exception.ClientException;
 import alvin.docker.core.http.model.ClientError;
 import alvin.docker.core.http.model.ResponseWrapper;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 全局异常处理
+ */
 @Slf4j
 @RestController
 @RestControllerAdvice(basePackages = { "alvin.docker" })
@@ -50,8 +54,10 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
         // 获取 controller 方法的返回值类型
         var retType = returnType.getMethod().getReturnType();
 
-        // 如果 controller 方法返回类型为 Response 类型, 则返回 false
-        return ResponseWrapper.class != retType && ResponseEntity.class != retType;
+        // 如果 controller 方法返回类型为指定类型, 则返回 false
+        return ResponseWrapper.class.isAssignableFrom(retType)
+                && ResponseEntity.class.isAssignableFrom(retType)
+                && CharSequence.class.isAssignableFrom(retType);
     }
 
     /**
@@ -94,7 +100,7 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
     public ResponseWrapper<ClientError> handle(Exception e) {
         log.warn("Some error raised and will return to client", e);
 
-        return ResponseWrapper.error(ClientError.newBuilder(e.getMessage()).build());
+        return ResponseWrapper.error(ClientError.newBuilder("internal_error").build());
     }
 
     /**
@@ -237,5 +243,32 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
         log.warn("Some error raised and will return to client", e);
 
         return ResponseWrapper.error(ClientError.newBuilder("method_not_allowed").build());
+    }
+
+    /**
+     * 处理要通知客户端的异常
+     *
+     * <p>
+     * 处理 {@link ClientException} 类型异常
+     * </p>
+     *
+     * <p>
+     * 该异常需要客户端关注
+     * </p>
+     *
+     * <p>
+     * 一般情况下这类异常反馈给客户端为 {@code 400 BAD_REQUEST} 错误响应
+     * </p>
+     *
+     * @param e {@link ClientException} 异常对象
+     * @return 包装为 {@link ResponseWrapper} 类型的响应结果
+     */
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ClientException.class)
+    public ResponseWrapper<ClientError> handle(ClientException e) {
+        log.warn("Some error raised and will return to client", e);
+
+        return ResponseWrapper.error(ClientError.newBuilder(e.getMessage()).build());
     }
 }

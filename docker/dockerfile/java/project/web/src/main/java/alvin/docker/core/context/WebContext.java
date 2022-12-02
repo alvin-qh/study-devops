@@ -3,6 +3,9 @@ package alvin.docker.core.context;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 
+ */
 public class WebContext implements Context {
     private static final String CONTEXT_KEY_PREFIX = "_ctx_";
 

@@ -1,25 +1,22 @@
----
 logging:
-  config: 'classpath:logback-spring.xml'
+  config: classpath:logback-spring.xml
   file:
-    path: '/logs'
+    path: /logs
 
 server:
   port: 8080
   servlet:
-    context-path: '/'
+    context-path: /
 
 spring:
   devtools:
     restart:
       enabled: false
-  thymeleaf:
-    cache: true
 
   datasource:
-    url: 'jdbc:h2:file:/data/data;mode=mysql'
-    username: 'sa'
-    password: 'sa~'
+    url: jdbc:h2:/data/prod;MODE=MYSQL;NON_KEYWORDS=USER
+    username: sa
+    password: sa~
 
   h2:
     console:

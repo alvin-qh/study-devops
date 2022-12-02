@@ -58,3 +58,21 @@ docker rmi -f study/java:1.0 node:latest openjdk:8
 ```bash
 docker volume rm -f $(pwd)/logs $(pwd)/data
 ```
+
+## 10. 测试容器
+
+```bash
+curl -X GET http://localhost:8080/api/feedback \
+     -H 'Accept: application/json' | json_pp
+```
+
+```bash
+curl -X POST http://localhost:8080/api/feedback \
+     -H 'Accept: application/json' \
+     -H 'Content-Type: application/json' \
+     -d '{ "title": "test-title", "content": "test-content" }' | json_pp
+```
+
+```bash
+curl -X DELETE http://localhost:8080/api/feedback/1
+```

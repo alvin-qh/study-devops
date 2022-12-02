@@ -17,12 +17,21 @@ import alvin.docker.core.http.filter.HttpInterceptor;
 import alvin.docker.core.i18n.I18n;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Web 相关配置类
+ */
 @EnableAsync
 @Configuration("conf/web")
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+    // 注入拦截器对象
     private final HttpInterceptor httpInterceptor;
 
+    /**
+     * 创建当前请求上下文相关的 {@link Context} 对象
+     *
+     * @return
+     */
     @Lazy
     @Bean
     @RequestScope
