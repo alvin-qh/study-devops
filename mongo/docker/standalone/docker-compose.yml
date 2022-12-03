@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data
+    networks:
+      - mongo_network
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    privileged: true
+networks:
+  mongo_network:
+volumes:
+  mongo_data:
