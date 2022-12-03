@@ -31,7 +31,7 @@
 此时，可以执行当前项目的入口类，例如：
 
 ```bash
-$ mvn compile exec:java \
+mvn compile exec:java \
     -Dexec.mainClass="alvin.study.maven.Main" \
     -Dexec.args="12 13"
 ```
@@ -41,7 +41,7 @@ $ mvn compile exec:java \
 也可以执行任意进程，例如：
 
 ```bash
-$ mvn compile exec:exec \
+mvn compile exec:exec \
     -Dexec.executable="ls" \
     -Dexec.args="-al"
 ```
@@ -93,13 +93,13 @@ $ mvn compile exec:exec \
 执行当前项目入口类
 
 ```bash
-$ mvn compile exec:java@main
+mvn compile exec:java@main
 ```
 
 执行查看目录命令
 
 ```bash
-$ mvn compile exec:exec@dir
+mvn compile exec:exec@dir
 ```
 
 其中：
@@ -152,7 +152,7 @@ $ mvn compile exec:exec@dir
 </plugin>
 ```
 
-此时，直接通过 `$ mvn compile exec:java` 即可启动当前项目，而无需追加 `@id`
+此时，直接通过 `mvn compile exec:java` 即可启动当前项目，而无需追加 `@id`
 
 ## 2. 打包
 
@@ -235,7 +235,7 @@ maven 具备基本的打包功能，但仅是将项目产生的 `.class` 文件�
 通过如下命令即可进行打包
 
 ```bash
-$ mvn compile package
+mvn compile package
 ```
 
 ### 2.2. Fat jar
@@ -283,7 +283,7 @@ $ mvn compile package
 通过如下命令可完成打包：
 
 ```bash
-$ mvn compile assembly:single
+mvn compile assembly:single
 ```
 
 `assembly` 指令对应唯一 `goal` 为 `single`
@@ -291,7 +291,7 @@ $ mvn compile assembly:single
 由于配置文件中定义了 `execution` 并绑定到 `package` 指令上，所以如下命令也可以完成打包
 
 ```bash
-$ mvn compile package
+mvn compile package
 ```
 
 ### 2.2. Fat jar with shade

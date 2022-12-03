@@ -2,10 +2,6 @@ package alvin.study.maven.test;
 
 import java.time.Duration;
 
-import javax.servlet.ServletContext;
-
-import com.google.common.base.Charsets;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +11,10 @@ import org.springframework.test.web.reactive.server.WebTestClient.RequestBodySpe
 import org.springframework.test.web.reactive.server.WebTestClient.RequestHeadersSpec;
 import org.springframework.test.web.reactive.server.WebTestClient.RequestHeadersUriSpec;
 
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+import com.google.common.base.Charsets;
+
+import jakarta.servlet.ServletContext;
+
 @AutoConfigureWebTestClient
 public abstract class WebTest extends IntegrationTest {
     @Autowired

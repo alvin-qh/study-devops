@@ -20,7 +20,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
 
     <jdbc.url.h2>jdbc:h2:${project.basedir}/.data/dev</jdbc.url.h2>
@@ -28,21 +28,20 @@
     <jdbc.password.h2>password</jdbc.password.h2>
     <failsOnError/>
 
-    <version.junit>5.8.2</version.junit>
-    <version.guava>31.0.1-jre</version.guava>
-    <version.checkstyle>9.2.1</version.checkstyle>
-    <version.spotbugs>4.5.3</version.spotbugs>
-    <version.spotbugs>4.5.3</version.spotbugs>
-    <version.h2>2.1.210</version.h2>
-    <version.flyway>8.4.3</version.flyway>
+    <version.junit>5.9.1</version.junit>
+    <version.guava>31.1-jre</version.guava>
+    <version.checkstyle>10.5.0</version.checkstyle>
+    <version.spotbugs>4.7.3</version.spotbugs>
+    <version.h2>2.1.214</version.h2>
+    <version.flyway>9.8.3</version.flyway>
 
-    <version.maven-compiler>3.8.1</version.maven-compiler>
-    <version.maven-surefire>2.22.2</version.maven-surefire>
-    <version.maven-checkstyle>3.1.2</version.maven-checkstyle>
-    <version.maven-site>3.10.0</version.maven-site>
-    <version.maven-pi-report>3.1.2</version.maven-pi-report>
-    <version.maven-jxr>3.1.1</version.maven-jxr>
-    <version.maven-spotbugs>4.5.2.0</version.maven-spotbugs>
+    <version.maven-compiler>3.10.1</version.maven-compiler>
+    <version.maven-surefire>3.0.0-M7</version.maven-surefire>
+    <version.maven-checkstyle>3.2.0</version.maven-checkstyle>
+    <version.maven-site>4.0.0-M3</version.maven-site>
+    <version.maven-pi-report>3.4.1</version.maven-pi-report>
+    <version.maven-jxr>3.3.0</version.maven-jxr>
+    <version.maven-spotbugs>4.7.3.0</version.maven-spotbugs>
     <version.maven-flyway>${version.flyway}</version.maven-flyway>
     <version.maven-build-number>3.0.0</version.maven-build-number>
   </properties>
@@ -90,8 +89,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${version.maven-compiler}</version>
         <configuration>
-          <source>11</source>
-          <target>11</target>
+          <source>17</source>
+          <target>17</target>
         </configuration>
       </plugin>
 

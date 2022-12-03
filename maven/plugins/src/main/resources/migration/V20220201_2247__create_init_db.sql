@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `employee` (
     `title` VARCHAR(50) NOT NULL,
     PRIMARY KEY (`id`)
 );
+
 -- 部门表
 CREATE TABLE IF NOT EXISTS `department` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `department` (
     `parent_id` BIGINT NOT NULL,
     PRIMARY KEY (`id`)
 );
+
 -- 员工部门关系表
 CREATE TABLE IF NOT EXISTS `department_employee` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,

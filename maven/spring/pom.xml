@@ -13,17 +13,17 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
 
-    <version.spring-boot>2.6.2</version.spring-boot>
+    <version.spring-boot>3.0.0</version.spring-boot>
     <version.apache-lang3>3.12.0</version.apache-lang3>
-    <version.junit>5.8.2</version.junit>
-    <version.guava>31.0.1-jre</version.guava>
-    <version.lombok>1.18.22</version.lombok>
+    <version.junit>5.9.1</version.junit>
+    <version.guava>31.1-jre</version.guava>
+    <version.lombok>1.18.24</version.lombok>
 
-    <version.maven-compiler>3.8.1</version.maven-compiler>
-    <version.maven-surefire>2.22.2</version.maven-surefire>
+    <version.maven-compiler>3.10.1</version.maven-compiler>
+    <version.maven-surefire>3.0.0-M7</version.maven-surefire>
   </properties>
 
   <dependencyManagement>
@@ -135,8 +135,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${version.maven-compiler}</version>
         <configuration>
-          <source>11</source>
-          <target>11</target>
+          <source>17</source>
+          <target>17</target>
           <annotationProcessorPaths>            <!-- 设置编译期注解处理器 -->
             <path>
               <groupId>org.projectlombok</groupId>

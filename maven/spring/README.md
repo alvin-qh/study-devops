@@ -40,7 +40,7 @@ Springboot 提供了一个完整的插件 `spring-boot-maven-plugin`，一站式
   - `zip` 即 dir，类似于 jar
   - `module` 将所有的依赖库打包（`scope` 为 `provided` 的除外），但是不打包任何 Launcher
   - `none` 将所有的依赖库打包，但是不打包任何 Launcher
-- `<goal>repackage</goal>` 附加在 `spring-boot:repackage` 指令上，但该指令不能独立运行，必须在执行 `$ mvn package` 时被触发执行
+- `<goal>repackage</goal>` 附加在 `spring-boot:repackage` 指令上，但该指令不能独立运行，必须在执行 `mvn package` 时被触发执行
 
 除了 `repackage` 指令外，该插件指令的其它 `goal`s 还包括：
 
@@ -55,7 +55,7 @@ Springboot 提供了一个完整的插件 `spring-boot-maven-plugin`，一站式
     build.version=1.0-SNAPSHOT
     ```
 
-- `spring-boot:help` 输出插件帮助信息，调用 `$ mvn spring-boot:help -Ddetail=true -Dgoal=<goal-name>` 显示命令参数的详细信息
+- `spring-boot:help` 输出插件帮助信息，调用 `mvn spring-boot:help -Ddetail=true -Dgoal=<goal-name>` 显示命令参数的详细信息
 - `spring-boot:repackage` 将已经存在的 jar 或 war 包打包为 springboot 的 layout 形式
 - `spring-boot:run` 执行程序，并进行阻塞，方便查看日志
 - `spring-boot:start` 在新进程执行程序并转入后台

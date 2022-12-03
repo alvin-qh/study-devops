@@ -82,18 +82,18 @@
 - `checkstyle:checkstyle-aggregate` 在多模块项目中执行所有的 checkstyle 并统一生成报告
 - `checkstyle:help` 显示帮助信息
 
-可以在 `executions` 标签中配置 `check goal` 和 `validate` 任务的关联，这样在执行 `$ mvn validate` 的时候同时执行 `checkstyle:check`
+可以在 `executions` 标签中配置 `check goal` 和 `validate` 任务的关联，这样在执行 `mvn validate` 的时候同时执行 `checkstyle:check`
 
 #### 1.1.2. 执行代码检查
 
 ```bash
-$ mvn checkstyle:check
+mvn checkstyle:check
 ```
 
 或
 
 ```bash
-$ mvn checkstyle:checkstyle
+mvn checkstyle:checkstyle
 ```
 
 输出
@@ -116,12 +116,12 @@ Audit done.
 可以在通过 `-Dcheckstyle.skip=true` 跳过插件，以防止因代码样式的原因打断构建过程，例如：
 
 ```bash
-$ mvn clean compile -Dcheckstyle.skip=true
+mvn clean compile -Dcheckstyle.skip=true
 ```
 
 ### 1.2. 生成报告
 
-可以通过 `$ mvn site` 生成当前代码的网站内容，网站内容可以包括 JavaDoc，Test Report，Checkstyle Report 等
+可以通过 `mvn site` 生成当前代码的网站内容，网站内容可以包括 JavaDoc，Test Report，Checkstyle Report 等
 
 #### 1.2.1. 项目网站信息生成插件
 
@@ -140,7 +140,7 @@ $ mvn clean compile -Dcheckstyle.skip=true
 产生代码网站
 
 ```bash
-$ mvn site
+mvn site
 ```
 
 #### 1.2.2. 配置报告插件
@@ -167,10 +167,10 @@ $ mvn site
 </plugin>
 ```
 
-此时通过 `$ mvn site` 即可在生成的报告中加入 Checkstyle 报告
+此时通过 `mvn site` 即可在生成的报告中加入 Checkstyle 报告
 
 ```bash
-$ mvn site
+mvn site
 ```
 
 #### 1.2.3. 在报告中生成源码链接
@@ -246,18 +246,18 @@ SpotBugs 用于取代已过时的 FindBugs 插件，目标是对代码进行静�
 - `spotbugs:gui` 通过可视化 UI 显示错误信息
 - `spotbugs:help` 显示帮助信息
 
-可以在 `executions` 标签中配置 `check goal` 和 `compile` 任务的关联，这样在执行 `$ mvn compile` 的时候同时执行 `spotbugs:check`
+可以在 `executions` 标签中配置 `check goal` 和 `compile` 任务的关联，这样在执行 `mvn compile` 的时候同时执行 `spotbugs:check`
 
 #### 2.1.2. 执行代码检查
 
 ```bash
-$ mvn compile spotbugs:check
+mvn compile spotbugs:check
 ```
 
 或
 
 ```bash
-$ mvn compile spotbugs:spotbugs
+mvn compile spotbugs:spotbugs
 ```
 
 注意，`spotbugs-maven-plugin` 插件必须工作在 `.class` 文件上，所以必须先执行编译任务。输出
@@ -294,14 +294,14 @@ To see bug detail using the Spotbugs GUI, use the following command "mvn spotbug
 </plugin>
 ```
 
-通过 `$ mvn compile site` 命令可生成代码精通检查报告
+通过 `mvn compile site` 命令可生成代码精通检查报告
 
 #### 2.2.3. 忽略插件
 
 可以在通过 `-Dspotbugs.skip=true` 跳过插件，以防止因代码样式的原因打断构建过程，例如：
 
 ```bash
-$ mvn clean compile -Dcheckstyle.skip=true
+mvn clean compile -Dcheckstyle.skip=true
 ```
 
 ## 3. Database Migration
@@ -361,7 +361,7 @@ Migration 脚本文件的命名规则为 `V<版本号>__<说明文字>.sql` 组�
 可以通过一个脚本生成对应的脚本文件，参见 [`new-migration.file.sh`](./new-migration-file.sh)
 
 ```bash
-$ bash new-migration-file.sh "create init db"
+bash new-migration-file.sh "create init db"
 ```
 
 即可生成数据库 Migration 脚本文件，参见 [`src/main/resources/migration/V20220201_2247__create_init_db.sql`](./src/main/resources/migration/V20220201_2247__create_init_db.sql) 文件
@@ -381,7 +381,7 @@ $ bash new-migration-file.sh "create init db"
 如要执行最新版本的数据库 migration 操作，则只需执行
 
 ```bash
-$ mvn flyway:migrate
+mvn flyway:migrate
 ```
 
 ## 4. 代码库版本插件
@@ -459,7 +459,7 @@ timestamp=${timestamp}
 因为 `create` goal 已经绑定到 `validate` 任务，所以 Maven 的构建生命周期内，会自动生成版本信息
 
 ```bash
-$ mvn clean compile
+mvn clean compile
 ```
 
 此时可以在构建结果 `target/classes` 中找到 `version.properties` 文件，内容为已替换过的版本信息
