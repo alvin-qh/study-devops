@@ -21,7 +21,7 @@
 
 [内建分词器](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html)
 
-“分词器”接收字符流，将其分解为单个词汇，并输出词汇流。例如，[空格分词器](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-whitespace-tokenizer.html) 会在在看到任何空白时将文本分解为词汇。它会将文本 “Quick brown fox!” 转换成词汇流 `[Quick, brown, fox!]`
+"分词器"接收字符流，将其分解为单个词汇，并输出词汇流。例如，[空格分词器](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-whitespace-tokenizer.html) 会在在看到任何空白时将文本分解为词汇。它会将文本 "Quick brown fox!" 转换成词汇流 `[Quick, brown, fox!]`
 
 分词器还负责记录以下内容：
 

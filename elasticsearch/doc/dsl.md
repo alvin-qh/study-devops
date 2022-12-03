@@ -65,7 +65,7 @@ GET /person/_search
 }
 ```
 
-- `fuzziness` 模糊查询策略，默认为 `AUTO`。也可以为一个数字或 `AUTO:3,6`。数字表示一个“编辑距离”，即：需要对一个字符串进行多少次编辑才能和另一个字符串匹配，参见 [说明](https://en.wikipedia.org/wiki/Levenshtein_distance)
+- `fuzziness` 模糊查询策略，默认为 `AUTO`。也可以为一个数字或 `AUTO:3,6`。数字表示一个"编辑距离"，即：需要对一个字符串进行多少次编辑才能和另一个字符串匹配，参见 [说明](https://en.wikipedia.org/wiki/Levenshtein_distance)
 - `max_expansions` 在模糊查询过程中，设置变化发生的次数，默认为 `50`。这个值如果设置过高，则会导致查询结果匹配不佳
 - `prefix_length` 设置字符串匹配时，不能变化的前置字符个数，默认为 `0`，表示整个字符串都可以在变化后进行匹配
 - `fuzzy_transpositions` 字符串比较时是否允许交互相邻的两个字符进行比较，默认为 `true`
@@ -99,7 +99,7 @@ GET /person/_search
 - `type` 表示查询结果评分的类型，包括：
   - `best_fields` 以最佳匹配的字段进行评分
   - `most_fields` 以所有匹配到的字段进行评分
-  - `cross_fields` 将具有相同分析器的字段合成一个“大字段”后进行查询
+  - `cross_fields` 将具有相同分析器的字段合成一个"大字段"后进行查询
 
 ### 1.3. `bool` 查询
 

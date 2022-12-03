@@ -10,7 +10,7 @@ Elasticsearch 没有专门的 CLI 客户端，可以直接使用 `curl` 或 `htt
 直接使用命令
 
 ```bash
-$ curl -H 'Cache-Control: no-cache' \
+curl -H 'Cache-Control: no-cache' \
        -H 'Content-Type: application/json' \
        -X GET 'http://localhost:9200/<index>?pretty' -d '{
            # query dsl
@@ -20,7 +20,7 @@ $ curl -H 'Cache-Control: no-cache' \
 使用 JSON 文件
 
 ```bash
-$ curl -H 'Cache-Control: no-cache' \
+curl -H 'Cache-Control: no-cache' \
        -H 'Content-Type: application/json' \
        -X GET 'http://localhost:9200/<index>?pretty' -d '@<json file>'
 ```
@@ -30,11 +30,11 @@ $ curl -H 'Cache-Control: no-cache' \
 直接使用命令
 
 ```bash
-$ http GET http://localhost:9200/person 'Cache-Control: no-cache; Content-Type: application/json' a1=v1 a2:=v2
+http GET http://localhost:9200/person 'Cache-Control: no-cache; Content-Type: application/json' a1=v1 a2:=v2
 ```
 
 使用 JSON 文件
 
 ```bash
-$ http GET http://localhost:9200/person 'Cache-Control: no-cache; Content-Type: application/json' < arg.json
+http GET http://localhost:9200/person 'Cache-Control: no-cache; Content-Type: application/json' < arg.json
 ```

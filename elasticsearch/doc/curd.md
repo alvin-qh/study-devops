@@ -494,7 +494,7 @@ GET /person/_rank_eval
 ```
 
 - `k` 检索结果最大数量，默认为 `10`
-- `relevant_rating_threshold` 文档被评估为“相关”的阈值，默认为 `1`
+- `relevant_rating_threshold` 文档被评估为"相关"的阈值，默认为 `1`
 - `ignore_unlabeled` 如果为 `true`，则未标记文档会被忽略，默认为 `false`
 
 K 召回指标 (R@K)：衡量前 k 个搜索项中相关结果的总数。结果为前 k 个结果中相关文档相对于所有可能的相关结果的比例。例如：10（R@10）值为 `0.5` 的召回意味着 `8` 个搜索结果中有 `4` 个和所给的 `ratings` 相关
@@ -601,4 +601,4 @@ GET /person/_search?q=(role:STUDENT or role:TEACHER) AND note:Top*
 GET /person/_search?q=-role:STUDENT
 ```
 
-- `-` 放在逻辑表达式之前，表示“非”
+- `-` 放在逻辑表达式之前，表示"非"

@@ -65,7 +65,7 @@ cat 格式化后的数据以 Table 格式呈现，可以设置其 Column，Sort 
 - [`cat shards`](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-shards.html) 返回索引的数据分片信息
 - [`cat snapshots`](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-snapshots.html)  返回一个或多个数据仓库中的数据快照信息
 - [`cat task management`](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-tasks.html) 返回集群中正在执行的任务信息，类似于 [任务 API](https://www.elastic.co/guide/en/elasticsearch/reference/current/tasks.html)
-- [`cat templates`](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-templates.html) 返回集群中存储的“索引模板”信息
+- [`cat templates`](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-templates.html) 返回集群中存储的"索引模板"信息
 - [`cat thread pool`](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-thread-pool.html) 返回每个集群节点的线程池信息，包括内置线程池和用户自定义线程池
 - [`cat trained model`](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-trained-model.html) 返回推理训练模型的配置和使用信息
 - [`cat transforms`](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-transforms.html) 返回转换器的配置和使用信息

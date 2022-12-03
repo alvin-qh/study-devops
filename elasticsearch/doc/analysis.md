@@ -67,7 +67,7 @@ POST /analyzer-standard/_analyze
 
 [Simple analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-simple-analyzer.html)
 
-简单分析器，只是根据文本中的“非字母”字符（如数字，空格等）将文本进行分词
+简单分析器，只是根据文本中的"非字母"字符（如数字，空格等）将文本进行分词
 
 ```json
 PUT /analyzer-simple
@@ -94,7 +94,7 @@ POST /analyzer-simple/_analyze
 
 [Whitespace analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-whitespace-analyzer.html)
 
-空白分析器通过空格等“空白”字符，对文本进行
+空白分析器通过空格等"空白"字符，对文本进行
 
 ```json
 PUT /analyzer-whitespace

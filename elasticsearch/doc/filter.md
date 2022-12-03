@@ -101,7 +101,7 @@ POST /analyzer-asciifolding/_analyze
 
 [CJK Bigram Token Filter](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-cjk-bigram-tokenfilter.html)
 
-使用 CJK (中文、日文和韩文) 标记形成 “二元模型”
+使用 CJK (中文、日文和韩文) 标记形成 "二元模型"
 
 该过滤器包含在 Elasticsearch 的内置 [CJK 语言分析器中](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html#cjk-analyzer)。它使用 Lucene 的 [CJKBigramFilter](https://lucene.apache.org/core/8_4_0/analyzers-common/org/apache/lucene/analysis/cjk/CJKBigramFilter.html)
 
@@ -252,7 +252,7 @@ POST /analyzer-common-grams/_analyze
 
 [Conditional Token Filter](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-condition-tokenfilter.html)
 
-将一组过滤器应用于与所提供的“条件脚本”相符的词汇中。例如：将 `lowercase` 过滤器应用于符合 `token.getTerm().length() < 5` 条件的词汇中
+将一组过滤器应用于与所提供的"条件脚本"相符的词汇中。例如：将 `lowercase` 过滤器应用于符合 `token.getTerm().length() < 5` 条件的词汇中
 
 这个过滤器使用 Lucene 的 [ConditionalTokenFilter](https://lucene.apache.org/core/8_4_0/analyzers-common/org/apache/lucene/analysis/miscellaneous/ConditionalTokenFilter.html)
 
@@ -293,7 +293,7 @@ POST /analyzer-condition-token/_analyze
 }
 ```
 
-- `filter`: 过滤器的数组。如果某词汇与参数中的 “条件脚本” 匹配，则按照提供的顺序将这些过滤器应用词汇。在定义索引的字段映射关系时，这些过滤器可以包括在自定义过滤器中
+- `filter`: 过滤器的数组。如果某词汇与参数中的 "条件脚本" 匹配，则按照提供的顺序将这些过滤器应用词汇。在定义索引的字段映射关系时，这些过滤器可以包括在自定义过滤器中
 - `script`: Painless 脚本，表示一个条件。如果某词汇与此脚本匹配，则指定的过滤器将应用于该词汇。有关有效参数，请参阅 [脚本参数](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-using.html#_script_parameters)。只支持内联脚本，Painless 脚本在分析谓词上下文中执行，并且需要一个词汇属性
 
 ### 1.8. 数字过滤器
@@ -424,7 +424,7 @@ POST /analyzer-dictionary-decompounder/_analyze
 
 这个过滤器使用 Lucene 的 [EdgeNGramTokenFilter](https://lucene.apache.org/core/8_4_0/analyzers-common/org/apache/lucene/analysis/ngram/EdgeNGramTokenFilter.html)
 
-> `edge_ngram` 过滤器类似于 [ngram token filter](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-ngram-tokenizer.html)。但是，`edge_ngram` 只输出从标记开头开始的 `n` 个字符。这些边缘 n-grams 对于 [“按类型搜索”](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-as-you-type.html) 查询非常有用
+> `edge_ngram` 过滤器类似于 [ngram token filter](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-ngram-tokenizer.html)。但是，`edge_ngram` 只输出从标记开头开始的 `n` 个字符。这些边缘 n-grams 对于 ["按类型搜索"](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-as-you-type.html) 查询非常有用
 
 下例中获取每个词汇的前两个字符
 
@@ -684,7 +684,7 @@ POST /analyzer-hunspell/_analyze
 
 字符筛选器用于在字符流传递给分词器 ([Tokenizer](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html)) 之前对其进行预处理。
 
-字符筛选器作为字符流接收原始文本，并且可以通过添加、删除或更改字符来转换流。例如，字符筛选器可用于将 “印度-阿拉伯数字” `(٠‎١٢٣٤٥٦٧٨‎٩‎)` 转换为 “阿拉伯语-拉丁” 等效项 `(0123456789)`，或从流中剥离像 `<b>` 这样的 HTML 元素。
+字符筛选器作为字符流接收原始文本，并且可以通过添加、删除或更改字符来转换流。例如，字符筛选器可用于将 "印度-阿拉伯数字" `(٠‎١٢٣٤٥٦٧٨‎٩‎)` 转换为 "阿拉伯语-拉丁" 等效项 `(0123456789)`，或从流中剥离像 `<b>` 这样的 HTML 元素。
 
 Elasticsearch 具有许多内置字符筛选器，可用于构建自定义文本分析器 ([Custom Analyzers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-custom-analyzer.html))
 
