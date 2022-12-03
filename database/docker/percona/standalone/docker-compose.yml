@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  percona:
+    image: percona/percona-server
+    container_name: percona
+    restart: always
+    privileged: true
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 1G
+        reservations:
+          memory: 100M
+    env_file:
+      - conf.env
+    ports:
+      - 3306:3306
+    volumes:
+      - ./conf:/etc/my.cnf.d
+      - percona_data:/var/lib/mysql
+      - percona_log:/var/log/mysql
+    networks:
+      - percona_network
+volumes:
+  percona_data:
+  percona_log:
+networks:
+  percona_network:
