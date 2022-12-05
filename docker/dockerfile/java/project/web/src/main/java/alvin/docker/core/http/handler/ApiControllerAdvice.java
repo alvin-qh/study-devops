@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RestControllerAdvice(basePackages = { "alvin.docker" })
-public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
+public class ApiControllerAdvice implements ResponseBodyAdvice<Object> {
     /**
      * 返回 {@code true} 或 {@code false}, 以决定 {@code beforeBodyWrite} 方法是否需要执行
      *
@@ -55,9 +55,9 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
         var retType = returnType.getMethod().getReturnType();
 
         // 如果 controller 方法返回类型为指定类型, 则返回 false
-        return ResponseWrapper.class.isAssignableFrom(retType)
-                && ResponseEntity.class.isAssignableFrom(retType)
-                && CharSequence.class.isAssignableFrom(retType);
+        return !ResponseWrapper.class.isAssignableFrom(retType)
+                && !ResponseEntity.class.isAssignableFrom(retType)
+                && !CharSequence.class.isAssignableFrom(retType);
     }
 
     /**

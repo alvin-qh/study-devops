@@ -1,5 +1,5 @@
 # Java build
-FROM gradle:jdk11-jammy AS java-build
+FROM gradle:jdk17 AS java-build
 
 WORKDIR /build
 
@@ -11,7 +11,7 @@ RUN set -ex; \
 
 
 # Production
-FROM openjdk:11 AS product
+FROM openjdk:17 AS product
 
 WORKDIR /app
 
@@ -21,5 +21,7 @@ COPY application.yml .
 WORKDIR /
 
 ENTRYPOINT ["java", "-jar", "/app/alvin.study.docker.jar", "--spring.config.location=classpath:/application.yml,/app/application.yml"]
+
+VOLUME [ "/data", "/logs" ]
 
 EXPOSE 8080

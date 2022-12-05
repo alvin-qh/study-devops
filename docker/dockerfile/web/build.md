@@ -12,6 +12,12 @@ docker build -t study/web:1.0 .
 docker image prune -f
 ```
 
+或
+
+```bash
+docker rmi $(docker images -f "dangling=true" -q)
+```
+
 ## 3. 显示构建结果
 
 ```bash

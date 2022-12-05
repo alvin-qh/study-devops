@@ -1,2 +1,3 @@
-rootProject.name = 'dockerjava'
-include 'web'
+rootProject.name = "dockerjava"
+
+include "web"
