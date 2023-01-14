@@ -5,7 +5,7 @@
 ### 1.1. macOS
 
 ```bash
-$ brew install maven
+brew install maven
 ```
 
 ### 1.2. Linux
@@ -13,19 +13,19 @@ $ brew install maven
 从 [官网](https://maven.apache.org/download.cgi) 下载二进制包
 
 ```bash
-$ wget https://dlcdn.apache.org/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.zip
+wget https://dlcdn.apache.org/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.zip
 ```
 
 将二进制包移动到 `/opt` 下
 
 ```bash
-$ sudo mv apache-maven-3.8.4-bin.zip /opt
+sudo mv apache-maven-3.8.4-bin.zip /opt
 ```
 
 解压缩
 
 ```bash
-$ unzip /opt/apache-maven-3.8.4-bin.zip
+unzip /opt/apache-maven-3.8.4-bin.zip
 ```
 
 配置环境变量，编辑 `~/.zshrc`（或其它相关）文件
@@ -43,7 +43,8 @@ export PATH="$M2_HOME/bin:$PATH"
 输入以下命令，并按照提示一步步确认，即可完成项目创建
 
 ```bash
-$ mvn archetype:generate
+mvn archetype:generate
+
 Choose archetype:
 1: internal -> org.apache.maven.archetypes:maven-archetype-archetype (An archetype which contains a sample archetype.)
 2: internal -> org.apache.maven.archetypes:maven-archetype-j2ee-simple (An archetype which contains a simplifed sample J2EE application.)
@@ -64,7 +65,7 @@ Y:
 ### 2.2. 通过命令行参数
 
 ```bash
-$ mvn archetype:generate
+mvn archetype:generate
     -DgroupId = xxx.yyy
     -DartifactId = any-artifact-id
     -DarchetypeArtifactId = maven-archetype-quickstart
@@ -76,5 +77,5 @@ $ mvn archetype:generate
 ### 2.1. 查看依赖树
 
 ```bash
-$ mvn dependency:tree
+mvn dependency:tree
 ```

@@ -6,9 +6,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import com.google.common.base.Charsets;
-
 import org.junit.jupiter.api.Test;
+
+import com.google.common.base.Charsets;
 
 class MainTest {
 

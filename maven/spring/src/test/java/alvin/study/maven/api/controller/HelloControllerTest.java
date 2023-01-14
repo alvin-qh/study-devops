@@ -18,8 +18,7 @@ class HelloControllerTest extends WebTest {
     void shouldHelloReturnName() {
         var resp = getJson("/hello").exchange()
                 .expectStatus().is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<Response<HelloDto>>() {
-                }).returnResult()
+                .expectBody(new ParameterizedTypeReference<Response<HelloDto>>() {}).returnResult()
                 .getResponseBody();
 
         assertEquals(0, resp.getRetCode());

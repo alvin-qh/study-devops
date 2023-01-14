@@ -1,5 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>alvin.study</groupId>
@@ -16,7 +17,7 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
 
-    <version.spring-boot>3.0.0</version.spring-boot>
+    <version.spring-boot>3.0.1</version.spring-boot>
     <version.apache-lang3>3.12.0</version.apache-lang3>
     <version.junit>5.9.1</version.junit>
     <version.guava>31.1-jre</version.guava>
@@ -159,12 +160,14 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>${version.spring-boot}</version>
         <configuration>
-          <mainClass>alvin.study.maven.Application</mainClass>          <!-- 指定入口类 -->
+          <!-- 指定入口类 -->
+          <mainClass>alvin.study.maven.Application</mainClass>
         </configuration>
         <executions>
           <execution>
             <goals>
-              <goal>repackage</goal>              <!-- 默认执行插件的 repackage goal -->
+              <!-- 默认执行插件的 repackage goal -->
+              <goal>repackage</goal>
             </goals>
           </execution>
         </executions>
