@@ -5,7 +5,7 @@
   <groupId>alvin.study</groupId>
   <artifactId>study-maven-subprojects</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <!-- 必须定义 pom，表示为一个 BOM 定义，包含子模块 -->
+  <!-- 必须定义 pom, 表示为一个 BOM 定义, 包含子模块 -->
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
@@ -34,7 +34,7 @@
     <module>lib</module>
   </modules>
 
-  <!-- 依赖声明，所有子项目可使用声明后的依赖 -->
+  <!-- 依赖声明, 所有子项目可使用声明后的依赖 -->
   <dependencyManagement>
     <dependencies>
       <!-- 定义指定子项目的依赖 -->
@@ -70,7 +70,7 @@
   </dependencyManagement>
 
   <build>
-    <!-- 依赖构建插件，所有子项目可使用声明后的构建插件 -->
+    <!-- 依赖构建插件, 所有子项目可使用声明后的构建插件 -->
     <pluginManagement>
       <plugins>
         <!-- 编译插件 -->
@@ -105,7 +105,7 @@
           <version>${version.maven-jar}</version>
         </plugin>
 
-        <!-- 打包 fat jar，将依赖打包到 jar 文件中 -->
+        <!-- 打包 fat jar, 将依赖打包到 jar 文件中 -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>

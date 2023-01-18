@@ -28,7 +28,7 @@ sudo mv apache-maven-3.8.4-bin.zip /opt
 unzip /opt/apache-maven-3.8.4-bin.zip
 ```
 
-配置环境变量，编辑 `~/.zshrc`（或其它相关）文件
+配置环境变量, 编辑 `~/.zshrc` (或其它相关) 文件
 
 ```bash
 ...
@@ -40,7 +40,7 @@ export PATH="$M2_HOME/bin:$PATH"
 
 ### 2.1. 通过交互命令
 
-输入以下命令，并按照提示一步步确认，即可完成项目创建
+输入以下命令, 并按照提示一步步确认, 即可完成项目创建
 
 ```bash
 mvn archetype:generate

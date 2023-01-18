@@ -21,12 +21,12 @@
   </properties>
 
 
-  <!-- 依赖声明，所有子项目可使用声明后的依赖 -->
+  <!-- 依赖声明, 所有子项目可使用声明后的依赖 -->
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.junit</groupId>
-        <artifactId>junit-bom</artifactId>        <!-- 使用 junit 提供的 bom（物料清单），包含所有 junit 相关依赖 -->
+        <artifactId>junit-bom</artifactId>        <!-- 使用 junit 提供的 bom (物料清单), 包含所有 junit 相关依赖 -->
         <version>${version.junit}</version>
         <type>pom</type>
         <scope>import</scope>        <!-- 依赖仅在测试时引入 -->
@@ -37,7 +37,7 @@
   <!-- 依赖引用 -->
   <dependencies>
     <dependency>
-      <groupId>org.junit.jupiter</groupId>      <!-- 使用被声明的依赖，无需指定版本 -->
+      <groupId>org.junit.jupiter</groupId>      <!-- 使用被声明的依赖, 无需指定版本 -->
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>

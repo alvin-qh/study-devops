@@ -29,8 +29,8 @@ public abstract class WebTest extends IntegrationTest {
 
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    private <T extends RequestHeadersSpec<?>, R extends RequestHeadersUriSpec<?>> T setup(R client, String url,
-            Object... args) {
+    private <T extends RequestHeadersSpec<?>, R extends RequestHeadersUriSpec<?>> T setup(
+            R client, String url, Object... args) {
         return (T) client.uri(context.getContextPath() + url, args)
                 .header(HttpHeaders.CONTENT_ENCODING, Charsets.UTF_8.name())
                 .acceptCharset(Charsets.UTF_8);

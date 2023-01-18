@@ -34,8 +34,7 @@ public final class Application {
         if (args.length > 2) {
             try {
                 opt = Operator.valueOf(args[2].toUpperCase());
-            } catch (IllegalArgumentException e) {
-            }
+            } catch (IllegalArgumentException e) {}
         }
 
         var exp = new Expression(a, b, opt);

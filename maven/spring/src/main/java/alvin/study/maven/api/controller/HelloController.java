@@ -11,7 +11,7 @@ import alvin.study.maven.api.model.HelloDto;
 import alvin.study.maven.common.model.Response;
 
 /**
- * 测试控制器，输出一个简单 json
+ * 测试控制器, 输出一个简单 json
  */
 @RestController
 @RequestMapping("/hello")

@@ -1,5 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>alvin.study</groupId>
@@ -26,7 +27,7 @@
     <jdbc.url.h2>jdbc:h2:${project.basedir}/.data/dev</jdbc.url.h2>
     <jdbc.user.h2>dev</jdbc.user.h2>
     <jdbc.password.h2>password</jdbc.password.h2>
-    <failsOnError/>
+    <failsOnError />
 
     <version.junit>5.9.1</version.junit>
     <version.guava>31.1-jre</version.guava>
@@ -100,7 +101,7 @@
         <version>${version.maven-surefire}</version>
       </plugin>
 
-      <!-- code checkstyle 插件，代码检查 -->
+      <!-- code checkstyle 插件, 代码检查 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -206,7 +207,7 @@
             <!-- 关联到 validate 任务 -->
             <phase>validate</phase>
             <goals>
-              <!-- 执行 create goal，创建版本信息 -->
+              <!-- 执行 create goal, 创建版本信息 -->
               <goal>create</goal>
             </goals>
           </execution>

@@ -94,7 +94,7 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- 引入 spirngboot webflux starter，这里仅用作测试 -->
+    <!-- 引入 spirngboot webflux starter, 这里仅用作测试 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
