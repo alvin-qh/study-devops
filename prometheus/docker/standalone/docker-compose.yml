@@ -1,0 +1,89 @@
+version: "3.9"
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    privileged: true
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f localhost:9090" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1G
+        reservations:
+          memory: 256M
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus_data:/prometheus
+      - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - prometheus_network
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    restart: always
+    privileged: true
+    env_file:
+      - ../env/grafana.env
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f localhost:3000" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1G
+        reservations:
+          memory: 256M
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - prometheus_network
+  node-expoerter:
+    image: prom/node-exporter
+    container_name: node_exporter
+    restart: unless-stopped
+    privileged: true
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - /:/host:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    networks:
+      - prometheus_network
+volumes:
+  prometheus_data:
+  grafana_data:
+networks:
+  prometheus_network:
