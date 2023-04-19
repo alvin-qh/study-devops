@@ -1,15 +1,24 @@
 global:
-  # 拉取一次采样点数据的时间, 默认 1min
-  scrape_interval: 15s
-  # 评估一次规则的时间, 默认 1min
-  evaluation_interval: 15s
-  # 拉取超时, 默认 10s
-  scrape_timeout: 10s
+  scrape_interval: 15s # 拉取一次采样点数据的时间, 默认 1min
+  evaluation_interval: 15s # 评估一次规则的时间, 默认 1min
+  scrape_timeout: 10s # 拉取超时, 默认 10s
 
-scrape_configs:
-  - job_name: linux
-    static_configs:
-      - targets:
-          - node_exporter:9100
-        labels:
-          instance: WSL
+alerting:
+  alertmanagers:
+    - static_configs:
+
+rule_files:
+
+scrape_configs: # 信息采集配置
+  - job_name: prometheus
+    static_configs: # 通过静态配置服务发现
+      - targets: # 服务地址
+          - localhost:9090
+        labels: # 数据标签
+          instance: prometheus
+
+  - job_name: node-exporter
+    file_sd_configs: # 使用配置文件进行服务发现
+      - files: # 设置服务发现配置文件列表
+          - targets/node_exporter_sd.json
+        refresh_interval: 1m # 服务发现文件刷新周期

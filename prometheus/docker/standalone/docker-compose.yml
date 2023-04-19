@@ -1,16 +1,11 @@
 version: "3.9"
 services:
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
+  percona:
+    image: percona/percona-server
+    hostname: percona
+    container_name: percona
     restart: always
     privileged: true
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f localhost:9090" ]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-      start_period: 10s
     # ulimits:
     #   nproc: 65535
     #   nofile:
@@ -23,14 +18,59 @@ services:
       resources:
         limits:
           cpus: "1.00"
-          memory: 1G
-        reservations:
           memory: 256M
+        reservations:
+          memory: 128M
+    env_file:
+      - ../env/percona.env
+    volumes:
+      - ../conf/percona.cfg:/etc/my.cnf.d/percona.cfg:ro # 设置 MySQL 配置文件
+      - ../sql:/docker-entrypoint-initdb.d # 设置数据库初始化脚步
+      - ./percona_logs:/var/log/mysql
+      - percona_data:/var/lib/mysql
+    networks:
+      - prometheus_network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    privileged: true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f localhost:9090"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    depends_on:
+      percona:
+        condition: service_healthy
     ports:
       - 9090:9090
     volumes:
       - prometheus_data:/prometheus
       - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../conf/targets:/etc/prometheus/targets:ro
     networks:
       - prometheus_network
   grafana:
@@ -43,11 +83,11 @@ services:
     depends_on:
       - prometheus
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f localhost:3000" ]
+      test: ["CMD-SHELL", "curl -f localhost:3000"]
       interval: 5s
       timeout: 10s
       retries: 10
-      start_period: 10s
+      start_period: 30s
     # ulimits:
     #   nproc: 65535
     #   nofile:
@@ -60,9 +100,9 @@ services:
       resources:
         limits:
           cpus: "1.00"
-          memory: 1G
-        reservations:
           memory: 256M
+        reservations:
+          memory: 128M
     ports:
       - 3000:3000
     volumes:
@@ -84,5 +124,6 @@ services:
 volumes:
   prometheus_data:
   grafana_data:
+  percona_data:
 networks:
   prometheus_network:
