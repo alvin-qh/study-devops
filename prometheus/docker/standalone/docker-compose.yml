@@ -110,7 +110,6 @@ services:
     networks:
       - prometheus_network
   node-expoerter:
-    # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
     image: prom/node-exporter
     container_name: node_exporter
     restart: unless-stopped
@@ -121,6 +120,18 @@ services:
       - /:/host:ro
     networks:
       - prometheus_network
+  mysql-exporter:
+    image: prom/mysqld-exporter
+    container_name: mysql_exporter
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - DATA_SOURCE_NAME=root:root@(percona:3306)/
+    networks:
+      - prometheus_network
+    depends_on:
+      percona:
+        condition: service_healthy
 volumes:
   prometheus_data:
   grafana_data:

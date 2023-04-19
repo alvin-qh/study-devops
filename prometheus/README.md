@@ -163,4 +163,11 @@ GF_SECURITY_ADMIN_USER=admin
 2. Grafana 仪表盘
    - 可以使用 `https://grafana.com/grafana/dashboards/3662-prometheus-2-0-overview/` 仪表盘, ID 为 `3662`
 
-### 2.2. 监控
+### 2.2. 监控宿主机
+
+https://grafana.com/grafana/dashboards/1860-node-exporter-full/
+
+
+### 2.3. 监控 MySQL
+
+https://grafana.com/grafana/dashboards/14031-mysql-dashboard/

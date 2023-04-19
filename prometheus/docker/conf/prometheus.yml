@@ -22,3 +22,9 @@ scrape_configs: # 信息采集配置
       - files: # 设置服务发现配置文件列表
           - targets/node_exporter_sd.json
         refresh_interval: 1m # 服务发现文件刷新周期
+
+  - job_name: mysql-exporter
+    file_sd_configs: # 使用配置文件进行服务发现
+      - files: # 设置服务发现配置文件列表
+          - targets/mysql_exporter_sd.json
+        refresh_interval: 1m # 服务发现文件刷新周期
