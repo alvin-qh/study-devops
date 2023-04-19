@@ -6,4 +6,3 @@ CREATE USER 'grafana'@'%' IDENTIFIED WITH mysql_native_password BY 'grafana';
 
 -- 为 Grafana 数据库授权用户
 GRANT ALL PRIVILEGES ON `grafana`.* TO `grafana`@'%' WITH GRANT OPTION;
-
