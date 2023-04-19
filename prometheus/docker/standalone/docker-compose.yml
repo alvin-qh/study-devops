@@ -70,6 +70,7 @@ services:
     networks:
       - prometheus_network
   node-expoerter:
+    # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
     image: prom/node-exporter
     container_name: node_exporter
     restart: unless-stopped
@@ -78,8 +79,6 @@ services:
       - "--path.rootfs=/host"
     volumes:
       - /:/host:ro
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
     networks:
       - prometheus_network
 volumes:
