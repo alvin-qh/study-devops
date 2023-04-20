@@ -1,5 +1,6 @@
 version: "3.9"
 services:
+  # 配置 MySQL 数据库, 用于存储 Grafana 的运行数据以及测试 mysqld-exporter 组件
   percona:
     image: percona/percona-server
     hostname: percona
@@ -31,18 +32,19 @@ services:
     networks:
       - prometheus_network
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost"]
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost" ]
       interval: 5s
       timeout: 10s
       retries: 10
       start_period: 30s
+  # 配置 Prometheus 监控
   prometheus:
     image: prom/prometheus
     container_name: prometheus
     restart: always
     privileged: true
     healthcheck:
-      test: ["CMD-SHELL", "curl -f localhost:9090"]
+      test: [ "CMD-SHELL", "curl -f localhost:9090" ]
       interval: 5s
       timeout: 10s
       retries: 10
@@ -73,6 +75,11 @@ services:
       - ../conf/targets:/etc/prometheus/targets:ro
     networks:
       - prometheus_network
+    extra_hosts:
+      # 为容器添加域名映射 (即修改 /etc/hosts 文件), 相当于命令行的 --add-host 参数
+      # host-gateway 表示宿主机 ip 地址
+      - host.docker.internal:host-gateway
+  # 配置 Grafana 仪表盘
   grafana:
     image: grafana/grafana-oss
     container_name: grafana
@@ -83,7 +90,7 @@ services:
     depends_on:
       - prometheus
     healthcheck:
-      test: ["CMD-SHELL", "curl -f localhost:3000"]
+      test: [ "CMD-SHELL", "curl -f localhost:3000" ]
       interval: 5s
       timeout: 10s
       retries: 10
@@ -109,7 +116,8 @@ services:
       - grafana_data:/var/lib/grafana
     networks:
       - prometheus_network
-  node-expoerter:
+  # 用于监控宿主机的组件
+  node-exporter:
     image: prom/node-exporter
     container_name: node_exporter
     restart: unless-stopped
@@ -120,9 +128,10 @@ services:
       - /:/host:ro
     networks:
       - prometheus_network
-  mysql-exporter:
+  # 用于 MySQL 的组件
+  mysqld-exporter:
     image: prom/mysqld-exporter
-    container_name: mysql_exporter
+    container_name: mysqld_exporter
     restart: unless-stopped
     privileged: true
     environment:
@@ -132,6 +141,20 @@ services:
     depends_on:
       percona:
         condition: service_healthy
+  # 用于监控容器状态的组件
+  cadvisor:
+    image: google/cadvisor
+    container_name: cadvisor
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - prometheus_network
 volumes:
   prometheus_data:
   grafana_data:

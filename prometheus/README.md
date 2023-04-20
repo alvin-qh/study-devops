@@ -155,19 +155,85 @@ GF_SECURITY_ADMIN_USER=admin
 
 ### 2.1. 监控 Prometheus 自身
 
-1. Prometheus 配置
-   Prometheus 自身即可报告监控数据 (通过 `<prometheus 地址>/metrics` 地址)
+1. **Prometheus 配置**
 
-   在服务发现配置中, 将 `targets` 设置为 Prometheus 地址 (无需 `/metrics` 后缀), 添加 `labels` 配置即可
+   Prometheus 自身即可报告监控数据, 可通过执行 `curl http://localhost:9090/metrics` 来进行测试
 
-2. Grafana 仪表盘
-   - 可以使用 `https://grafana.com/grafana/dashboards/3662-prometheus-2-0-overview/` 仪表盘, ID 为 `3662`
+   在服务发现配置中, 将 `targets` 设置为 Prometheus 服务地址 (无需 `/metrics` 后缀), 添加 `labels` 配置即可, 参见 [prometheus.yml](./docker/conf/prometheus.yml) 中 `job_name: prometheus` 部分
+
+2. **Grafana 仪表盘**
+
+   - 使用 `https://grafana.com/grafana/dashboards/3662-prometheus-2-0-overview/` 仪表盘, ID 为 `3662` (推荐)
 
 ### 2.2. 监控宿主机
 
-https://grafana.com/grafana/dashboards/1860-node-exporter-full/
+1. **`node-exporter` 容器配置**
 
+    要在容器内获取到宿主机的状态, 需要将监控路径由 `/` 切换 (例如 `/host`), 再将宿主机的 `/` 路径挂载到容器的 `/host` 路径下 (只读)
+
+    所以需要为 `node-exporter` 容器增加命令行参数 `--path.rootfs=/host`, 并且将宿主机的 `/` 挂载到容器的 `/host` 下
+
+    ```yml
+    volumes:
+      - /:/host:ro
+    ```
+
+    参见 [docker-compose.yml](./docker/standalone/docker-compose.yml) 文件中的 `node-exporter` 部分
+
+    可通过 `docker exec node_exporter wget -qO- localhost:9100/metrics` 命令进行测试
+
+2. **Prometheus 配置**
+
+    在服务发现配置中, 将 `targets` 设置为 `node-exporter` 服务地址, 添加 `labels` 配置即可
+
+    参见 [prometheus.yml](./docker/conf/prometheus.yml) 文件的 `job_name: node-exporter` 部分以及 [targets/node_exporter_sd.json](./docker/conf/targets/node_exporter_sd.json) 文件内容
+
+3. **Grafana 仪表盘**
+
+    - 使用 `https://grafana.com/grafana/dashboards/1860-node-exporter-full/` 仪表盘, ID 为 `1860` (推荐)
 
 ### 2.3. 监控 MySQL
 
-https://grafana.com/grafana/dashboards/14031-mysql-dashboard/
+1. **`mysqld-exporter` 容器配置**
+
+    需要在容器的环境变量中设置目标 MySQL 的访问地址, 以及用户名密码
+
+    ```yml
+    environment:
+      - DATA_SOURCE_NAME=<username>:<password>@(url)/
+    ```
+
+    > 注意, 数据库连接串末尾必须具备 `/` 字符
+
+    参见 [docker-compose.yml](./docker/standalone/docker-compose.yml) 文件中的 `mysqld-exporter` 部分
+
+    可通过 `docker exec mysqld_exporter wget -qO- localhost:9104/metrics` 命令进行测试
+
+2. **Prometheus 配置**
+
+    在服务发现配置中, 将 `targets` 设置为 `mysqld-exporter` 服务地址, 添加 `labels` 配置即可
+
+    参见 [prometheus.yml](./docker/conf/prometheus.yml) 文件的 `job_name: mysqld-exporter` 部分以及 [targets/mysqld_exporter_sd.json](./docker/conf/targets/mysqld_exporter_sd.json) 文件内容
+
+3. **Grafana 仪表盘**
+
+    - 使用 `https://grafana.com/grafana/dashboards/14031-mysql-dashboard/` 仪表盘, ID 为 `14031` (推荐)
+
+### 2.4. 监控容器
+
+1. **`cadvisor` 容器配置**
+
+    使用 `cadvisor` 需要将宿主机的若干路径进行映射 (`volumes`), 并且赋予容器管理权限 (`privileged`), 参见 [docker-compose.yml](./docker/standalone/docker-compose.yml) 文件中的 `cadvisor` 部分
+
+    可通过 `docker exec cadvisor wget -qO- localhost:8080/metrics` 命令进行测试
+
+2. **Prometheus 配置**
+
+    在服务发现配置中, 将 `targets` 设置为 `cadvisor` 服务地址, 添加 `labels` 配置即可
+
+    参见 [prometheus.yml](./docker/conf/prometheus.yml) 文件的 `job_name: cadvisor` 部分以及 [targets/cadvisor_sd.json](./docker/conf/targets/cadvisor_sd.json) 文件内容
+
+3. **Grafana 仪表盘**
+
+    - 使用 `https://grafana.com/grafana/dashboards/179-docker-prometheus-monitoring/` 仪表盘, ID 为 `179` (推荐)
+    - 使用 `https://grafana.com/grafana/dashboards/11600-docker-container/` 仪表盘, ID 为 `11600`

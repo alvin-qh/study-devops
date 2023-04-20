@@ -8,14 +8,14 @@ indent_style = space
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.{bat, cmd}]
+[*.{bat,cmd}]
 charset = utf-8
 end_of_line = crlf
 
-[*.{py}]
+[*.py]
 indent_size = 4
 end_of_line = lf
 
-[*.{java, gradle}]
+[*.{java,gradle}]
 indent_size = 4
 end_of_line = lf
