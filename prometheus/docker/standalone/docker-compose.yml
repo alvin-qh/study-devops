@@ -25,30 +25,31 @@ services:
     env_file:
       - ../env/percona.env
     volumes:
-      - ../conf/percona.cfg:/etc/my.cnf.d/percona.cfg:ro # 设置 MySQL 配置文件
+      - ../conf/percona.cnf:/etc/my.cnf.d/percona.cnf:ro # 设置 MySQL 配置文件
       - ../sql:/docker-entrypoint-initdb.d # 设置数据库初始化脚步
       - ./percona_logs:/var/log/mysql
       - percona_data:/var/lib/mysql
     networks:
       - prometheus_network
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost" ]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
+      test: [ "CMD-SHELL", "mysqladmin ping -uhealtu" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
   # 配置 Prometheus 监控
   prometheus:
     image: prom/prometheus
+    hostname: prometheus
     container_name: prometheus
     restart: always
     privileged: true
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f localhost:9090" ]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
+      test: [ "CMD-SHELL", "wget -qO- localhost:9090/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
     # ulimits:
     #   nproc: 65535
     #   nofile:
@@ -64,9 +65,6 @@ services:
           memory: 256M
         reservations:
           memory: 128M
-    depends_on:
-      percona:
-        condition: service_healthy
     ports:
       - 9090:9090
     volumes:
@@ -82,19 +80,23 @@ services:
   # 配置 Grafana 仪表盘
   grafana:
     image: grafana/grafana-oss
+    hostname: grafana
     container_name: grafana
     restart: always
     privileged: true
     env_file:
       - ../env/grafana.env
     depends_on:
-      - prometheus
+      percona:
+        condition: service_started
+      prometheus:
+        condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f localhost:3000" ]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
+      test: [ "CMD-SHELL", "wget -qO- localhost:3000/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
     # ulimits:
     #   nproc: 65535
     #   nofile:
@@ -119,6 +121,7 @@ services:
   # 用于监控宿主机的组件
   node-exporter:
     image: prom/node-exporter
+    hostname: node_exporter
     container_name: node_exporter
     restart: unless-stopped
     privileged: true
@@ -128,22 +131,36 @@ services:
       - /:/host:ro
     networks:
       - prometheus_network
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:9100/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
   # 用于 MySQL 的组件
   mysqld-exporter:
     image: prom/mysqld-exporter
+    hostname: mysqld_exporter
     container_name: mysqld_exporter
     restart: unless-stopped
     privileged: true
     environment:
-      - DATA_SOURCE_NAME=root:root@(percona:3306)/
+      - DATA_SOURCE_NAME=mysqld_exporter:mysqld_exporter@(percona:3306)/
     networks:
       - prometheus_network
     depends_on:
       percona:
-        condition: service_healthy
+        condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:9104/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
   # 用于监控容器状态的组件
   cadvisor:
     image: google/cadvisor
+    hostname: cadvisor
     container_name: cadvisor
     restart: unless-stopped
     privileged: true
@@ -155,6 +172,12 @@ services:
       - /dev/disk/:/dev/disk:ro
     networks:
       - prometheus_network
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:8080/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
 volumes:
   prometheus_data:
   grafana_data:

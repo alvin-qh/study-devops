@@ -1,0 +1,303 @@
+version: "3.9"
+services:
+  # 配置 MySQL 数据库, 用于存储 Grafana 的运行数据以及测试 mysqld-exporter 组件
+  percona:
+    image: percona/percona-server
+    hostname: percona
+    container_name: percona
+    restart: always
+    privileged: true
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    env_file:
+      - ../env/percona.env
+    volumes:
+      - ../conf/percona.cnf:/etc/my.cnf.d/percona.cnf:ro # 设置 MySQL 配置文件
+      - ../sql:/docker-entrypoint-initdb.d # 设置数据库初始化脚步
+      - ./percona_logs:/var/log/mysql
+      - percona_data:/var/lib/mysql
+    networks:
+      - prometheus_network
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -uhealtu" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  # 用于 MySQL 的组件
+  mysqld-exporter:
+    image: prom/mysqld-exporter
+    hostname: mysqld_exporter
+    container_name: mysqld_exporter
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - DATA_SOURCE_NAME=mysqld_exporter:mysqld_exporter@(percona:3306)/
+    networks:
+      - prometheus_network
+    depends_on:
+      percona:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:9104/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  # 配置 Prometheus 远程存储
+  influxdb:
+    image: influxdb:1.8
+    hostname: influxdb
+    container_name: influxdb
+    restart: always
+    privileged: true
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8086/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    env_file:
+      - ../env/influxdb.env
+    volumes:
+      # - influxdb_data:/etc/influxdb2
+      # - influxdb_lib:/var/lib/influxdb2
+      - influxdb_data:/var/lib/influxdb
+    networks:
+      - prometheus_network
+    ports:
+      - 8086:8086
+  # 配置 Prometheus 监控集群
+  prometheus01:
+    image: prom/prometheus
+    hostname: prometheus01
+    container_name: prometheus01
+    restart: always
+    privileged: true
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:9090/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      influxdb:
+        condition: service_started
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    volumes:
+      - prometheus01_data:/prometheus
+      - ../conf/prometheus_cluster.yml:/etc/prometheus/prometheus.yml:ro
+      - ../conf/targets:/etc/prometheus/targets:ro
+    networks:
+      - prometheus_network
+  prometheus02:
+    image: prom/prometheus
+    hostname: prometheus02
+    container_name: prometheus02
+    restart: always
+    privileged: true
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:9090/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      influxdb:
+        condition: service_started
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    volumes:
+      - prometheus02_data:/prometheus
+      - ../conf/prometheus_cluster.yml:/etc/prometheus/prometheus.yml:ro
+      - ../conf/targets:/etc/prometheus/targets:ro
+    networks:
+      - prometheus_network
+  # 负载均衡配置
+  nginx:
+    image: nginx
+    hostname: nginx
+    container_name: nginx
+    volumes:
+      - ../conf/nginx_prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
+      - ../conf/nginx_grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
+      - ../conf/nginx_status.conf:/etc/nginx/conf.d/status.conf:ro
+      - ./nginx_logs:/var/log/nginx
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    restart: always
+    # 暴露 nacos 所有对外端口
+    ports:
+      - 9090:9090
+      - 3000:3000
+    networks:
+      - prometheus_network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl localhost:8090/stub_status" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  # Nginx 监控数配置
+  nginx-prometheus-exporter:
+    image: nginx/nginx-prometheus-exporter
+    hostname: nginx_exporter
+    container_name: nginx_prometheus_exporter
+    restart: always
+    networks:
+      - prometheus_network
+    environment:
+      - SCRAPE_URI=http://nginx:8090/stub_status
+    depends_on:
+      nginx:
+        condition: service_started
+  # 配置 Grafana 仪表盘集群
+  grafana01:
+    image: grafana/grafana-oss
+    hostname: grafana01
+    container_name: grafana01
+    restart: always
+    privileged: true
+    env_file:
+      - ../env/grafana.env
+    depends_on:
+      influxdb:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:3000/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    volumes:
+      - grafana01_data:/var/lib/grafana
+    networks:
+      - prometheus_network
+  grafana02:
+    image: grafana/grafana-oss
+    hostname: grafana02
+    container_name: grafana02
+    restart: always
+    privileged: true
+    env_file:
+      - ../env/grafana.env
+    depends_on:
+      influxdb:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:3000/metrics" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    volumes:
+      - grafana02_data:/var/lib/grafana
+    networks:
+      - prometheus_network
+volumes:
+  prometheus01_data:
+  prometheus02_data:
+  grafana01_data:
+  grafana02_data:
+  percona_data:
+  influxdb_data: # influxdb_lib:
+networks:
+  prometheus_network:
