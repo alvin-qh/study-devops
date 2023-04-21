@@ -151,9 +151,91 @@ GF_SECURITY_ADMIN_USER=admin
 
 > 导入的仪表盘可以进一步进行编辑, 并进行命名, 分组等操作
 
-## 2. 常用监控配置
+## 2. 导出和导入仪表盘
 
-### 2.1. 监控 Prometheus 自身
+修改后的仪表盘可以导出为 JSON 格式, 以方便之后恢复仪表盘或将仪表盘复制到另一个 Grafana 实例上
+
+### 2.1. 导出仪表盘
+
+1. 进入指定的仪表盘, 点击仪表盘设置
+    ![*](assets/dashboard-3.png)
+
+2. 点击 "JSON Model" 菜单, 将呈现出的 JSON 内容复制保存即可
+    ![*](assets/dashboard-4.png)
+
+### 2.2. 导入仪表盘
+
+1. 在"仪表盘主页", 点击"导入"
+    ![*](assets/dashboard-5.png)
+
+2. 在"导入"界面, 填入之前保存的 JSON 文本, 点击"读取", 即可将之前保存的仪表盘导入
+    ![*](assets/dashboard-6.png)
+
+### 2.3. 完善导出的 JSON
+
+导出的 JSON 可以在当前 Grafana 正确导入, 但无法直接导入到另一个 Grafana 实例中, 主要是另一个 Grafana 实例的 "Datasource" 和当前实例不同 (Datasource 的 `uid` 不一样, 所以导入后需要手动逐面板重新设置数据源, 非常麻烦), 所以需要对导出的 JSON 做适当修改, 使其能够支持任意设置数据源
+
+1. 为仪表盘 JSON 加入 `__input` 字段, 使其可以支持导入时选择数据源, 并以名为 `DS_PROMETHEUS` 的变量来代表实际的数据源
+
+    ```json
+    "__inputs": [
+      {
+        "type": "datasource",
+        "name": "DS_PROMETHEUS",
+        "label": "prometheus",
+        "description": "-",
+        "pluginId": "prometheus",
+        "pluginName": "Prometheus"
+      }
+    ]
+    ```
+
+    这段脚本可以增加在仪表盘 JSON 的任意位置 (例如最开头), 表示在导入仪表盘时, 可以选择一个已有的 Prometheus 作为数据源
+
+2. 将仪表盘 JSON 中, 所有 `targets` 字段下的 `datasource` 字段修改为 `${DS_PROMETHEUS}`
+
+    ```json
+    "targets": [
+      {
+        "datasource": "${DS_PROMETHEUS}",
+        // ...
+      }
+    ],
+    ```
+
+    至此, 导入的仪表盘即可绑定一个指定的 Prometheus 数据源
+
+3. 可以在 `templating` 字段下增加一个数据源项, 即可在仪表盘导入后, 仍可以通过下拉框切换数据源
+
+    ```json
+    "templating": {
+      "list": [
+        {
+          "datasource": "Prometheus",
+          "description": null,
+          "error": null,
+          "hide": 0,
+          "includeAll": false,
+          "label": "datasource",
+          "multi": false,
+          "name": "DS_PROMETHEUS",
+          "options": [],
+          "query": "prometheus",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "type": "datasource"
+        },
+        // ...
+      ]
+    }
+    ```
+
+    注意, 这里的 `name` 字段定义的变量名需要和 JSON 中 `datasource` 字段使用的变量名一致, 这里应为 `${DS_PROMETHEUS}`
+
+## 3. 常用监控配置
+
+### 3.1. 监控 Prometheus 自身
 
 1. **Prometheus 配置**
 
@@ -165,7 +247,7 @@ GF_SECURITY_ADMIN_USER=admin
 
    - 使用 `https://grafana.com/grafana/dashboards/3662-prometheus-2-0-overview/` 仪表盘, ID 为 `3662` (推荐)
 
-### 2.2. 监控宿主机
+### 3.2. 监控宿主机
 
 1. **`node-exporter` 容器配置**
 
@@ -192,7 +274,7 @@ GF_SECURITY_ADMIN_USER=admin
 
     - 使用 `https://grafana.com/grafana/dashboards/1860-node-exporter-full/` 仪表盘, ID 为 `1860` (推荐)
 
-### 2.3. 监控 MySQL
+### 3.3. 监控 MySQL
 
 1. **`mysqld-exporter` 容器配置**
 
@@ -219,7 +301,7 @@ GF_SECURITY_ADMIN_USER=admin
 
     - 使用 `https://grafana.com/grafana/dashboards/14031-mysql-dashboard/` 仪表盘, ID 为 `14031` (推荐)
 
-### 2.4. 监控容器
+### 3.4. 监控容器
 
 1. **`cadvisor` 容器配置**
 
