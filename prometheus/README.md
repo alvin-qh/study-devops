@@ -143,9 +143,11 @@ GF_SECURITY_ADMIN_USER=admin
 #### 1.2.4. 配置数据源
 
 1. 点击"设置", 进入"数据源设置"界面
+
     ![*](assets/datasource-1.png)
 
 2. 选择"Prometheus"项目进行配置
+
     ![*](assets/datasource-2.png)
 
 3. 填入"URL", 即 Prometheus 服务地址, 除此之外, 界面中的其它项均为可选项, 点击"保存 & 测试"按钮即可
@@ -171,10 +173,13 @@ GF_SECURITY_ADMIN_USER=admin
  一般情况下, 不会从头去建立一个仪表盘, 而是从 `https://grafana.com/grafana/dashboards` 地址导入模板
 
 1. 点击"仪表盘", 进入"仪表盘"设置界面, 通过"新建">"导入", 进入仪表盘导入界面
+
     ![*](assets/dashboard-1.png)
 
 2. 导入"仪表盘模板"
+
     ![*](assets/dashboard-2.png)
+
     在"从 grafana.com 导入"文本框中填入模板页面地址或者模板 ID, 并设置数据源, 即可利用该模板创建仪表盘
 
     > 导入的仪表盘可以进一步进行编辑, 并进行命名, 分组等操作
@@ -186,17 +191,21 @@ GF_SECURITY_ADMIN_USER=admin
 #### 2.2.1. 导出仪表盘 JSON
 
 1. 进入指定的仪表盘, 点击仪表盘设置
+
     ![*](assets/dashboard-3.png)
 
 2. 点击 "JSON Model" 菜单, 将呈现出的 JSON 内容复制保存即可
+
     ![*](assets/dashboard-4.png)
 
 #### 2.2.2. 从 JSON 导入仪表盘
 
 1. 在"仪表盘主页", 点击"导入"
+
     ![*](assets/dashboard-5.png)
 
 2. 在"导入"界面, 填入之前保存的 JSON 文本, 点击"读取", 即可将之前保存的仪表盘导入
+
     ![*](assets/dashboard-6.png)
 
 #### 2.2.3. 完善导出的 JSON
