@@ -56,23 +56,95 @@ Prometheus 通过服务发现获取到目标服务, 并从目标服务上读取�
 
 #### 1.1.2. 集群配置
 
-Prometheus 集群的重点在于统一存储, 一般使用 Influxdb, 它有 1.x 和 2.x 两个大版本, 使用方式有很大的不同
+Prometheus 集群的重点在于统一存储, 一般使用 InfluxDB, 它有 1.x 和 2.x 两个大版本, 使用方式有很大的不同
 
-##### 1.1.2.1. 使用 1.x 版本
+##### 1.1.2.1. 使用 InfluxDB 1.x 版本
 
 > 1.x 系列的最新版本为 `1.8`
 
-Prometheus 内部具备对 Influxdb 1.x 的支持, 通过配置即可集成两者
+Prometheus 内部具备对 InfluxDB 1.x 的支持, 通过配置即可集成两者
 
-通过环境变量 [env/influxdb.env](./docker/env/influxdb.env) 文件设置 Influxdb 的账号, 密码和数据库名, 参见 [cluster/docker-compose.yml](./docker/cluster/docker-compose.yml) 的 `influxdb` 部分
+1. 通过环境变量 [env/influxdb.env](./docker/env/influxdb.env) 文件设置 Influxdb 的账号, 密码和数据库名, 参见 [cluster/docker-compose.yml](./docker/cluster/docker-compose.yml) 的 `influxdb` 部分
 
-在 Prometheus 的配置文件中, 增加 `remote_write` 和 `remote_read` 配置, 使 Prometheus 可以存取远程 Influxdb 上的数据, 参见 [conf/prometheus_cluster.yml](./docker/conf/prometheus_cluster.yml) 文件
+2. 在 Prometheus 的配置文件中, 增加 `remote_write` 和 `remote_read` 配置, 使 Prometheus 可以存取远程 InfluxDB 上的数据, 参见 [conf/prometheus_cluster.yml](./docker/conf/prometheus_cluster.yml) 文件
 
-配置 Prometheus 的多个容器实例, 参见 [cluster/docker-compose.yml](./docker/cluster/docker-compose.yml) 中的 `prometheus01` 和 `prometheus02` 部分
+3. 配置 Prometheus 的多个容器实例, 参见 [cluster/docker-compose.yml](./docker/cluster/docker-compose.yml) 中的 `prometheus01` 和 `prometheus02` 部分
 
 至此已经具备了启动 Prometheus 集群的全部条件, 只需要对不同的 Prometheus 实例进行负载均衡即可, 参见 [conf/nginx_prometheus.conf](./docker/conf/nginx_prometheus.conf) 以及 [/cluster/docker-compose.yml](./docker/cluster/docker-compose.yml) 中的 `nginx` 部分
 
 启动所有容器, 通过 Nginx 的反向代理访问 Prometheus 实例即可
+
+##### 1.1.2.2. 使用 InfluxDB 2.x 版本
+
+Prometheus 无法直接将数据存储到 InfluxDB 2.x 版本的实例中, 需要借助 telegraf 这个中间件完成
+
+1. 配置 telegraf 中间件
+
+    拉取 telegraf 镜像
+
+    ```bash
+    docker pull telegraf
+    ```
+
+    生成 telegraf 配置文件
+
+    ```bash
+    docker run telegraf telegraf config > telegraf.conf
+    ```
+
+    修改配置文件内容, 增加一下部分的配置以支持 Prometheus, 其余配置可使用默认值即可
+
+    ```ini
+    # 输出到 InfluxDB 的配置
+    [[outputs.influxdb_v2]]
+      # InfluxDB 地址
+      urls = ["http://influxdb:8086"]
+      # InfluxDB API 令牌
+      token = "<token>"
+      # InfluxDB 租户
+      organization="<org>"
+      # InfluxDB 存储 Prometheus 数据的桶名称
+      bucket = "prometheus"
+
+    # 监听从 Prometheus 输入数据的配置
+    [[inputs.http_listener_v2]]
+      # 监听端口
+      service_address = ":8087"
+      # URL 路径
+      paths = ["/receive"]
+      # Prometheus 发送数据转换格式
+      data_format = "prometheusremotewrite"
+
+    # 采集 Prometheus 集群本身的状态的配置 (可选)
+    [[inputs.prometheus]]
+      urls = ["http://prometheus01:9090/metrics", "http://prometheus02:9090/metrics"]
+    ```
+
+    将生成的配置文件放在合适的位置备用, 例如 [conf/telegraf.conf](./docker/conf/telegraf.conf)
+
+2. 配置 Prometheus
+
+    修改 [conf/prometheus_cluster.yml](./docker/conf/prometheus_cluster.yml) 配置文件, 增加写入 telegraf 中间件的配置
+
+    ```yml
+    remote_write:
+      - url: "http://telegraf:8087/receive"
+    ```
+
+    这里的端口号以及路径应和 [conf/telegraf.conf](./docker/conf/telegraf.conf) 中 `[[inputs.http_listener_v2]]` 部分配置一致
+
+3. 配置容器集群
+
+    增加 telegraf 容器配置, 设置容器配置文件为步骤 1 产生的配置文件, 参见 [/cluster/docker-compose.yml](./docker/cluster/docker-compose.yml) 中 `telegraf` 部分
+
+    ```yml
+    telegraf:
+      ...
+      volumes:
+        - ../conf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    ```
+
+至此, 整个集群配置完毕, 在此架构下, Prometheus 会将所有数据写入到 InfluxDB 中, 但不会从 InfluxDB 中读取数据, 所以 Grafana 需要以 InfluxDB 为后端数据源 (而不再是 Prometheus)
 
 ### 1.2. Grafana
 

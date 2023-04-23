@@ -59,7 +59,8 @@ services:
       start_period: 10s
   # 配置 Prometheus 远程存储
   influxdb:
-    image: influxdb:1.8
+    # image: influxdb:1.8
+    image: influxdb
     hostname: influxdb
     container_name: influxdb
     restart: always
@@ -88,13 +89,37 @@ services:
     env_file:
       - ../env/influxdb.env
     volumes:
-      # - influxdb_data:/etc/influxdb2
-      # - influxdb_lib:/var/lib/influxdb2
-      - influxdb_data:/var/lib/influxdb
+      # InfluxDB 1.x 卷映射
+      # - influxdb_data:/var/lib/influxdb
+
+      # InfluxDB 2.x 卷映射
+      - influxdb_data:/etc/influxdb2
+      - influxdb_lib:/var/lib/influxdb2
     networks:
       - prometheus_network
     ports:
       - 8086:8086
+  # 配置 telegraf 容器, 用于 prometheus 和 influxdb 2.x 通信
+  telegraf:
+    image: telegraf
+    container_name: telegraf
+    hostname: telegraf
+    restart: always
+    privileged: true
+    volumes:
+      - ../conf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    networks:
+      - prometheus_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s health1:healthpass@localhost:8080 | grep \"OK\""
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
   # 配置 Prometheus 监控集群
   prometheus01:
     image: prom/prometheus
@@ -298,6 +323,7 @@ volumes:
   grafana01_data:
   grafana02_data:
   percona_data:
-  influxdb_data: # influxdb_lib:
+  influxdb_data:
+  influxdb_lib:
 networks:
   prometheus_network:

@@ -111,6 +111,7 @@
         "prefixlen",
         "prirep",
         "projectlombok",
+        "prometheusremotewrite",
         "proxysql",
         "puisqu",
         "puppycrawl",

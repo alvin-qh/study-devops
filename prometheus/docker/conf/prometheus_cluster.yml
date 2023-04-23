@@ -3,21 +3,19 @@ global:
   evaluation_interval: 15s # 评估一次规则的时间, 默认 1min
   scrape_timeout: 10s # 拉取超时, 默认 10s
 
-remote_write:
-  - url: http://influxdb:8086/api/v1/prom/write?db=prometheus&u=admin&p=adminpass
+# 写入到远程 InfluxDB 1.x 中
+# remote_write:
+#   - url: http://influxdb:8086/api/v1/prom/write?db=prometheus&u=admin&p=adminpass
 
-remote_read:
-  - url: http://influxdb:8086/api/v1/prom/read?db=prometheus&u=admin&p=adminpass
+# 从远程 InfluxDB 1.x 中读取
+# remote_read:
+#   - url: http://influxdb:8086/api/v1/prom/read?db=prometheus&u=admin&p=adminpass
+
+# 配置写入到远程，写入到 Telegraf，通过 Telegraf 来写入到 InfluxDB2 中
+remote_write:
+ - url: "http://telegraf:8087/receive"
 
 scrape_configs: # 信息采集配置
-  # 监控 prometheus 自身, 仪表盘 id=3662
-  - job_name: prometheus
-    static_configs: # 通过静态配置服务发现
-      - targets: # 服务地址
-          - localhost:9090
-        labels: # 数据标签
-          instance: prometheus
-
   # 监控 nginx, 仪表盘导入 dashboards/nginx_prometheus_exporter.json 文件
   - job_name: nginx_exporter
     file_sd_configs: # 使用配置文件进行服务发现
