@@ -135,7 +135,7 @@ Prometheus 无法直接将数据存储到 InfluxDB 2.x 版本的实例中, 需�
 
 3. 配置容器集群
 
-    增加 telegraf 容器配置, 设置容器配置文件为步骤 1 产生的配置文件, 参见 [/cluster/docker-compose.yml](./docker/cluster/docker-compose.yml) 中 `telegraf` 部分
+    增加 telegraf 容器配置, 设置容器配置文件为步骤 1 产生的配置文件, 参见 [cluster/docker-compose.yml](./docker/cluster/docker-compose.yml) 中 `telegraf` 部分
 
     ```yml
     telegraf:
