@@ -5,7 +5,7 @@
 ```bash
 docker exec -it percona-master mysql -u root -p -e "
     SHOW VARIABLES LIKE 'server_id';
-    CREATE USER 'replica'@'percona-slave.cluster-ms_percona_network' IDENTIFIED BY 'replica~123';
+    CREATE USER 'replica'@'percona_slave' IDENTIFIED BY 'replica';
     GRANT REPLICATION SLAVE ON *.* TO 'replica'@'percona-slave.cluster-ms_percona_network';
     SHOW MASTER STATUS\G;
 "
@@ -20,9 +20,9 @@ docker exec -it percona-slave mysql -u root -p -e "
     CHANGE MASTER TO
     MASTER_HOST='percona-master.cluster-ms_percona_network',
     MASTER_USER='replica',
-    MASTER_PASSWORD='replica~123',
+    MASTER_PASSWORD='replica',
     MASTER_LOG_FILE='mysql-bin.000003',
-    MASTER_LOG_POS=745;
+    MASTER_LOG_POS=196;
     START SLAVE;
     SHOW SLAVE STATUS\G;
 "
@@ -34,7 +34,7 @@ docker exec -it percona-slave mysql -u root -p -e "
 
 ```bash
 docker exec -it percona-master mysql -u root -p -e "
-    CREATE DATABASE IF NOT EXISTS ``replicate_test``
+    CREATE DATABASE IF NOT EXISTS `replicate_test`
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
     USE replicate_test;

@@ -16,12 +16,12 @@ character-set-client-handshake = FALSE
 bind-address = 0.0.0.0
 port = 3306
 
-general_log = ON
-# general_log_file = /var/log/mysql/mysqld.log
+general_log = 1
+general_log_file = /var/log/mysql/master_mysqld.log
 
-slow_query_log = ON
-# slow_query_log_file = /var/log/mysql/slow_query.log
-# long_query_time = 10.000000
+slow_query_log = 1
+long_query_time = 10.000000
+slow_query_log_file = /var/log/mysql/master_slow_query.log
 
 thread_handling = pool-of-threads # 启动线程池
 default_time_zone = +00:00
@@ -31,14 +31,18 @@ net_write_timeout = 28800
 
 default_authentication_plugin = mysql_native_password # 使用本地密码方式登录
 
-server-id = 1       # 设置节点 id
-log-bin = mysql-bin # 开启 binlog
-gtid-mode = on      # 为 binlog 启动 gtid
-enforce-gtid-consistency = on
-log-slave-updates = 1  # 从库 binlog 才会记录主库同步的操作日志
-skip-slave-start = 1   # 跳过 slave 复制线程
+server-id = 1           # 设置节点 id
 
-binlog-format = ROW
+log-bin = mysql-bin     # 开启 binlog
+binlog_format = ROW     # binlog 格式
+relay-log = relay-bin
+
+log_replica_updates = 1  # 从库 binlog 才会记录主库同步的操作日志
+skip_replica_start = 1   # 跳过 slave 复制线程
+
+gtid_mode = on    # 为 binlog 启动 gtid
+enforce_gtid_consistency = on
+
 # binlog_ignore_db = sys
 # binlog_ignore_db = mysql
 # binlog_ignore_db = information_schema

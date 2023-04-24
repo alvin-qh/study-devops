@@ -17,22 +17,26 @@ services:
       resources:
         limits:
           cpus: "1.00"
-          memory: 256m
+          memory: 256M
         reservations:
-          memory: 100m
+          memory: 100M
     env_file:
       - ../env/percona.env
     ports:
       - 3306:3306
     volumes:
-      - ../sql:/docker-entrypoint-initdb.d # 设置数据库初始化脚步
       - ./conf/default.cnf:/etc/my.cnf.d/default.cnf:ro # 设置 MySQL 配置文件
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚步
       - ./log:/var/log/mysql
       - percona_data:/var/lib/mysql
     networks:
       - percona_network
     healthcheck:
-      test: ["CMD-SHELL", "percona mysqladmin ping -uhealth | grep \"alvie\""]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -uhealth | grep \"alvie\""
+        ]
       interval: 1m
       timeout: 30s
       retries: 5
