@@ -1,4 +1,24 @@
-# 相关 Docker 命令
+# Percona 容器
+
+## 1. 初始化
+
+### 1.1. 创建日志目录
+
+为单实例容器设置日志路径
+
+```bash
+mkdir standalone/log
+chmod 777 standalone/log
+```
+
+为主从实例容器设置日志路径
+
+```bash
+mkdir cluster-ms/log
+chmod 777 cluster-ms/log
+```
+
+## 2. 相关 Docker 命令
 
 删除主库卷文件
 

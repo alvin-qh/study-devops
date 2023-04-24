@@ -16,12 +16,12 @@ character-set-client-handshake = FALSE
 bind-address = 0.0.0.0
 port = 3306
 
-general_log = ON
-# general_log_file = /var/log/mysql/mysqld.log
+general_log = 1
+general_log_file = /var/log/mysql/mysqld.log
 
-slow_query_log = ON
-# slow_query_log_file = /var/log/mysql/slow_query.log
-# long_query_time = 10.000000
+slow_query_log = 1
+long_query_time = 10.000000
+slow_query_log_file = /var/log/mysql/mysql_slow_query.log
 
 thread_handling = pool-of-threads # 启动线程池
 default_time_zone = +00:00
