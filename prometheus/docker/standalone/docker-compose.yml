@@ -26,14 +26,14 @@ services:
       - ../env/percona.env
     volumes:
       - ../conf/percona.cnf:/etc/my.cnf.d/percona.cnf:ro # 设置 MySQL 配置文件
-      - ../sql:/docker-entrypoint-initdb.d # 设置数据库初始化脚步
-      - ./percona_logs:/var/log/mysql
+      - ../sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚步
+      - ./log:/var/log/mysql
       - percona_data:/var/lib/mysql
     networks:
       - prometheus_network
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -uhealtu" ]
-      interval: 1m30s
+      test: [ "CMD-SHELL", "mysqladmin ping -uhealth | grep -q 'alive' || exit 1" ]
+      interval: 1m
       timeout: 30s
       retries: 5
       start_period: 10s
@@ -45,7 +45,7 @@ services:
     restart: always
     privileged: true
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:9090/metrics" ]
+      test: [ "CMD-SHELL", "wget -qO- localhost:9090/metrics &> /dev/null 2>&1 || exit 1" ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -68,9 +68,9 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - prometheus_data:/prometheus
       - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ../conf/targets:/etc/prometheus/targets:ro
+      - prometheus_data:/prometheus
     networks:
       - prometheus_network
     extra_hosts:
@@ -92,7 +92,7 @@ services:
       prometheus:
         condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:3000/metrics" ]
+      test: [ "CMD-SHELL", "wget -qO- localhost:3000/metrics &> /dev/null 2>&1 || exit 1" ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -132,7 +132,7 @@ services:
     networks:
       - prometheus_network
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:9100/metrics" ]
+      test: [ "CMD-SHELL", "wget -qO- localhost:9100/metrics &> /dev/null 2>&1 || exit 1" ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -152,7 +152,7 @@ services:
       percona:
         condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:9104/metrics" ]
+      test: [ "CMD-SHELL", "wget -qO- localhost:9104/metrics &> /dev/null 2>&1 || exit 1" ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -173,7 +173,7 @@ services:
     networks:
       - prometheus_network
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:8080/metrics" ]
+      test: [ "CMD-SHELL", "wget -qO- localhost:8080/metrics &> /dev/null 2>&1 || exit 1" ]
       interval: 1m30s
       timeout: 30s
       retries: 5
