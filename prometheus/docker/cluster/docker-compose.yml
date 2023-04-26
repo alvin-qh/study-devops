@@ -26,13 +26,17 @@ services:
       - ../env/percona.env
     volumes:
       - ../conf/percona.cnf:/etc/my.cnf.d/percona.cnf:ro # 设置 MySQL 配置文件
-      - ../sql:/docker-entrypoint-initdb.d # 设置数据库初始化脚步
-      - ./percona_logs:/var/log/mysql
+      - ../sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚步
+      - ./percona_log:/var/log/mysql
       - percona_data:/var/lib/mysql
     networks:
       - prometheus_network
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -uhealtu" ]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -uhealth | grep -q 'alive' || exit 1"
+        ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -52,7 +56,11 @@ services:
       percona:
         condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:9104/metrics" ]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:9104/metrics &> /dev/null 2>&1 || exit 1"
+        ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -66,7 +74,11 @@ services:
     restart: always
     privileged: true
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:8086/metrics" ]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8086/metrics &> /dev/null 2>&1 || exit 1"
+        ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -112,9 +124,10 @@ services:
       - prometheus_network
     healthcheck:
       test:
+        # 通过 conf/telegraf.conf 中的 [[outputs.health]] 部分进行配置
         [
           "CMD-SHELL",
-          "curl -s health1:healthpass@localhost:8080 | grep \"OK\""
+          "curl -fs health:healthpass@localhost:8080 &> /dev/null 2>&1 || exit 1"
         ]
       interval: 1m
       timeout: 30s
@@ -128,7 +141,11 @@ services:
     restart: always
     privileged: true
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:9090/metrics" ]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:9090/metrics &> /dev/null 2>&1 || exit 1"
+        ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -164,7 +181,11 @@ services:
     restart: always
     privileged: true
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:9090/metrics" ]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:9090/metrics &> /dev/null 2>&1 || exit 1"
+        ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -202,7 +223,7 @@ services:
       - ../conf/nginx_prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
       - ../conf/nginx_grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
       - ../conf/nginx_status.conf:/etc/nginx/conf.d/status.conf:ro
-      - ./nginx_logs:/var/log/nginx
+      - ./nginx_log:/var/log/nginx
     ulimits:
       nproc: 65535
       nofile:
@@ -226,7 +247,11 @@ services:
     networks:
       - prometheus_network
     healthcheck:
-      test: [ "CMD-SHELL", "curl localhost:8090/stub_status" ]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fs localhost:8090/stub_status &> /dev/null 2>&1 || exit 1"
+        ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -257,7 +282,11 @@ services:
       influxdb:
         condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:3000/metrics" ]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:3000/metrics &> /dev/null 2>&1 || exit 1"
+        ]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -293,7 +322,11 @@ services:
       influxdb:
         condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- localhost:3000/metrics" ]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:3000/metrics &> /dev/null 2>&1 || exit 1"
+        ]
       interval: 1m30s
       timeout: 30s
       retries: 5
