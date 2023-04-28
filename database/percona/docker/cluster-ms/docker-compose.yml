@@ -1,5 +1,6 @@
 version: "3.9"
 services:
+  # 主服务容器配置
   percona-master:
     image: percona/percona-server
     container_name: percona-master
@@ -28,12 +29,13 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mysqladmin ping -uhealth | grep \"alvie\""
+          "mysqladmin ping -uhealth | grep \"alive\""
         ]
       interval: 1m
       timeout: 30s
       retries: 5
       start_period: 30s
+  # 从服务容器配置
   percona-slave:
     image: percona/percona-server
     container_name: percona-slave
@@ -52,8 +54,8 @@ services:
         condition: service_started
     env_file:
       - ../env/percona.env
-    ports:
-      - 23306:3306
+    # ports:
+    #   - 23306:3306
     volumes:
       - ./conf/slave.cnf:/etc/my.cnf.d/slave.cnf:ro # 设置 MySQL 配置文件
       - ./sql/slave_setup.sql:/docker-entrypoint-initdb.d/slave_setup.sql:ro # 设置数据库初始化脚步
@@ -65,14 +67,29 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mysqladmin ping -uhealth | grep \"alvie\""
+          "mysqladmin ping -uhealth | grep \"alive\""
         ]
       interval: 1m
       timeout: 30s
       retries: 5
       start_period: 30s
+  # ProxySQL 容器配置, 用于支持读写分离
+  proxysql:
+    image: proxysql/proxysql
+    container_name: proxysql
+    hostname: proxysql
+    restart: always
+    ports:
+      - 3306:3306
+      - 6032:6032
+    volumes:
+      - ./conf/proxysql.cnf:/etc/proxysql.cnf:ro
+      - proxysql_data:/var/lib/proxysql
+    networks:
+      - percona_network
 networks:
   percona_network:
 volumes:
   percona_master_data:
   percona_slave_data:
+  proxysql_data:

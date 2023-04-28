@@ -1,6 +1,0 @@
-!include ./main.cnf
-
-[mysqld]
-replicate-do-db = mysql_proxy
-relay-log = /var/log/mysql/relay-bin
-server-id = 2
