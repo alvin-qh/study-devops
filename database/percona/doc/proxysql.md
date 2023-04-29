@@ -27,6 +27,9 @@
         - [2.5.4.1. 登录 ProxySQL](#2541-登录-proxysql)
         - [2.5.4.2. 执行测试](#2542-执行测试)
       - [2.5.5. 其它规则](#255-其它规则)
+  - [3. 其它配置](#3-其它配置)
+    - [3.1. 查询缓冲](#31-查询缓冲)
+    - [3.2. SQL Rewrite](#32-sql-rewrite)
 
 配置了主从同步或双主同步后, 即可以进行"读写分离", 即在 Master 上进行数据写操作, 在 Slave 上进行数据读操作
 
@@ -131,19 +134,22 @@ ProxySQL 具备两种配置方式:
 admin_variables =
 {
   admin_credentials="admin:admin;radmin:radmin"  # 管理员用户名:密码
-  mysql_ifaces="0.0.0.0:6032"      # 管理端口
+  mysql_ifaces="0.0.0.0:6032" # 管理端口
   ...
 }
 
 mysql_variables=
 {
-  monitor_password="monitor"       # 监控用户密码
-  interfaces="0.0.0.0:3306"        # SQL 代理端口
+  monitor_password="monitor" # 监控用户密码
+  interfaces="0.0.0.0:3306"  # SQL 代理端口
+  threads=4                  # 使用线程数
   ...
 }
 ```
 
 注意, 需要添加 `admin` 和 `radmin` (或任意其它用户名), 因为 `admin` 用户只允许在本地登录, 但 ProxySQL 镜像并未内置 MySQL 客户端, 需要从宿主机 (或通过其它容器) 进行链接, 从而无法使用 `admin` 用户
+
+另外一个比较重要的参数为 `threads`, 默认为 `4`, 具体设置方式请参考[线程及连接池设置](./proxysql-thread.md)
 
 #### 2.1.2. 登录 ProxySQL Admin
 
@@ -320,7 +326,7 @@ SELECT * FROM `mysql_replication_hostgroups`;
 
 ```sql
 INSERT INTO `mysql_query_rules` (`rule_id`, `active`, `match_pattern`, `destination_hostgroup`,`apply`)
-VALUES (1, 1, '^SELECT .* FOR UPDATE$', 100, 1);
+VALUES (20, 1, '^SELECT .* FOR UPDATE$', 100, 1);
 ```
 
 #### 2.5.2. 从库规则
@@ -329,7 +335,7 @@ VALUES (1, 1, '^SELECT .* FOR UPDATE$', 100, 1);
 
 ```sql
 INSERT INTO `mysql_query_rules` (`rule_id`, `active`, `match_pattern`, `destination_hostgroup`, `cache_ttl`, `apply`)
-VALUES (2, 1, '^SELECT', 101, 5000, 1);
+VALUES (30, 1, '^SELECT', 101, 5000, 1);
 ```
 
 - `cache_ttl` 表示查询缓冲时间, 可以加快规则匹配效率
@@ -352,8 +358,8 @@ FROM `mysql_query_rules`;
 +---------+--------+------------------------+-----------------------+-----------+-------+
 | rule_id | active | match_pattern          | destination_hostgroup | cache_ttl | apply |
 +---------+--------+------------------------+-----------------------+-----------+-------+
-| 1       | 1      | ^SELECT .* FOR UPDATE$ | 100                   | 5000      | 1     |
-| 2       | 1      | ^SELECT                | 101                   | 5000      | 1     |
+| 20      | 1      | ^SELECT .* FOR UPDATE$ | 100                   | 5000      | 1     |
+| 30      | 1      | ^SELECT                | 101                   | 5000      | 1     |
 +---------+--------+------------------------+-----------------------+-----------+-------+
 ```
 
@@ -369,16 +375,16 @@ FROM `mysql_query_rules`;
 mysql -uproxysql -p -h'127.0.0.1'
 ```
 
+如果 ProxySQL 是在容器内启动的, 则 `-h'127.0.0.1'` 参数是必须的
+
 ##### 2.5.4.2. 执行测试
 
 插入数据
 
 ```sql
 USE `replicate_test`;
-Database changed
 
 START TRANSACTION;
-Query OK, 0 rows affected (0.00 sec)
 
 SELECT @@server_id;
 +-------------+
@@ -386,10 +392,8 @@ SELECT @@server_id;
 +-------------+
 |           1 |
 +-------------+
-1 row in set (0.00 sec)
 
 INSERT INTO `test` (value) VALUES ('test-replicate-01');
-Query OK, 1 row affected (0.00 sec)
 
 SELECT @@server_id;
 +-------------+
@@ -397,10 +401,8 @@ SELECT @@server_id;
 +-------------+
 |           1 |
 +-------------+
-1 row in set (0.00 sec)
 
 COMMIT;
-Query OK, 0 rows affected (0.01 sec)
 ```
 
 可以看到自从事物启动后, 直到事物结束前, `@@server_id` 变量的值一直为 `1`, 表示 SQL 执行在后端 Master 数据库实例上
@@ -414,7 +416,6 @@ SELECT * FROM `test`;
 +----+-------------------+
 |  1 | test-replicate-01 |
 +----+-------------------+
-1 rows in set (0.00 sec)
 
 SELECT @@server_id;
 +-------------+
@@ -422,7 +423,6 @@ SELECT @@server_id;
 +-------------+
 |           2 |
 +-------------+
-1 row in set (0.00 sec)
 ```
 
 可以看到查询语句都在 `@@server_id` 为 `2` 上执行, 即 SQL 执行在后端 Slave 数据库实例上
@@ -430,3 +430,13 @@ SELECT @@server_id;
 #### 2.5.5. 其它规则
 
 除了简单的读写分离外, ProxySQL 还可以处理其它更复杂的规则, 参见 [ProxySQL Rule](./proxysql-rule.md) 文档
+
+## 3. 其它配置
+
+### 3.1. 查询缓冲
+
+参见[查询缓冲](./proxysql-query-cache.md)相关文档
+
+### 3.2. SQL Rewrite
+
+参见[查询缓冲](./proxysql-query-cache.md)相关文档

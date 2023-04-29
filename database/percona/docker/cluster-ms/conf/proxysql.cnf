@@ -51,6 +51,79 @@ mysql_variables=
   ssl_p2s_cipher="ECDHE-RSA-AES128-GCM-SHA256"
 }
 
+# 定义 MySQL 用户
+mysql_users=
+(
+  {
+    username="proxysql",   # 后端数据库用户
+    password="proxysql",   # 该用户的密码
+    default_hostgroup=100, # 该用户默认的后端数据库组
+    active=1  # 有效
+  }
+)
+
+# 定义 MySQL 后端数据库组
+mysql_servers=
+(
+  {
+    address="percona_master",  # 后端数据库地址 (主机名)
+    port=3306,                 # 后端数据库端口
+    hostgroup=100,             # 数据库组编号
+    weight=1,                  # 在该组内的权重
+    comment="db0,ReadWrite"
+  },
+  {
+    address="percona_master",
+    port=3306,
+    hostgroup=101,
+    weight=1,
+    comment="db0,ReadOnly"
+  },
+  {
+    address="percona_slave",
+    port=3306,
+    hostgroup=101,
+    weight=9,
+    comment="db0,ReadOnly"
+  }
+)
+
+# 定义数据库组
+mysql_replication_hostgroups=
+(
+  {
+    writer_hostgroup=100, # 定义写的数据库组
+    reader_hostgroup=101, # 定义读的数据库组
+    comment="db0"
+  }
+)
+
+# 定义 MySQL 的查询规则
+mysql_query_rules=
+(
+  {
+    rule_id=20, # 规则 id, 因为规则匹配是按照该 id 顺序, 所以预留一些空白
+    active=1,   # 表示该规则生效
+    match_digest="^SELECT .* FOR UPDATE$", # 改规则匹配的参数化 SQL 正则表达式
+    destination_hostgroup=100, # 改规则将 SQL 路由到的后端数据库组
+    apply=1     # 改规则立即转发
+  },
+  {
+    rule_id=30,
+    active=1,
+    match_digest="^SELECT",
+    destination_hostgroup=101,
+    apply=1
+  },
+  {
+    rule_id=10,
+    active=1,
+    match_pattern="COUNT\s*\((\*)\)",
+    replace_pattern="1",
+    destination_hostgroup=101,
+    apply=1
+  },
+)
 
 # file proxysql.cfg
 # datadir = "/var/lib/proxysql"
@@ -117,47 +190,9 @@ mysql_variables=
 #  sessions_sort=true
 #  connect_retries_on_failure=10
 #}
-#
-## defines all the MySQL servers
-#mysql_servers =
-#(
-##  { address="192.168.100.241" , port=3306 , hostgroup=1 },
-##  { address="192.168.100.242" , port=3306 , hostgroup=2 }
-#)
-#
-## defines all the MySQL users
-#mysql_users:
-#(
-## {
-##    username = "msandbox"
-##    password = "msandbox"
-##    default_hostgroup = 1
-##    active = 1
-## }
-#)
-#
-##defines MySQL Query Rules
-#mysql_query_rules:
-#(
-## {
-##   rule_id=100
-##   active=1
-##   schemaname=test_db
-##   username=msandbox
-##   match_digest="(?i)^SELECT.*$"
-##   destination_hostgroup=2
-##   apply=1
-## },
-## {
-##   rule_id=200
-##   active=1
-##   schemaname=test_db
-##   username=msandbox
-##   match_digest="(?i)^(?!SELECT).*$"
-##   destination_hostgroup=1
-##   apply=1
-## }
-#)
+
+
+
 #
 #scheduler=
 #(
@@ -174,17 +209,4 @@ mysql_variables=
 ##  }
 #)
 #
-#mysql_replication_hostgroups=
-#(
-##  {
-##    writer_hostgroup=30
-##    reader_hostgroup=40
-##    comment="test repl 1"
-##  },
-##  {
-##    writer_hostgroup=50
-##    reader_hostgroup=60
-##    comment="test repl 2"
-##  }
-#)
-#
+
