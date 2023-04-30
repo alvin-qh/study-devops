@@ -61,6 +61,7 @@
         "epel",
         "Errno",
         "expoerter",
+        "Extname",
         "fasterxml",
         "fielddata",
         "fileglob",
