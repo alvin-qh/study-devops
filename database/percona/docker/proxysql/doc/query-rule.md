@@ -83,7 +83,11 @@ SHOW CREATE TABLE `mysql_query_rules`;
 - `active`, 只有该字段值为 `1` 的规则才会加载到 RUNTIME
 - `username`, 用户名筛选, 当设置为非 `NULL` 值时, 只有匹配的用户建立的连接发出的 SQL 语句才会被匹配
 - `schemaname`, Schema 筛选, 当设置为非 `NULL` 值时, 只有当连接使用该字段值作为默认 Schema 时, 该连接发出的查询才会被匹配 (在 MariaDB/Percona/MySQL 中, Schema 等价于数据库名)
-- `flagIN`/`flagOUT`, 这些字段允许我们创建"链式规则" (Chains Of Rules), 即串联的多个规则
+- `flagIN`, `flagOUT`, 用于配置"链式"规则, 即:
+  - 当入口值 `flagIN` 设置为`0` (默认值) 时, 表示开始进入链式规则, 即规则链的第一条规则 `flagIN` 都必须为 `0`;
+  - 完成当前规则后, 如果当前规则的 `flagOUT` 字段值不为 `NULL`, 且 `apply` 字段值为 `0`, 则以当前的 `flagOUT` 值继续向下匹配;
+  - 继续匹配直到找到 `flagOUT=flagIN` 的规则, 则处理改规则, 即规则链的下一条规则;
+  - 直到某规则的 `apply` 字段设置为 `1`, 或者已经匹配完所有规则, 则处理完当前规则后结束, 不再继续向下匹配;
 - `apply`, 当匹配到该规则时, 立即应用该规则
 - `client_addr`, 通过源地址进行匹配
 - `proxy_addr`, 通过 ProxySQL 设定的代理地址进行匹配, 即 ProxySQL 对外暴露多个"代理地址", 通过连接到不同的代理地址进行匹配

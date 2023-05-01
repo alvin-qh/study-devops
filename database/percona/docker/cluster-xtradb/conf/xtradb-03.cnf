@@ -1,0 +1,13 @@
+[mysqld]
+pxc-encrypt-cluster-traffic=OFF
+wsrep_provider_options="socket.ssl=OFF"
+
+general_log = ON
+general_log_file = /var/log/mysql/xtradb-03_mysqld.log
+
+slow_query_log = ON
+long_query_time = 10.000000
+slow_query_log_file = /var/log/mysql/xtradb-03_mysql_slow_query.log
+
+thread_handling = pool-of-threads # 启动线程池
+default_time_zone = +00:00

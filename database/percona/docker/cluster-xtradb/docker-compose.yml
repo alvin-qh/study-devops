@@ -1,0 +1,115 @@
+version: "3.9"
+
+services:
+  xtradb-01:
+    image: percona/percona-xtradb-cluster
+    container_name: pxc-01
+    hostname: pxc_01
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/xtradb.env
+    volumes:
+      - ./conf/xtradb-01.cnf:/etc/my.cnf.d/xtradb-01.cnf:ro # 设置 MySQL 配置文件
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
+      - ./log:/var/log/mysql
+      - xtradb-01-data:/var/lib/mysql
+    networks:
+      - xtradb_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -uhealth | grep \"alive\""
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  xtradb-02:
+    image: percona/percona-xtradb-cluster
+    container_name: xtradb-02
+    hostname: xtradb_02
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/xtradb.env
+    environment:
+      - CLUSTER_JOIN=xtradb_01
+    volumes:
+      - ./conf/xtradb-01.cnf:/etc/my.cnf.d/xtradb-02.cnf:ro # 设置 MySQL 配置文件
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
+      - ./log:/var/log/mysql
+      - xtradb-02-data:/var/lib/mysql
+    networks:
+      - xtradb_network
+    depends_on:
+      xtradb-01:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -uhealth | grep \"alive\""
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  xtradb-03:
+    image: percona/percona-xtradb-cluster
+    container_name: xtradb-03
+    hostname: xtradb_03
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/xtradb.env
+    environment:
+      - CLUSTER_JOIN=xtradb_01
+    volumes:
+      - ./conf/xtradb-01.cnf:/etc/my.cnf.d/xtradb-03.cnf:ro # 设置 MySQL 配置文件
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
+      - ./log:/var/log/mysql
+      - xtradb-03-data:/var/lib/mysql
+    networks:
+      - xtradb_network
+    depends_on:
+      xtradb-01:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -uhealth | grep \"alive\""
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+volumes:
+  xtradb-01-data:
+  xtradb-02-data:
+  xtradb-03-data:
+networks:
+  xtradb_network:

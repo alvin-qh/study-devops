@@ -17,15 +17,13 @@ services:
           memory: 128M
     env_file:
       - ./env/percona.env
-    ports:
-      - 13306:3306
     volumes:
       - ./conf/master.cnf:/etc/my.cnf.d/master.cnf:ro # 设置 MySQL 配置文件
       - ./sql/master_initialize.sql:/docker-entrypoint-initdb.d/master_initialize.sql:ro # 设置数据库初始化脚本
       - ./log:/var/log/mysql
       - percona_master_data:/var/lib/mysql
     networks:
-      - percona_network
+      - proxysql_network
     healthcheck:
       test:
         [
@@ -55,14 +53,12 @@ services:
         condition: service_started
     env_file:
       - ./env/percona.env
-    # ports:
-    #   - 23306:3306
     volumes:
       - ./conf/slave.cnf:/etc/my.cnf.d/slave.cnf:ro # 设置 MySQL 配置文件
       - ./log:/var/log/mysql
       - percona_slave_data:/var/lib/mysql
     networks:
-      - percona_network
+      - proxysql_network
     healthcheck:
       test:
         [
@@ -73,8 +69,23 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+  # ProxySQL 容器配置, 用于支持读写分离
+  proxysql:
+    image: proxysql/proxysql
+    container_name: proxysql
+    hostname: proxysql
+    restart: always
+    ports:
+      - 3306:3306
+      - 6032:6032
+    volumes:
+      - ./conf/proxysql.cnf:/etc/proxysql.cnf:ro
+      - proxysql_data:/var/lib/proxysql
+    networks:
+      - proxysql_network
 networks:
-  percona_network:
+  proxysql_network:
 volumes:
   percona_master_data:
   percona_slave_data:
+  proxysql_data:

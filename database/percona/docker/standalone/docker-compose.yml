@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   percona:
     image: percona/percona-server
@@ -21,12 +22,12 @@ services:
         reservations:
           memory: 100M
     env_file:
-      - ../env/percona.env
+      - ./env/percona.env
     ports:
       - 3306:3306
     volumes:
       - ./conf/default.cnf:/etc/my.cnf.d/default.cnf:ro # 设置 MySQL 配置文件
-      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚步
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
       - ./log:/var/log/mysql
       - percona_data:/var/lib/mysql
     networks:
@@ -37,7 +38,7 @@ services:
           "CMD-SHELL",
           "mysqladmin ping -uhealth | grep \"alvie\""
         ]
-      interval: 1m
+      interval: 30s
       timeout: 30s
       retries: 5
       start_period: 30s

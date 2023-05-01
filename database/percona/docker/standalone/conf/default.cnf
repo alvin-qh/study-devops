@@ -16,10 +16,10 @@ character-set-client-handshake = FALSE
 bind-address = 0.0.0.0
 port = 3306
 
-general_log = 1
+general_log = ON
 general_log_file = /var/log/mysql/mysqld.log
 
-slow_query_log = 1
+slow_query_log = ON
 long_query_time = 10.000000
 slow_query_log_file = /var/log/mysql/mysql_slow_query.log
 

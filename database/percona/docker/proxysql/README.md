@@ -27,15 +27,19 @@
         - [2.5.4.1. 登录 ProxySQL](#2541-登录-proxysql)
         - [2.5.4.2. 执行测试](#2542-执行测试)
       - [2.5.5. 其它规则](#255-其它规则)
-  - [3. 其它配置](#3-其它配置)
-    - [3.1. 查询缓冲](#31-查询缓冲)
-    - [3.2. SQL Rewrite](#32-sql-rewrite)
+  - [3. 进阶配置](#3-进阶配置)
+    - [3.1. 使用配置文件](#31-使用配置文件)
+    - [3.1. SQL Rewrite](#31-sql-rewrite)
+    - [3.2. 查询缓冲](#32-查询缓冲)
+    - [3.3. 配置集群](#33-配置集群)
 
-配置了主从同步或双主同步后, 即可以进行"读写分离", 即在 Master 上进行数据写操作, 在 Slave 上进行数据读操作
+本例中, 通过 [基于 Binlog 的主从模式](../cluster-ms/README.md) 章节介绍的方式搭建数据库集群
+
+配置了主从同步 (或双主同步) 后, 即可以进行"读写分离", 即在 Master 节点上进行"写操作", 在 Slave (或另一个 Master) 节点上进行"读操作"
 
 如果通过编程来控制读写分离, 会让程序变的比较复杂, 而 ProxySQL 这类的中间件可以代理 MySQL 服务, 并将不同的 SQL 语句发送到不同的服务上
 
-![*](../assets/proxysql-struct.jpg)
+![*](../../assets/proxysql-struct.jpg)
 
 ## 1. ProxySQL 说明
 
@@ -43,7 +47,7 @@
 
 ProxySQL 配置分为 `RUNTIME`, `MEMORY` 以及 `DISK` + `CONFIG` 三层, 其中:
 
-![*](../assets/proxysql-config-layer.png)
+![*](../../assets/proxysql-config-layer.png)
 
 - ProxySQL 执行时获取的配置均存储在 `RUNTIME` 部分, 这部分内容通过 SQLite 内存数据库进行管理;
 - 在 `CONFIG` 中的配置项, 在第一次 ProxySQL 启动时和 `DISK` 中的配置合并, 进而加载到 `RUNTIME` 中, 冲突的部分以 `DISK` 为准;
@@ -115,7 +119,7 @@ show databases;
 
 ProxySQL 具备两种配置方式:
 
-1. 通过配置文件: 通过 [cluster-ms/conf/proxysql.cnf](../docker/cluster-ms/conf/proxysql.cnf) 配置文件可以将预设的配置载入 ProxySQL, 但这种方式较少使用
+1. 通过配置文件: 通过 [conf/proxysql.cnf](./conf/proxysql.cnf) 配置文件可以将预设的配置载入 ProxySQL, 但这种方式较少使用
 2. 通过指令: 当 ProxySQL 启动后, 可以通过指令动态修改其配置, 并将配置进行持久化, 此时配置文件中只需要包含基本配置内容即可
 
 本例中以 ProxySQL 指令方式演示
@@ -124,7 +128,7 @@ ProxySQL 具备两种配置方式:
 
 #### 2.1.1. 登录配置
 
-在配置文件 ([cluster-ms/conf/proxysql.cnf](../docker/cluster-ms/conf/proxysql.cnf)) 中, 设置 ProxySQL 服务的管理端口, SQL 代理端口, 管理员用户名密码, 监控用户名密码等
+在配置文件 ([conf/proxysql.cnf](./conf/proxysql.cnf)) 中, 设置 ProxySQL 服务的管理端口, SQL 代理端口, 管理员用户名密码, 监控用户名密码等
 
 管理员用户名用于登录 ProxySQL Admin, 对 ProxySQL 进行管理
 
@@ -149,7 +153,7 @@ mysql_variables=
 
 注意, 需要添加 `admin` 和 `radmin` (或任意其它用户名), 因为 `admin` 用户只允许在本地登录, 但 ProxySQL 镜像并未内置 MySQL 客户端, 需要从宿主机 (或通过其它容器) 进行链接, 从而无法使用 `admin` 用户
 
-另外一个比较重要的参数为 `threads`, 默认为 `4`, 具体设置方式请参考[线程及连接池设置](./proxysql-thread.md)
+另外一个比较重要的参数为 `threads`, 默认为 `4`, 具体设置方式请参考[线程及连接池设置](./doc/thread.md)
 
 #### 2.1.2. 登录 ProxySQL Admin
 
@@ -213,7 +217,7 @@ CREATE USER 'monitor'@'%' IDENTIFIED WITH mysql_native_password BY 'monitor';
 GRANT SELECT, SUPER, PROCESS, SHOW DATABASES, REPLICATION CLIENT, REPLICATION SLAVE ON *.* TO 'monitor'@'%';
 ```
 
-本例中, 通过 [cluster-ms/sql/master_setup.sql](../docker/cluster-ms/sql/master_setup.sql) 和 [cluster-ms/sql/slave_setup.sql](../docker/cluster-ms/sql/slave_setup.sql) 两个初始化 SQL 脚本完成上述操作
+本例中, 仍是通过 [sql/master_initialize.sql](./sql/master_initialize.sql) 脚本完成上述操作, 注意该文件需要映射到 `/docker-entrypoint-initdb.d` 路径下
 
 #### 2.3.2. 将用户加入 ProxySQL
 
@@ -243,7 +247,7 @@ SELECT * FROM `mysql_users`;
 +----------+----------+--------+---------+-------------------+----------------+---------------+------------------------+--------------+---------+----------+-----------------+------------+---------+
 ```
 
-本例中, `monitor` 用于的密码在 ProxySQL 配置文件 ([cluster-ms/conf/proxysql.cnf](../docker/cluster-ms/conf/proxysql.cnf)) 中已经指定, 如果需要在配置文件中修改, 则需要重启 ProxySQL 实例
+本例中, `monitor` 用于的密码在 ProxySQL 配置文件 ([conf/proxysql.cnf](./conf/proxysql.cnf)) 中已经指定, 如果需要在配置文件中修改, 则需要重启 ProxySQL 实例
 
 如果要在运行时修改, 则可以通过如下指令:
 
@@ -429,14 +433,14 @@ SELECT @@server_id;
 
 #### 2.5.5. 其它规则
 
-除了简单的读写分离外, ProxySQL 还可以处理其它更复杂的规则, 参见 [ProxySQL Rule](./proxysql-rule.md) 文档
+除了简单的读写分离外, ProxySQL 还可以处理其它更复杂的规则, 参见 [Query Rule](./doc/query-rule.md) 文档
 
-## 3. 其它配置
+## 3. 进阶配置
 
-### 3.1. 查询缓冲
+### 3.1. [使用配置文件](./doc/config-file.md)
 
-参见[查询缓冲](./proxysql-query-cache.md)相关文档
+### 3.1. [SQL Rewrite](./doc/sql-rewrite.md)
 
-### 3.2. SQL Rewrite
+### 3.2. [查询缓冲](./doc/query-cache.md)
 
-参见[查询缓冲](./proxysql-query-cache.md)相关文档
+### 3.3. [配置集群](./doc/cluster.md)
