@@ -107,7 +107,7 @@ SHOW CREATE TABLE `mysql_query_rules`;
 - `timeout`, 被匹配或被重写的查询执行的最大超时时长 (单位 `ms`). 如果一个查询执行的时间超过了这个值, 该查询将被强制结束. 如果未设置该值, 将使用全局变量 `mysql-default_query_timeout` 的值
 - `retries`, 当在执行查询时探测到故障后, 重新执行查询的最大次数. 如果未指定, 则使用全局变量 `mysql-query_retries_on_failure` 的值
 - `delay`, 延迟执行该查询的毫秒数, 本质上是一个"限流机制"和"QoS", 使得可以将优先级让位于其它查询. 这个值会写入到`mysql-default_query_delay` 全局变量中, 所以它会应用于所有的查询. 将来的版本中将会提供一个更高级的限流机
-- `mirror_flagOUT`/`mirror_hostgroup`, `mirroring` 相关的设置, 目前 `mirroring` 正处于实验阶段, 先不做解释
+- `mirror_flagOUT`/`mirror_hostgroup`, `mirroring` 相关的设置, 参见 [镜像设置](./mirroring.md)
 - `error_msg`, 查询将被取消, 然后向客户端返回指定的 `error_msg` 信息
 - `sticky_conn`, 当前还未实现该功能
 - `multiplex`, 如果设置为 `0`, 将禁用 `multiplexing`. 如果设置为 `1`, 则启用或重新启用 `multiplexing`, 除非有其它条件 (如用户变量或事务) 阻止启用. 如果设置为 `2`, 则只对当前查询不禁用 `multiplexing`. 默认值为 `NULL`, 表示不会修改 `multiplexing` 的策略

@@ -32,14 +32,17 @@
     - [3.1. SQL Rewrite](#31-sql-rewrite)
     - [3.2. 查询缓冲](#32-查询缓冲)
     - [3.3. 配置集群](#33-配置集群)
-
-本例中, 通过 [基于 Binlog 的主从模式](../cluster-ms/README.md) 章节介绍的方式搭建数据库集群
+    - [3.4. 查询注解](#34-查询注解)
 
 配置了主从同步 (或双主同步) 后, 即可以进行"读写分离", 即在 Master 节点上进行"写操作", 在 Slave (或另一个 Master) 节点上进行"读操作"
 
 如果通过编程来控制读写分离, 会让程序变的比较复杂, 而 ProxySQL 这类的中间件可以代理 MySQL 服务, 并将不同的 SQL 语句发送到不同的服务上
 
+本例中, 通过 [基于 Binlog 的主从模式](../cluster-ms/README.md) 章节介绍的方式搭建数据库集群
+
 ![*](../../assets/proxysql-struct.jpg)
+
+对于读写分离, 有一些方法论可以遵循, 可以参考 [读写分离方法论](./doc/rw-separation.md) 章节
 
 ## 1. ProxySQL 说明
 
@@ -444,3 +447,5 @@ SELECT @@server_id;
 ### 3.2. [查询缓冲](./doc/query-cache.md)
 
 ### 3.3. [配置集群](./doc/cluster.md)
+
+### 3.4. [查询注解](./doc/query-annotations.md)

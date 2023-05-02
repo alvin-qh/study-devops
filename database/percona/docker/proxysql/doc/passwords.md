@@ -5,6 +5,7 @@
     - [1.1. 散列密码和身份验证](#11-散列密码和身份验证)
   - [2. 如何输入新密码](#2-如何输入新密码)
     - [2.1. admin-hash\_passwords 变量](#21-admin-hash_passwords-变量)
+  - [3. 注意事项](#3-注意事项)
 
 ProxySQL 根据前端发送的不同 SQL 去访问不同的后端数据库实例, 因此登录 ProxySQL 需要进行身份验证, 所以 ProxySQL 需要存储足够的信息来对登录用户进行身份认证
 
@@ -95,3 +96,14 @@ SELECT `username`, `password` FROM `mysql_users`;
 ```sql
 SAVE MYSQL USERS TO DISK;
 ```
+
+## 3. 注意事项
+
+注意, MySQL 后端尽量选择 `mysql_native_password` 密码插件, 即在 MySQL 配置中设置
+
+```ini
+[mysqld]
+default_authentication_plugin = mysql_native_password
+```
+
+以达到最好的兼容性
