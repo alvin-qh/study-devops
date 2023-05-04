@@ -36,7 +36,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mysqladmin ping -uhealth | grep \"alvie\""
+          "mysqladmin ping -uhealth | grep -q \"alvie\""
         ]
       interval: 30s
       timeout: 30s

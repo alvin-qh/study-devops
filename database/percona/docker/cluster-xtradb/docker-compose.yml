@@ -11,7 +11,7 @@ services:
       resources:
         limits:
           cpus: "1.00"
-          memory: 256M
+          memory: 512M
         reservations:
           memory: 128M
     env_file:
@@ -20,14 +20,14 @@ services:
       - ./conf/xtradb-01.cnf:/etc/my.cnf.d/xtradb-01.cnf:ro # 设置 MySQL 配置文件
       - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
       - ./log:/var/log/mysql
-      - xtradb-01-data:/var/lib/mysql
+      - pxc-01-data:/var/lib/mysql
     networks:
-      - xtradb_network
+      - pxc-network
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "mysqladmin ping -uhealth | grep \"alive\""
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep%'\" | grep 'wsrep_local_state_comment' | awk '{print $$2}' | grep -q 'Synced'"
         ]
       interval: 30s
       timeout: 30s
@@ -35,36 +35,32 @@ services:
       start_period: 10s
   xtradb-02:
     image: percona/percona-xtradb-cluster
-    container_name: xtradb-02
-    hostname: xtradb_02
+    container_name: pxc-02
+    hostname: pxc_02
     restart: always
     privileged: true
     deploy:
       resources:
         limits:
           cpus: "1.00"
-          memory: 256M
+          memory: 512M
         reservations:
           memory: 128M
     env_file:
       - ./env/xtradb.env
     environment:
-      - CLUSTER_JOIN=xtradb_01
+      - CLUSTER_JOIN=pxc_01
     volumes:
-      - ./conf/xtradb-01.cnf:/etc/my.cnf.d/xtradb-02.cnf:ro # 设置 MySQL 配置文件
-      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
+      - ./conf/xtradb-02.cnf:/etc/my.cnf.d/xtradb-02.cnf:ro # 设置 MySQL 配置文件
       - ./log:/var/log/mysql
-      - xtradb-02-data:/var/lib/mysql
+      - pxc-02-data:/var/lib/mysql
     networks:
-      - xtradb_network
-    depends_on:
-      xtradb-01:
-        condition: service_healthy
+      - pxc-network
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "mysqladmin ping -uhealth | grep \"alive\""
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep%'\" | grep 'wsrep_local_state_comment' | awk '{print $$2}' | grep -q 'Synced'"
         ]
       interval: 30s
       timeout: 30s
@@ -72,44 +68,40 @@ services:
       start_period: 10s
   xtradb-03:
     image: percona/percona-xtradb-cluster
-    container_name: xtradb-03
-    hostname: xtradb_03
+    container_name: pxc-03
+    hostname: pxc_03
     restart: always
     privileged: true
     deploy:
       resources:
         limits:
           cpus: "1.00"
-          memory: 256M
+          memory: 512M
         reservations:
           memory: 128M
     env_file:
       - ./env/xtradb.env
     environment:
-      - CLUSTER_JOIN=xtradb_01
+      - CLUSTER_JOIN=pxc_01
     volumes:
-      - ./conf/xtradb-01.cnf:/etc/my.cnf.d/xtradb-03.cnf:ro # 设置 MySQL 配置文件
-      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
+      - ./conf/xtradb-03.cnf:/etc/my.cnf.d/xtradb-03.cnf:ro # 设置 MySQL 配置文件
       - ./log:/var/log/mysql
-      - xtradb-03-data:/var/lib/mysql
+      - pxc-03-data:/var/lib/mysql
     networks:
-      - xtradb_network
-    depends_on:
-      xtradb-01:
-        condition: service_healthy
+      - pxc-network
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "mysqladmin ping -uhealth | grep \"alive\""
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep%'\" | grep 'wsrep_local_state_comment' | awk '{print $$2}' | grep -q 'Synced'"
         ]
       interval: 30s
       timeout: 30s
       retries: 5
       start_period: 10s
 volumes:
-  xtradb-01-data:
-  xtradb-02-data:
-  xtradb-03-data:
+  pxc-01-data:
+  pxc-02-data:
+  pxc-03-data:
 networks:
-  xtradb_network:
+  pxc-network:

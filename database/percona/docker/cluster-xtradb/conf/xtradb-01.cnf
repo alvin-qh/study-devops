@@ -10,3 +10,5 @@ slow_query_log_file = /var/log/mysql/xtradb-01_mysql_slow_query.log
 
 thread_handling = pool-of-threads # 启动线程池
 default_time_zone = +00:00
+
+server-id = 1 # 设置节点 id

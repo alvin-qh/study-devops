@@ -44,6 +44,8 @@ env_file:
   - ./env/percona.env
 ```
 
+全部可用的环境变量可以参考 [Percona Docker](https://hub.docker.com/_/percona/) 中 Environment Variables 一节
+
 ### 1.2. 映射配置文件
 
 如果需要修改默认配置, 需要将自定义的配置文件 (例如 [conf/default.cnf](./conf/default.cnf) 文件) 映射到容器的 `/etc/my.cnf.d` 路径下, 在容器配置文件中, 通过 `volumes` 属性指定文件映射

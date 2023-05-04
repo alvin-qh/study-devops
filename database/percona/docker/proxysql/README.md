@@ -42,7 +42,7 @@
 
 ![*](../../assets/proxysql-struct.jpg)
 
-对于读写分离, 有一些方法论可以遵循, 可以参考 [读写分离方法论](./doc/rw-separation.md) 章节
+对于读写分离, 有一些方法论可以遵循, 可以参考 [读写分离方法论](./doc/separation-howto.md) 章节
 
 ## 1. ProxySQL 说明
 
