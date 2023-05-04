@@ -521,6 +521,8 @@ wsrep_sst_auth=<username>:<password>
 
 这个变量在 Percona XtraDB Cluster 8 以后的版本已经取消, 集群会自行创建 SST 同步用户和权限
 
+其它更多 `wsrep*` 相关变量请参考 [Index of wsrep system variables](https://docs.percona.com/percona-xtradb-cluster/8.0/wsrep-system-index.html) 官方文档
+
 #### 2.2.2. 启动主节点
 
 完成节点配置后, 按如下引导完成第一个节点的配置. 初始节点必须包含所有希望复制到其它节点的数据
