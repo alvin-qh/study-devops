@@ -50,6 +50,10 @@ PerconaDB 提供了一种集群建立模式 (OpenSource), 即 Percona XtraDB Clu
 
 ![*](../../assets/pxc-struct.png)
 
+整个集群的数据同步流程如下:
+
+![*](../../assets/pxc-cluster-duplication.png)
+
 #### 1.1.1. 优势
 
 - 执行的查询将在节点上本地执行, 所有数据都在本地可用而无需远程访问;
