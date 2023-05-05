@@ -19,7 +19,13 @@
         - [3.3.2.1. 未启用 GTID 模式时](#3321-未启用-gtid-模式时)
       - [3.3.2.2. 已开启 GTID 模式时](#3322-已开启-gtid-模式时)
       - [3.3.2.3. 自动化操作](#3323-自动化操作)
-  - [4. 双主模式](#4-双主模式)
+  - [4. 半同步复制和增强型半同步复制](#4-半同步复制和增强型半同步复制)
+    - [4.1. 异步复制](#41-异步复制)
+    - [4.2. 半同步复制](#42-半同步复制)
+      - [4.2.1. 启用半同步复制](#421-启用半同步复制)
+      - [4.2.2. 启用增强半同步复制](#422-启用增强半同步复制)
+      - [4.2.3. (增强) 半同步模式配置项](#423-增强-半同步模式配置项)
+  - [5. 双主模式](#5-双主模式)
 
 Percona 集群配置是基于其单实例配置的, 如何配置单实例请参考: [Percona 单实例](../standalone/README.md)
 
@@ -365,9 +371,158 @@ pt-slave-restart -uroot --ask-pass -h'127.0.0.1' -P3306 --error-numbers=1062
 - `--until-master`, 到达指定的 `master_log_pos` 位置后停止. 格式: `file:pos`
 - `--until-relay`, 和 `--until-master` 参数类似, 是根据 `relay_log` 的位置来停止
 
-## 4. 双主模式
+## 4. 半同步复制和增强型半同步复制
 
-基于 Binlog 配置"双主"模式, 即两个数据库实例**互为主从**, 日常使用过程中, 其中一台作为"写"节点, 另一台作为"读"节点, 当"写"节点发生故障时, 立即切换到另一个节点 (例如通过 Keepalive 进行 IP 漂移)
+### 4.1. 异步复制
+
+以上所进行的主从复制称为 **异步复制**, 其主要流程如下图:
+
+![*](../../assert/../assets/async-replication.png)
+
+异步复制是 MySQL 默认的复制策略, Master 处理事务过程中, 将其写入 Binlog 就会通知 Dump Thread 线程处理, 然后完成事务的提交, 不会关心是否成功发送到任意一个 Slave 中. 所以当 Master 宕机可能会导致和 Slave 之间的数据不一致
+
+异步复制的性能最好, 但无法完全保证数据一致性, 所以 MySQL 还具备 **半同步复制** 和 **增强型半同步复制** 两种模式
+
+### 4.2. 半同步复制
+
+半同步复制表示, 当 Master 提交事务后, 至少一个 Slave 将收到的 Binlog 写入 Relaylog 后, 返回一个 ACK, 才会继续处理下一个事务, 其主要流程如下图:
+
+![*](../../assets/half-sync-replication.png)
+
+半同步复制的效率要比异步方式略低, 但改善了同步的数据一致性, 即 Master 可以保证每个事务执行前, 前一个事务一定是完成 (至少一个 Slave) 同步的, 但这种方式仍不能完全保证同步的数据一致性, 即 Master 故障后, 切换到 Slave 时, 最后一条数据有可能未被同步
+
+#### 4.2.1. 启用半同步复制
+
+半同步复制需要安装额外的插件, 包括:
+
+- Master 端: `semisync_source.so`
+- Slave 端: `semisync_replica.so`
+
+MySQL 安装插件可以用两种方式
+
+1. 通过 MySQL 命令安装, 即登录 MySQL 客户端, 执行如下 SQL 指令
+
+    Master 端:
+
+    ```sql
+    INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so'
+    ```
+
+    Slave 端:
+
+    ```sql
+    INSTALL PLUGIN rpl_semi_sync_replica SONAME 'semisync_replica.so'
+    ```
+
+2. 通过 MySQL 配置文件安装, 即编辑 MySQL 配置文件
+
+    Master 端: 编辑 [conf/master.cnf](./conf/master.cnf) 文件, 增加如下内容
+
+    ```ini
+    plugin_load = "rpl_semi_sync_source=semisync_source.so"
+    ```
+
+    Slave 端: 编辑 [conf/slave.cnf](./conf/slave.cnf) 文件, 增加如下内容
+
+    ```ini
+    plugin_load = "rpl_semi_sync_replica=semisync_replica.so"
+    ```
+
+确认插件安装成功: 登录 MySQL 客户端, 执行
+
+```sql
+SHOW PLUGINS;
+```
+
+则 Master 端应返回包含如下数据的结果:
+
+```sql
++---------------------------------+----------+--------------------+--------------------+---------+
+| Name                            | Status   | Type               | Library            | License |
++---------------------------------+----------+--------------------+--------------------+---------+
+| rpl_semi_sync_source            | ACTIVE   | REPLICATION        | semisync_source.so | GPL     |
++---------------------------------+----------+--------------------+--------------------+---------+
+```
+
+Slave 端应该返回包含如下数据的结果:
+
+```sql
++---------------------------------+----------+--------------------+---------------------+---------+
+| Name                            | Status   | Type               | Library             | License |
++---------------------------------+----------+--------------------+---------------------+---------+
+| rpl_semi_sync_replica           | ACTIVE   | REPLICATION        | semisync_replica.so | GPL     |
++---------------------------------+----------+--------------------+---------------------+---------+
+```
+
+插件安装完毕后, 需要在 Master 和 Slave 的配置文件中增加如下配置以开启 **半同步模式**
+
+- Master 端: 编辑 [conf/master.cnf](./conf/master.cnf) 文件, 增加如下内容
+
+  ```ini
+  rpl_semi_sync_source_enabled = 1
+  rpl_semi_sync_source_wait_point = AFTER_COMMIT
+  ```
+
+- Slave 端: 编辑 [conf/slave.cnf](./conf/slave.cnf) 文件, 增加如下内容
+
+  ```ini
+  rpl_semi_sync_source_enabled = 1
+  ```
+
+#### 4.2.2. 启用增强半同步复制
+
+增强半同步模式和半同步模式类似, 只是 Master 在提交事务过程中, 获取从 Slave 返回 ACK 的时机不同, 如下图:
+
+![*](../../assets/enhance-half-sync-replication.png)
+
+增强型半同步解决了半同步模式的数据不一致缺陷, 可以完全保证数据同步的一致性
+
+启用增强半同步的流程和[启用半同步](#42-半同步复制)的流程完全一致, 只是在 Master 配置文件中, 将 `rpl_semi_sync_source_wait_point` 设置为 `AFTER_SYNC` (或不设置 `rpl_semi_sync_source_wait_point`, 其默认值就是 `AFTER_SYNC`)
+
+#### 4.2.3. (增强) 半同步模式配置项
+
+开启了 (增强) 半同步模式后, 可以在配置文件 (或 MySQL 全局变量) 中设置如下配置项:
+
+- Master 端
+
+  ```sql
+  SHOW VARIABLES LIKE 'rpl_semi%';
+
+  +---------------------------------------------+------------+
+  | Variable_name                               | Value      |
+  +---------------------------------------------+------------+
+  | rpl_semi_sync_source_enabled                | ON         |
+  | rpl_semi_sync_source_timeout                | 10000      |
+  | rpl_semi_sync_source_trace_level            | 32         |
+  | rpl_semi_sync_source_wait_for_replica_count | 1          |
+  | rpl_semi_sync_source_wait_no_replica        | ON         |
+  | rpl_semi_sync_source_wait_point             | AFTER_SYNC |
+  +---------------------------------------------+------------+
+  ```
+
+  - `rpl_semi_sync_source_enabled`, 是否启动 (增强) 半同步模式;
+  - `rpl_semi_sync_source_timeout`, 等待 Slave 返回 ACK 的超时时间, 超出此时间后, 会退化为异步模式, 默认 `10000ms`, 即 `10s`;
+  - `rpl_semi_sync_source_trace_level`, 设置主库同步复制调试跟踪级别, 默认 `32`, 可选 `1`, `16`, `32` 和 `64`;
+  - `rpl_semi_sync_source_wait_for_replica_count`, 设置主库执行一个事务需等待 Slave 返回 ACK 的的数量, 默认为 `1` (性能最好);
+  - `rpl_semi_sync_source_wait_no_replica`, 设置为 `ON` 表示允许在超时时间内从库的数量小于 `rpl_semi_sync_source_wait_for_replica_count` 配置的值, 只要在超时时间到期前有足够的从库确认事务, 半同步复制就会继续, 默认为 `ON`;
+  - `rpl_semi_sync_source_wait_point`, 设置半同步模式, 可以为 `AFTER_COMMIT` (半同步复制模式) 和 `AFTER_SYNC` (增强型半同步复制模式);
+
+- Slave 端, 参考 Master 端说明
+
+  ```sql
+  SHOW VARIABLES LIKE 'rpl_semi%';
+
+  +-----------------------------------+-------+
+  | Variable_name                     | Value |
+  +-----------------------------------+-------+
+  | rpl_semi_sync_replica_enabled     | ON    |
+  | rpl_semi_sync_replica_trace_level | 32    |
+  +-----------------------------------+-------+
+  ```
+
+## 5. 双主模式
+
+基于 Binlog 配置"双主"模式, 即两个数据库实例 **互为主从**, 日常使用过程中, 其中一台作为"写"节点, 另一台作为"读"节点, 当"写"节点发生故障时, 立即切换到另一个节点 (例如通过 Keepalive 进行 IP 漂移)
 
 一般情况下, 不建议对双主模式的两个节点同时进行写操作, 这有可能会导致同步混乱
 

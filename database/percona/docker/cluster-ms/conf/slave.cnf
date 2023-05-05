@@ -52,3 +52,8 @@ relay_log_recovery = ON             # slave IO线程 Crash, 如果 relay‐log �
                                     # 保证 relay‐log 的完整性
 slave_preserve_commit_order = ON    # 保证提交的顺序性
 log_slave_updates = ON
+
+# 安装半同步增强插件 相当于执行 install plugin rpl_semi_sync_replica soname 'semisync_replica.so'
+plugin_load = "rpl_semi_sync_replica=semisync_replica.so"
+# 启动 Slave 的半同步增强
+rpl_semi_sync_replica_enabled = 1
