@@ -35,6 +35,7 @@
         - [2.3.3.1. 容器启动顺序](#2331-容器启动顺序)
         - [2.3.3.2. 容器健康检查](#2332-容器健康检查)
         - [2.3.3.3. 移除故障节点并重新并入集群](#2333-移除故障节点并重新并入集群)
+      - [2.3.4. HAProxy](#234-haproxy)
 
 ## 1. 概述
 
@@ -359,7 +360,7 @@ sudo yum install -y openssl socat  \
 
 2. 编辑第一个节点的配置文件
 
-    对于 Debian 和 Ubunt 系统, 需要编辑 `/etc/mysql/mysql.conf.d/mysqld.cnf`
+    对于 Debian 和 Ubuntu 系统, 需要编辑 `/etc/mysql/mysql.conf.d/mysqld.cnf`
 
     ```ini
     wsrep_provider=/usr/lib/galera4/libgalera_smm.so
@@ -712,14 +713,14 @@ env_file:
   - ./env/xtradb.env
 ```
 
-另外, 需要在非主节点的其它节点容器中加入 `CLUSTER_JOIN` 变量, 均指向主节点, 即在 [docker-compose.yml](./docker-compose.yml) 中为 `xtradb-02` 和 `xtradb-03` 容器指定
+另外, 需要在非主节点的其它节点容器中加入 `CLUSTER_JOIN` 变量, 均指向主节点, 即在 [docker-compose.yml](./docker-compose.yml) 中为 `pxc-02` 和 `pxc-03` 容器指定
 
 ```yml
 environment:
-  - CLUSTER_JOIN=xtradb_01
+  - CLUSTER_JOIN=pxc_01
 ```
 
-且变量值为 `xtradb-01` 容器的 Hostname
+且变量值为 `pxc-01` 容器的 Hostname
 
 #### 2.3.2. 配置文件
 
@@ -732,11 +733,11 @@ server-id = 1
 pxc_encrypt_cluster_traffic=OFF
 
 general_log = ON
-general_log_file = /var/log/mysql/xtradb-01_mysqld.log
+general_log_file = /var/log/mysql/pxc-01_mysqld.log
 
 slow_query_log = ON
 long_query_time = 10.000000
-slow_query_log_file = /var/log/mysql/xtradb-01_mysql_slow_query.log
+slow_query_log_file = /var/log/mysql/pxc-01_mysql_slow_query.log
 ```
 
 必须为每个容器配置不同的 `server-id` 配置项 (或者不配置)
@@ -747,7 +748,7 @@ slow_query_log_file = /var/log/mysql/xtradb-01_mysql_slow_query.log
 
 如果不使用 SSL 认证, 则需要在配置文件中指定 `pxc_encrypt_cluster_traffic=OFF`, 这样就无需 `ssl-` 这一系列的配置项, 也无需生成证书密钥文件
 
-本例为了简单, 不使用 SSL 证书密钥, 参见 [conf/xtradb-01.cnf](./conf/xtradb-01.cnf), [conf/xtradb-02.cnf](./conf/xtradb-02.cnf) 以及 [conf/xtradb-03.cnf](./conf/xtradb-03.cnf) 配置文件
+本例为了简单, 不使用 SSL 证书密钥, 参见 [conf/pxc-01.cnf](./conf/pxc-01.cnf), [conf/pxc-02.cnf](./conf/pxc-02.cnf) 以及 [conf/pxc-03.cnf](./conf/pxc-03.cnf) 配置文件
 
 如果要启用 SSL 证书和密钥, 则需在配置文件中加入如下配置项
 
@@ -775,7 +776,7 @@ ssl-key = /cert/server-key.pem
 
 ```yml
 volumes:
-  - ./conf/xtradb-01.cnf:/etc/my.cnf.d/xtradb-01.cnf:ro
+  - ./conf/pxc-01.cnf:/etc/my.cnf.d/pxc-01.cnf:ro
 ```
 
 #### 2.3.3. 启动容器
@@ -789,7 +790,7 @@ volumes:
 所以需要先启动第一个容器如下:
 
 ```bash
-docker-compose up xtradb-01
+docker-compose up pxc-01
 ```
 
 稍后查看容器集群的状态, 直到其 `wsrep_local_state_comment` 转为 `Synced`
@@ -809,7 +810,12 @@ docker-compose up
 
 稍后继续查看容器集群的状态, 直到其转为 `wsrep_cluster_size` 值为 `3`, 说明所有的节点都并入了集群
 
-注意, 关闭集群的节点也需要按顺序进行, 特别的, 最后一个关闭的节点记录了集群最后的执行状态, 所以下次启动集群, 必须从最后一个关闭的节点开始, 逐个节点启动
+注意, 关闭集群的节点也需要按顺序进行, 特别的, 最后一个关闭的节点记录了集群最后的执行状态, 即:
+
+```bash
+docker stop pxc-03 pxc-02
+docker-compose down
+```
 
 ##### 2.3.3.2. 容器健康检查
 
@@ -841,7 +847,7 @@ docker rm -f pxc-01
 
 对于例子中的三个节点, 可以通过下面的命令启动
 
-重新加入节点 `pxc-01`, `CLUSTER_JOIN` 可以指向 `pcx_02`
+重新加入节点 `pxc-01`, `CLUSTER_JOIN` 可以指向 `pcx_02` (`pcx-02` 节点的 Hostname)
 
 ```bash
 docker run --rm  \
@@ -851,7 +857,7 @@ docker run --rm  \
   --name=pxc-01 \
   --hostname=pxc_01 \
   --net=cluster-xtradb_pxc-network \
-  -v ./conf/xtradb-01.cnf:/etc/my.cnf.d/xtradb-01.cnf:ro \
+  -v ./conf/pxc-01.cnf:/etc/my.cnf.d/pxc-01.cnf:ro \
   -v cluster-xtradb_pxc-01-data:/var/lib/mysql  \
   -v ./log:/var/log/mysql \
   percona/percona-xtradb-cluster
@@ -867,13 +873,11 @@ docker run --rm  \
   --name=pxc-02 \
   --hostname=pxc_02 \
   --net=cluster-xtradb_pxc-network \
-  -v ./conf/xtradb-02.cnf:/etc/my.cnf.d/xtradb-01.cnf:ro \
+  -v ./conf/xtradb-02.cnf:/etc/my.cnf.d/pxc-02.cnf:ro \
   -v cluster-xtradb_pxc-02-data:/var/lib/mysql  \
   -v ./log:/var/log/mysql \
   percona/percona-xtradb-cluster
-```
 
-```bash
 docker run --rm  \
   -e MYSQL_ROOT_PASSWORD=root  \
   -e CLUSTER_NAME=pxc-cluster \
@@ -881,7 +885,7 @@ docker run --rm  \
   --name=pxc-03 \
   --hostname=pxc_03 \
   --net=cluster-xtradb_pxc-network \
-  -v ./conf/xtradb-03.cnf:/etc/my.cnf.d/xtradb-01.cnf:ro \
+  -v ./conf/xtradb-03.cnf:/etc/my.cnf.d/pxc-03.cnf:ro \
   -v cluster-xtradb_pxc-03-data:/var/lib/mysql  \
   -v ./log:/var/log/mysql \
   percona/percona-xtradb-cluster
@@ -901,3 +905,21 @@ docker exec -it pxc-01 mysql -uhealth -e "show status like 'wsrep%'" | grep -P '
 ```
 
 至此, 通过容器搭建 Percona XtraDB Cluster 的流程完毕
+
+#### 2.3.4. HAProxy
+
+为了将请求平均的分散到所有的 Percona XtraDB Cluster 节点上, 可以使用 HAProxy 在所有节点前设置负载均衡, 另外, HAProxy 还可以避免将流量发送到故障节点上
+
+具体 HAProxy 的配置参考 [conf/haproxy.cfg](./conf/haproxy.cfg) 文件
+
+HAProxy 将到其 `*:3306` 端口的连接转发到 3 个后端数据库实例, 所以后端数据库无需再对外映射任何端口
+
+可以通过 [http://localhost:10800/stats](http://localhost:10800/stats) 查看负载均衡状态
+
+HAProxy 启动成功后, 即可通过 mysql 客户端连接服务端
+
+```bash
+mysql -h'127.0.0.1' -uroot -p
+```
+
+通过 [http://localhost:10800/stats](http://localhost:10800/stats) 可以看到每次连接都会负载到不同服务器上

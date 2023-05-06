@@ -2,11 +2,11 @@
 pxc_encrypt_cluster_traffic=OFF
 
 general_log = ON
-general_log_file = /var/log/mysql/xtradb-01_mysqld.log
+general_log_file = /var/log/mysql/pxc-01_mysqld.log
 
 slow_query_log = ON
 long_query_time = 10.000000
-slow_query_log_file = /var/log/mysql/xtradb-01_mysql_slow_query.log
+slow_query_log_file = /var/log/mysql/pxc-01_mysql_slow_query.log
 
 thread_handling = pool-of-threads # 启动线程池
 default_time_zone = +00:00
