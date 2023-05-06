@@ -58,7 +58,8 @@ innodb_flush_log_at_trx_commit = 2
 # binlog_cache_size = 4m
 # max_binlog_cache_size = 32m
 
-# 安装半同步增强插件 相当于执行 install plugin rpl_semi_sync_source soname 'semisync_source.so'
-plugin_load = "rpl_semi_sync_source=semisync_source.so"
+# 安装半同步增强插件 相当于执行 INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so';
+# plugin_load = "rpl_semi_sync_source=semisync_source.so"
+
 # 启动 Master 的半同步增强
-rpl_semi_sync_source_enabled = 1
+# rpl_semi_sync_source_enabled = 1

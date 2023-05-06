@@ -190,7 +190,7 @@ CREATE DATABASE IF NOT EXISTS `replicate_test`
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
-USE replicate_test;
+USE `replicate_test`;
 
 CREATE TABLE IF NOT EXISTS `test` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
@@ -427,6 +427,8 @@ MySQL 安装插件可以用两种方式
     ```ini
     plugin_load = "rpl_semi_sync_replica=semisync_replica.so"
     ```
+
+注意, 在 Docker 容器里, 如果配置了 `plugin_load`, 会导致容器第一次启动时初始化失败, 所以要使用这种方式, 第一次启动容器的时候不能使用 `plugin_load` 配置以及其它 `rpl_semi_` 为前缀的配置 (因为插件不存在, 这些配置也是无效), 当容器初始化完毕后, 需要修改配置文件, 再重启容器
 
 确认插件安装成功: 登录 MySQL 客户端, 执行
 
