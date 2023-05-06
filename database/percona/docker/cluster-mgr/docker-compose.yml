@@ -1,10 +1,10 @@
 version: "3.9"
 
 services:
-  pxc-01:
-    image: percona/percona-xtradb-cluster
-    container_name: pxc-01
-    hostname: pxc_01
+  mgr-01:
+    image: percona/percona-server
+    container_name: mgr-01
+    hostname: mgr_01
     restart: always
     privileged: true
     deploy:
@@ -15,14 +15,14 @@ services:
         reservations:
           memory: 128M
     env_file:
-      - ./env/pxc.env
+      - ./env/mgr.env
     volumes:
-      - ./conf/pxc-01.cnf:/etc/my.cnf.d/cluster.cnf:ro # 设置 MySQL 配置文件
-      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
+      - ./conf/mgr-01.cnf:/etc/my.cnf.d/cluster.cnf:ro
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
       - ./log:/var/log/mysql
-      - pxc-01-data:/var/lib/mysql
+      - mgr-01-data:/var/lib/mysql
     networks:
-      - pxc-network
+      - mgr-network
     healthcheck:
       test:
         [
@@ -33,10 +33,10 @@ services:
       timeout: 30s
       retries: 5
       start_period: 10s
-  pxc-02:
-    image: percona/percona-xtradb-cluster
-    container_name: pxc-02
-    hostname: pxc_02
+  mgr-02:
+    image: percona/percona-server
+    container_name: mgr-02
+    hostname: mgr_02
     restart: always
     privileged: true
     deploy:
@@ -47,15 +47,14 @@ services:
         reservations:
           memory: 128M
     env_file:
-      - ./env/pxc.env
-    environment:
-      - CLUSTER_JOIN=pxc_01
+      - ./env/mgr.env
     volumes:
-      - ./conf/pxc-02.cnf:/etc/my.cnf.d/cluster.cnf:ro # 设置 MySQL 配置文件
+      - ./conf/mgr-02.cnf:/etc/my.cnf.d/cluster.cnf:ro
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
       - ./log:/var/log/mysql
-      - pxc-02-data:/var/lib/mysql
+      - mgr-02-data:/var/lib/mysql
     networks:
-      - pxc-network
+      - mgr-network
     healthcheck:
       test:
         [
@@ -65,11 +64,11 @@ services:
       interval: 30s
       timeout: 30s
       retries: 5
-      start_period: 10s
-  pxc-03:
-    image: percona/percona-xtradb-cluster
-    container_name: pxc-03
-    hostname: pxc_03
+      start_period: 10scd
+  mgr-03:
+    image: percona/percona-server
+    container_name: mgr-03
+    hostname: mgr_03
     restart: always
     privileged: true
     deploy:
@@ -80,15 +79,14 @@ services:
         reservations:
           memory: 128M
     env_file:
-      - ./env/pxc.env
-    environment:
-      - CLUSTER_JOIN=pxc_01
+      - ./env/mgr.env
     volumes:
-      - ./conf/pxc-03.cnf:/etc/my.cnf.d/cluster.cnf:ro # 设置 MySQL 配置文件
+      - ./conf/mgr-03.cnf:/etc/my.cnf.d/cluster.cnf:ro
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
       - ./log:/var/log/mysql
-      - pxc-03-data:/var/lib/mysql
+      - mgr-03-data:/var/lib/mysql
     networks:
-      - pxc-network
+      - mgr-network
     healthcheck:
       test:
         [
@@ -99,29 +97,11 @@ services:
       timeout: 30s
       retries: 5
       start_period: 10s
-  haproxy:
-    image: haproxy
-    container_name: haproxy
-    hostname: haproxy
-    restart: always
-    privileged: true
-    deploy:
-      resources:
-        limits:
-          cpus: "1.00"
-          memory: 256M
-        reservations:
-          memory: 128M
-    volumes:
-      - ./conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-    networks:
-      - pxc-network
-    ports:
-      - 3306:3306
-      - 10800:1080
 volumes:
-  pxc-01-data:
-  pxc-02-data:
-  pxc-03-data:
+  mgr-01-data:
+  mgr-02-data:
+  mgr-03-data:
 networks:
-  pxc-network:
+  mgr-network:
+
+

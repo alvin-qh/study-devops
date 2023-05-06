@@ -59,6 +59,7 @@ services:
     #   - 23306:3306
     volumes:
       - ./conf/slave.cnf:/etc/my.cnf.d/slave.cnf:ro # 设置 MySQL 配置文件
+      - ./sql/slave_initialize.sql:/docker-entrypoint-initdb.d/slave_initialize.sql:ro # 设置数据库初始化脚本
       - ./log:/var/log/mysql
       - percona_slave_data:/var/lib/mysql
     networks:

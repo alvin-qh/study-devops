@@ -6,3 +6,6 @@ CREATE USER 'replica'@'%' IDENTIFIED WITH mysql_native_password BY 'replica';
 GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'replica'@'%';
 
 FLUSH PRIVILEGES;
+
+-- 添加半同步复制主库插件
+INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so';

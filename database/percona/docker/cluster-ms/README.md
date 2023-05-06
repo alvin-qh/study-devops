@@ -24,7 +24,7 @@
     - [4.2. 半同步复制](#42-半同步复制)
       - [4.2.1. 启用半同步复制](#421-启用半同步复制)
       - [4.2.2. 启用增强半同步复制](#422-启用增强半同步复制)
-      - [4.2.3. (增强) 半同步模式配置项](#423-增强-半同步模式配置项)
+      - [4.2.3. (增强) 半同步模式配置项说明](#423-增强-半同步模式配置项说明)
   - [5. 双主模式](#5-双主模式)
 
 Percona 集群配置是基于其单实例配置的, 如何配置单实例请参考: [Percona 单实例](../standalone/README.md)
@@ -47,7 +47,7 @@ CREATE USER 'replica'@'percona-slave.cluster-ms_percona_network' IDENTIFIED WITH
 
 ## 2. 容器配置
 
-主从模式由一个 Master 实例和多个 Slave 实例组成, Slave 通过 Master 的 `bin-log` 读取数据增量变化, 将变化进行同步, 从而达到"主从复制"的目的
+主从模式由一个 Master 实例和多个 Slave 实例组成, Slave 通过 Master 的 Binlog 读取数据增量变化, 将变化进行同步, 从而达到"主从复制"的目的
 
 所有所有的 `DDL` (数据定义语句) 和 `DML` (数据操作语句) 必须在 Master 上执行, `DQL` (数据查询语句) 可以在 Master 和 Slave 上, 从而实现"读写分离", 至于 `DCL` (数据控制语句) 则根据需要, 在 Master 和 Slave 上分别执行
 
@@ -102,7 +102,7 @@ sync_binlog = 1000  # 设置同步频率
 innodb_flush_log_at_trx_commit = 2  # 设置刷新时机
 ```
 
-启动 Master 节点, 查看 `bin-log` 当前进度
+启动 Master 节点, 查看 Binlog 当前进度
 
 ```sql
 SHOW MASTER STATUS\G
@@ -115,9 +115,9 @@ SHOW MASTER STATUS\G
 Executed_Gtid_Set: e5176efe-e2b1-11ed-92d7-0242c0a89002:1-4
 ```
 
-输出的 `File: mysql-bin.000003` 和 `Position: 196` 即 Master 上 `bin-log` 的当前位置
+输出的 `File: mysql-bin.000003` 和 `Position: 196` 即 Master 上 Binlog 的当前位置
 
-如果启用了 GTID, 则无需关注 Master 节点 `bin-log` 的进度, Slave 节点会通过 Master 节点的 GTID 获知上次同步的位置, 但如果未启用 GTID, 则需要在 Slave 上手动输入开始同步的位置
+如果启用了 GTID, 则无需关注 Master 节点 Binlog 的进度, Slave 节点会通过 Master 节点的 GTID 获知上次同步的位置, 但如果未启用 GTID, 则需要在 Slave 上手动输入开始同步的位置
 
 建议使用 GTID, 否则很容易出现主从节点不一致的情况, 而且区分主从节点上未重复进行的操作难度较高
 
@@ -132,12 +132,14 @@ gtid_mode = on # 为 binlog 启动 gtid
 enforce_gtid_consistency = on
 
 read_only = on # 启动只读模式
+super_read_only = ON # 对 root 用户启动只读模式
+
 
 sync_binlog = 1000  # 设置同步频率
 innodb_flush_log_at_trx_commit = 2  # 设置刷新时机
 ```
 
-注意, 一般对于主从集群, Slave 节点不会进行任何写操作, 所以 `read_only = ON` 这个配置
+注意, 一般对于主从集群, Slave 节点不会进行任何写操作, 所以应该开启 `read_only = ON` 这个配置; 如果对 `root` 用户也启用只读, 则进一步添加 `super_read_only = ON` 配置
 
 重启服务, 设置 Slave 节点连接到 Master 节点上, 需要注意, `MASTER_LOG_FILE`, `MASTER_LOG_POS` 两个属性值需要根据上一步返回的结果进行调整
 
@@ -155,7 +157,7 @@ CHANGE MASTER TO
 START SLAVE;
 ```
 
-在未开启 GTID 时, 需要手动设置 `MASTER_LOG_FILE` 和 `MASTER_LOG_POS` 这两个参数, 告诉 Slave 节点要从 Master 节点 `bin-log` 的什么位置开始复制
+在未开启 GTID 时, 需要手动设置 `MASTER_LOG_FILE` 和 `MASTER_LOG_POS` 这两个参数, 告诉 Slave 节点要从 Master 节点 Binlog 的什么位置开始复制
 
 开启了 GTID 后, 只需要设置 `MASTER_AUTO_POSITION=1`, Slave 节点会自行根据 GTID 向 Master 节点询问最后同步的位置
 
@@ -269,7 +271,7 @@ Empty set, 1 warning (0.01 sec)
 
 此时 Master 和 Slave 节点都可能具备一些数据 (例如 `mysql.user` 表中), 此时开启同步, Slave 会重现 Master 上的所有操作, 可能导致数据冲突
 
-此时可以重置 Master 上的 `bin-log`, 避免 Slave 去同步之前的数据
+此时可以重置 Master 上的 Binlog, 避免 Slave 去同步之前的数据
 
 Master 节点进行如下操作:
 
@@ -285,7 +287,7 @@ RESET SLAVE;
 START SLAVE;
 ```
 
-注意, `RESET MASTER` 会破坏 Master 的 `bin-log` 日志, 如果集群已经开始工作, 则一定不能执行该命令
+注意, `RESET MASTER` 会破坏 Master 的 Binlog, 如果集群已经开始工作, 则一定不能执行该命令
 
 #### 3.3.2. 数据冲突导致同步停止
 
@@ -303,7 +305,7 @@ SHOW SLAVE STATUS\G
 
 ##### 3.3.2.1. 未启用 GTID 模式时
 
-可以通过 `SQL_SLAVE_SKIP_COUNTER` 变量控制要跳过的 `bin-log` 数量, 即:
+可以通过 `SQL_SLAVE_SKIP_COUNTER` 变量控制要跳过的 Binlog 数量, 即:
 
 ```sql
 STOP SLAVE;
@@ -465,10 +467,23 @@ Slave 端应该返回包含如下数据的结果:
   rpl_semi_sync_source_wait_point = AFTER_COMMIT
   ```
 
+  或者执行 SQL 命令
+
+  ```sql
+  set global rpl_semi_sync_source_enabled = ON;
+  set global rpl_semi_sync_source_wait_point = 'AFTER_COMMIT';
+  ```
+
 - Slave 端: 编辑 [conf/slave.cnf](./conf/slave.cnf) 文件, 增加如下内容
 
   ```ini
   rpl_semi_sync_source_enabled = 1
+  ```
+
+  或者执行 SQL 命令
+
+  ```sql
+  set global rpl_semi_sync_source_enabled = ON;
   ```
 
 #### 4.2.2. 启用增强半同步复制
@@ -479,9 +494,19 @@ Slave 端应该返回包含如下数据的结果:
 
 增强型半同步解决了半同步模式的数据不一致缺陷, 可以完全保证数据同步的一致性
 
-启用增强半同步的流程和[启用半同步](#42-半同步复制)的流程完全一致, 只是在 Master 配置文件中, 将 `rpl_semi_sync_source_wait_point` 设置为 `AFTER_SYNC` (或不设置 `rpl_semi_sync_source_wait_point`, 其默认值就是 `AFTER_SYNC`)
+启用增强半同步的流程和[启用半同步](#42-半同步复制)的流程完全一致, 区别在于 Master 配置文件中, 配置项 `rpl_semi_sync_source_wait_point` 的值改为 `AFTER_SYNC` (或不设置 `rpl_semi_sync_source_wait_point`, 其默认值就是 `AFTER_SYNC`), 即:
 
-#### 4.2.3. (增强) 半同步模式配置项
+```ini
+rpl_semi_sync_source_wait_point = AFTER_SYNC
+```
+
+当然也可以通过 SQL 命令进行设置
+
+```sql
+set global rpl_semi_sync_source_wait_point = 'AFTER_SYNC';
+```
+
+#### 4.2.3. (增强) 半同步模式配置项说明
 
 开启了 (增强) 半同步模式后, 可以在配置文件 (或 MySQL 全局变量) 中设置如下配置项:
 

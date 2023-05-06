@@ -19,6 +19,7 @@
   - [3. 基于 Binlog 的主从模式](#3-基于-binlog-的主从模式)
   - [4. 使用 ProxySQL](#4-使用-proxysql)
   - [4. 基于 XtraDB 的集群模式](#4-基于-xtradb-的集群模式)
+  - [5. 基于 MGR (MySQL Group Replication) 的集群模式](#5-基于-mgr-mysql-group-replication-的集群模式)
 
 ## 1. 安装和配置
 
@@ -255,3 +256,5 @@ interactive-timeout
 ## 4. [使用 ProxySQL](./docker/proxysql/README.md)
 
 ## 4. [基于 XtraDB 的集群模式](./docker/cluster-xtradb/README.md)
+
+## 5. [基于 MGR (MySQL Group Replication) 的集群模式](./docker/cluster-mgr/README.md)
