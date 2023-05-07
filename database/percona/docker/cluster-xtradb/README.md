@@ -368,7 +368,7 @@ sudo yum install -y openssl socat  \
     wsrep_cluster_address=gcomm://192.168.70.61,192.168.70.62,192.168.70.63
     ```
 
-    如果使用 RHEL 或 CentO, 需要编辑 `/etc/my.cnf`
+    如果使用 RHEL 或 CentOS, 需要编辑 `/etc/my.cnf`
 
     ```ini
     wsrep_provider=/usr/lib64/galera4/libgalera_smm.so
@@ -787,7 +787,7 @@ volumes:
 
 本例中使用 Docker Compose, 并通过 Healthcheck 来确保每个容器启动时, 其所依赖的容器已经达到正确状态
 
-所以需要先启动第一个容器如下:
+所以需要先启动第一个节点如下:
 
 ```bash
 docker-compose up pxc-01
@@ -817,15 +817,33 @@ docker stop pxc-03 pxc-02
 docker-compose down
 ```
 
+注意: 如果启动第一个节点时报告如下错误
+
+```log
+[ERROR] [MY-000000] [Galera] It may not be safe to bootstrap the cluster from this node. It was not the last one to leave the cluster and may not contain all the updates. To force cluster bootstrap with this node, edit the grastate.dat file manually and set safe_to_bootstrap to 1 .
+```
+
+表示集群停止时, 第一个节点不是最后一个被停止的节点, 所以该节点上的数据可能不是最新的, 需要将该节点存放数据目录下的 `grastate.dat` 文件中 `safe_to_bootstrap` 的值改为 `1`, 即:
+
+```bash
+sudo vi /var/lib/docker/volumes/cluster-xtradb_pxc-01-data/_data/grastate.dat
+
+# GALERA saved state
+version: 2.1
+uuid:    fe855763-eceb-11ed-8300-12031eb2313b
+seqno:   31
+safe_to_bootstrap: 0 -> 1
+```
+
 ##### 2.3.3.2. 容器健康检查
 
 可以使用如下脚本进行健康检查
 
 ```bash
-mysql -uhealth -e "show status like 'wsrep%'" | grep 'wsrep_local_state_comment' | awk '{print $$2}' | grep -q 'Synced'
+mysql -uhealth -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" | awk 'NR>1 {print $2}' | grep -q 'Synced'
 ```
 
-注意, `awk` 命令的 `$2` 参数需要转义为 `$$2`, 否则会被错误认为是 Docker Compose 的环境变量占位符
+注意, 在 Docker Compose 文件中, `awk` 命令的 `$2` 参数需要转义为 `$$2`, 否则会被错误认为是 Docker Compose 的环境变量占位符, 参见 [docker-compose.yml](./docker-compose.yml) 文件中的 `healthcheck` 配置
 
 用户 `health` 需要在启动容器后第一时间创建, 本例中通过 [sql/initialize.sql](./sql/initialize.sql) 脚本进行, 需要将该文件挂载到容器的 `/docker-entrypoint-initdb.d/` 路径下
 

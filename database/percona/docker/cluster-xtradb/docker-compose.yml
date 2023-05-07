@@ -27,7 +27,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep%'\" | grep 'wsrep_local_state_comment' | awk '{print $$2}' | grep -q 'Synced'"
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk 'NR>1 {print $$2}' | grep -q 'Synced'"
         ]
       interval: 30s
       timeout: 30s
@@ -60,7 +60,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep%'\" | grep 'wsrep_local_state_comment' | awk '{print $$2}' | grep -q 'Synced'"
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk 'NR>1 {print $$2}' | grep -q 'Synced'"
         ]
       interval: 30s
       timeout: 30s
@@ -93,7 +93,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep%'\" | grep 'wsrep_local_state_comment' | awk '{print $$2}' | grep -q 'Synced'"
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk 'NR>1 {print $$2}' | grep -q 'Synced'"
         ]
       interval: 30s
       timeout: 30s

@@ -15,6 +15,7 @@
     - [3.2. 节点配置](#32-节点配置)
     - [3.2. 重启集群](#32-重启集群)
   - [4. 故障恢复](#4-故障恢复)
+  - [5. 加入负载均衡](#5-加入负载均衡)
 
 ## 1. 介绍
 
@@ -401,7 +402,7 @@ SELECT * FROM `performance_schema`.`replication_group_members`;
 3. 其它节点操作如下
 
     ```sql
-    SET GLOBAL group_replication_local_address = '<mgr_01:10061>/<mgr_02:10061>';
+    SET GLOBAL group_replication_local_address = '<mgr_02:10061>/<mgr_03:10061>';
 
     START GROUP_REPLICATION;
     ```
@@ -432,3 +433,7 @@ SELECT * FROM `performance_schema`.`replication_group_members`;
 
     START GROUP_REPLICATION;
     ```
+
+## 5. 加入负载均衡
+
+通过 HAProxy 进行负载均衡, 参考 [HAProxy](../cluster-xtradb/README.md#234-haproxy) 章节
