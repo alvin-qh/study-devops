@@ -137,6 +137,7 @@
         "nums",
         "padmin",
         "partitioner",
+        "Paxos",
         "PCRE",
         "percona",
         "PKCS",

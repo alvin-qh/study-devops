@@ -90,8 +90,8 @@ server-id = 1 # 设置节点 id, 不能重复
 log-bin = mysql-bin   # 开启 binlog
 binlog_format = ROW   # binlog 格式
 
-gtid_mode = on        # 为 binlog 启动 gtid
-enforce_gtid_consistency = on
+gtid_mode = ON        # 为 binlog 启动 gtid
+enforce_gtid_consistency = ON
 
 log_replica_updates = 1 # 从库 binlog 才会记录主库同步的操作日志
 skip_replica_start = 1  # 跳过 slave 复制线程
@@ -128,10 +128,10 @@ Executed_Gtid_Set: e5176efe-e2b1-11ed-92d7-0242c0a89002:1-4
 ```ini
 server-id = 2 # 设置节点 id, 不能重复
 
-gtid_mode = on # 为 binlog 启动 gtid
-enforce_gtid_consistency = on
+gtid_mode = ON # 为 binlog 启动 gtid
+enforce_gtid_consistency = ON
 
-read_only = on # 启动只读模式
+read_only = ON # 启动只读模式
 super_read_only = ON # 对 root 用户启动只读模式
 
 
