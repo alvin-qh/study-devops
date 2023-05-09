@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  kf01:
+    image: bitnami/kafka
+    container_name: kf01
+    hostname: kf01
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      - KAFKA_CFG_NODE_ID=1 # broker id
+    volumes:
+      - kf01_data:/bitnami/kafka
+    networks:
+      - kafka_network
+    ports:
+      - 9092:9092
+  kf02:
+    image: bitnami/kafka
+    container_name: kf02
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      - KAFKA_CFG_NODE_ID=2
+    volumes:
+      - kf02_data:/bitnami/kafka
+    networks:
+      - kafka_network
+    ports:
+      - 9093:9092
+  kf03:
+    image: bitnami/kafka
+    container_name: kf03
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      - KAFKA_CFG_NODE_ID=3
+    volumes:
+      - kf03_data:/bitnami/kafka
+    networks:
+      - kafka_network
+    ports:
+      - 9094:9092
+networks:
+  kafka_network:
+volumes:
+  kf01_data:
+  kf02_data:
+  kf03_data:

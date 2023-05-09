@@ -55,7 +55,7 @@ kafka-topics.sh --create \
     --replication-factor 2 \
     --topic test1 \
     --if-not-exists \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
 Created topic test1.
 ```
@@ -77,7 +77,7 @@ kafka-topics.sh --create \
     --if-not-exists \
     --config retention.ms=10000 \
     --config segment.ms=10000 \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
 Created topic test1.
 ```
@@ -94,7 +94,7 @@ Created topic test1.
 kafka-topics.sh --alter \
     --partitions 10 \
     --topic test1 \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--alter` 修改主题
@@ -108,7 +108,7 @@ kafka-configs.sh --alter \
     --entity-type topics \
     --entity-name test1 \
     --add-config retention.ms=259200000 \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--alter` 表示要修改配置
@@ -123,7 +123,7 @@ kafka-configs.sh --alter \
     --entity-type topics \
     --entity-name test1 \
     --delete-config retention.ms \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--delete-config` 要删除的配置项，可删除的配置项包括 [附1. 可动态修改的主题参数](#附1-可动态修改的主题参数)
@@ -133,7 +133,7 @@ kafka-configs.sh --alter \
 ```bash
 kafka-topics.sh --list \
     --exclude-internal \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--exclude-internal` 不包含内部主题（即 Kafka 自建主题）
@@ -147,7 +147,7 @@ kafka-topics.sh --list \
 ```bash
 kafka-topics.sh --describe \
     --topic test1 \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
 Topic: test1    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 10      ReplicationFactor: 2    Configs: segment.bytes=1073741824,file.delete.delay.ms=60000,retention.bytes=536870912
         Topic: test1    Partition: 0    Leader: 2       Replicas: 2,1   Isr: 2,1
@@ -161,7 +161,7 @@ Topic: test1    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 10      Replicat
 
 ```bash
 kafka-topics.sh --describe \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 #### 1.4.3. 只获取主题的特殊配置
@@ -172,7 +172,7 @@ kafka-topics.sh --describe \
 kafka-topics.sh kafka-topics.sh --describe \
     --topic test1 \
     --topics-with-overrides \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
 Topic: test1    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 5      ReplicationFactor: 2    Configs: segment.bytes=1073741824,file.delete.delay.ms=60000,retention.bytes=536870912
 ```
@@ -186,7 +186,7 @@ Topic: test1    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 5      Replicati
 ```bash
 kafka-run-class.sh kafka.tools.GetOffsetShell \
     --topic test1 \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
 test1:0:2
 test1:1:0
@@ -206,7 +206,7 @@ test1:4:0
 ```bash
 kafka-topics.sh --delete \
     --topic test1 \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--delete` 删除主题
@@ -216,7 +216,7 @@ kafka-topics.sh --delete \
 ```bash
 kafka-topics.sh --describe \
     --under-replicated-partitions \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 ## 2. 生产者
@@ -228,7 +228,7 @@ kafka-topics.sh --describe \
 ```bash
 kafka-console-producer.sh \
     --topic test1 \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
 > _
 ```
@@ -240,7 +240,7 @@ kafka-console-producer.sh \
 ```bash
 kafka-console-producer.sh \
     --topic test1 \
-    --bootstrap-server localhost:9092,kf02:9092 < data.txt
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092 < data.txt
 ```
 
 这个命令无法通过 `docker exec` 在容器中直接使用
@@ -252,7 +252,7 @@ kafka-console-producer.sh \
     --topic test1 \
     --property parse.key=true \
     --property key.separator=: \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--property parse.key=true` 解析 key/value 模式
@@ -267,7 +267,7 @@ kafka-console-producer.sh \
 ```bash
 kafka-console-consumer.sh \
     --topic test1 --group g1 \
-    --bootstrap-server localhost:9092,kf02:9092
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--group` 消费组编号
