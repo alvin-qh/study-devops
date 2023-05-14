@@ -12,6 +12,16 @@
     - [2.2. 订阅主题](#22-订阅主题)
     - [2.3. 启动轮询](#23-启动轮询)
     - [2.4. 设置其它属性](#24-设置其它属性)
+  - [3. 提交和偏移量](#3-提交和偏移量)
+    - [3.1. 自动提交](#31-自动提交)
+    - [3.2. 提交当前偏移量](#32-提交当前偏移量)
+    - [3.3. 异步提交](#33-异步提交)
+    - [3.4. 同步和异步组合提交](#34-同步和异步组合提交)
+    - [3.5. 提交特定偏移量](#35-提交特定偏移量)
+  - [4. 再平衡监听器](#4-再平衡监听器)
+  - [5. 从特定偏移量位置读取记录](#5-从特定偏移量位置读取记录)
+  - [6. 优雅的关闭消费者](#6-优雅的关闭消费者)
+  - [7. 反序列化器](#7-反序列化器)
 
 ## 1. 消费者相关概念
 
@@ -213,13 +223,13 @@ while (true) {
    - 一般需要同时设置这两个属性, 且通常前者是后者的 $\frac{1}{3}$, 即如果 `session.timeout.ms` 为 `3` 秒, 则 `heartbeat.interval.ms` 应该为 `1` 秒;
    - 将 `session.timeout.ms` 设置的较小, 可以以最短时间检测到消费者故障, 但同时也会导致不必要的再平衡;
 
-7. `max.poll.interval.ms`, 指定执行 `pull` 操作的最大允许时间间隔, 默认为 `5` 分钟:
+7. `max.poll.interval.ms`, 指定执行 `poll` 操作的最大允许时间间隔, 默认为 `5` 分钟:
 
-   - 服务端除了通过设置心跳间隔时间和会话超时时间来保证消费者本身的活性外, 检测 `pull` 操作调用间隔也是一个检测消费者是否存活的重要依据;
-   - 消费者在处理消息时, 一旦阻塞了调用 `pull` 操作的线程, 也会导致无法获取到后续的新消息;
-   - 精确预判每次 `pull` 调用时间间隔比较困难, 所以一般需要为 `max.poll.interval.ms` 属性设置一个较长的时间, 让服务端即不会导致因为消息处理时间稍长而产生误杀, 也不会因为 `pull` 线程被阻塞而迟迟无法激活再平衡;
+   - 服务端除了通过设置心跳间隔时间和会话超时时间来保证消费者本身的活性外, 检测 `poll` 操作调用间隔也是一个检测消费者是否存活的重要依据;
+   - 消费者在处理消息时, 一旦阻塞了调用 `poll` 操作的线程, 也会导致无法获取到后续的新消息;
+   - 精确预判每次 `poll` 调用时间间隔比较困难, 所以一般需要为 `max.poll.interval.ms` 属性设置一个较长的时间, 让服务端即不会导致因为消息处理时间稍长而产生误杀, 也不会因为 `poll` 线程被阻塞而迟迟无法激活再平衡;
 
-8. `default.api.timeout.ms`, 指定消费者在调用除 `pull` 方法外的其它 API 时的超时时间;
+8. `default.api.timeout.ms`, 指定消费者在调用除 `poll` 方法外的其它 API 时的超时时间;
 
 9. `auto.offset.reset`, 指定消费者在读取一个偏移量 (Offset) 无效或不存在的分区时, 默认的行为:
 
@@ -229,9 +239,9 @@ while (true) {
 
 10. `enable.auto.commit`, 指定是否允许消费者自动提交偏移量, 默认为 `true`:
 
-    - 自动提交偏移量意味着只要 `pull` 操作成功, 则消费者会将这部分记录的偏移量提交给服务端, 表示这部分消息已读, 下次就会读取之后偏移量的数据;
+    - 自动提交偏移量意味着只要 `poll` 操作成功, 则消费者会将这部分记录的偏移量提交给服务端, 表示这部分消息已读, 下次就会读取之后偏移量的数据;
     - 如果该属性设置为 `true`, 则可以通过 `auto.commit.interval.ms` 属性值设置自动提交的频率;
-    - 可以将该设置改为 `false`, 在消息处理成功之后, 手动提交该消息的偏移量, 这样可以尽量的保证消息丢失, 因为一个 `pull` 操作流程中, 如果抛出了异常导致未提交其偏移量, 则下次 `pull` 操作仍能拿回这条消息, 不会因为消息处理失败导致消息丢失;
+    - 可以将该设置改为 `false`, 在消息处理成功之后, 手动提交该消息的偏移量, 这样可以尽量的保证消息丢失, 因为一个 `poll` 操作流程中, 如果抛出了异常导致未提交其偏移量, 则下次 `poll` 操作仍能拿回这条消息, 不会因为消息处理失败导致消息丢失;
 
 11. `partition.assignment.strategy`, 指定分区器将分区和消费者进行匹配的策略. 例如: 消费者 `C1` 和 `C2` 同时订阅了两个主题 `T1` 和 `T2`, 且每个主题有 `3` 个分区, 则:
 
@@ -239,3 +249,307 @@ while (true) {
     - `roundRobin`, 即将主题逐个平均的分配给每个消费者, 即消费者 `C1` 会分配到 `T1` 主题的 `0` 和 `2` 分区以及 `T2` 主题的 `1` 分区, 而消费者 `C2` 会分配到 `T1` 主题的 `1` 分区和 `T2` 主题的 `0` 和 `2` 分区. 轮询方式会将分区分配的比较"均匀";
     - `sticky`, 即带有"黏性"的分区分配策略, 其目的为: 1. 尽可能均衡的分配分区; 2. 在进行再平衡时尽可能的保留原先分区和消费者的对应关系, 减少一个分区转移消费者的开销. 对于此策略, 如果所有消费者都订阅了相同的主题, 则其初始的分区分配和轮询方式一样均衡, 再平衡时能最大程度的减少要转移分区的数量; 如果消费者订阅了不同的主题, 则其分配比例比轮询分配的均衡性更好;
     - `cooperative sticky`, 类似于 `sticky` 策略, 但具备协作 (增量式) 再平衡, 参考 [协作再平衡](#122-协作再平衡) 章节;
+
+12. `client.id`, 指定一个客户端标识, 可以是任意字符串 (具备唯一性), 主要用于 Broker 对客户端的识别 (例如在日志, 指标和配额中);
+
+13. `client.rack`, 指定消费者获取消息的分区:
+
+    - 默认情况下, 消费者会从每个分区的 Leader 副本中获取消息;
+    - 如果消息需要同步到其它集群, 则可以固定一个专门用于读的分区, 以分散读的压力;
+    - 通过在消费者端设置 `client.rack` 属性, 并在 Broker 端将 `replica.selector.class` 属性设置为 `org.apache.kafka.common.replica.RackAwareReplicaSelector`, 来约束消费者获取消息的分区副本;
+
+14. `group.instance.id`, 指定消费者群组的固定名称, 可以是任意字符串 (具备唯一性), 具体参考 [固定群组成员](#13-固定群组成员) 章节;
+
+15. `receive.buffer.bytes` 和 `send.buffer.bytes`, 分别用于指定消费者 TCP 发送和接收数据的缓冲区, 即 Socket 的 `SO_SNDBUF` 和 `SO_RCVBUF` 设置, 默认值为 `-1`, 即采用操作系统的默认值;
+
+16. 偏移量保存时间: 参考 [消息偏移量相关配置](./broker.md#35-消息偏移量相关配置) 章节 `offsets.retention.minutes` 属性设置;
+
+## 3. 提交和偏移量
+
+消费者每次调用 `poll` 方法时, 总会返回还没有被任何消费者读取过的消息记录, 这意味着每一条消息都可以追踪到消费它的消费者, 即偏移量
+
+服务端的每条数据都有一个"偏移量", 服务端也记录了当前各个分区的当前偏移量, 更新这些偏移量记录的操作即为提交偏移量
+
+注意, 消费者并不会为每一条消息提交偏移量, 而是提交一批数据中最后一条消息的偏移量, 并假设此偏移量之前的消息记录都已经处理成功
+
+消费者提交偏移量的步骤为:
+
+1. 消费者会向一个叫做 `__consumer_offset` 的主题发送消息, 消息里包含每个分区的偏移量;
+2. 如果消费者一直处于运行状态, 那么服务端存储的偏移量并无实际作用, 但一旦消费者离开群组, 新的消费者加入时, 就需要从服务端重新同步相关分区的偏移量; 另外, 消费者群组再平衡时, 也需要为每个消费者重新同步服务端的偏移量;
+
+注意: 如果最后一次提交的偏移量小于客户端处理的最后一条消息的偏移量, 那么位于这两个偏移量之间的消息会被重复处理, 即:
+
+![*](../assets/different-offset-1.png)
+
+另外, 如果最后一次提交的偏移量大于客户端处理的最后一条消息的偏移量, 那么位于这两个偏移量之间的消息会丢失, 即:
+
+![*](../assets/different-offset-2.png)
+
+所以, 如果管理偏移量就对客户端应用程序有很大影响, 所以 Kafka Consumer API 提供了多种提交偏移量的方式:
+
+### 3.1. 自动提交
+
+自动提交是最简单的提交方式, 即消费者自动提交偏移量
+
+若消费者的 `enable.auto.commit` 属性被设置为 `true`, 则表示消费者将自动提交偏移量, 自动提交的时间间隔由 `auto.commit.interval.ms` 属性来设置, 默认为 `5` 秒, 即每 `5` 秒就会将消费者最后一次轮询得到的消息中, 最后一条消息的偏移量提交给服务端, 参考 [设置其它属性](#24-设置其它属性) 章节中对这两个属性的描述
+
+自动提交偏移量会导致如下副作用:
+
+1. 如果消费者崩溃, 导致消费群组再平衡, 则崩溃消费者的 `auto.commit.interval.ms` 之间的消息会重复接收, 减少 `auto.commit.interval.ms` 值会减少这类重复消息的数量, 但无法完全避免;
+2. 如果消费者端对消息是异步处理的, 则提交偏移量时, 有可能对应的消息尚未被处理, 此时消费者崩溃, 会导致这部分消息丢失;
+
+### 3.2. 提交当前偏移量
+
+将 `enable.auto.commit` 设置为 `false`, 即可对偏移量进行手动提交, 此时消费者将不再自动提交偏移量, 全部交给消费者程序来处理
+
+通过 `commitSync` 方法可以手动提交偏移量, 这个 API 会提交 `poll` 返回的最新偏移量, 提交成功后立即返回, 所以:
+
+- 如果在处理完所有消息记录前就调用了 `commitSync` 方法, 则一旦消费者崩溃, 会有消息丢失的风险;
+- 如果消费者在处理信息记录时崩溃, 但 `commitSync` 方法还未被调用, 则会有消息重复的可能需;
+
+注意, `commitSync` 方法在提交失败时会自动进行重试
+
+```java
+var timeout = Duration.ofMillis(1000);
+
+while (true) {
+    var records = consumer.poll(timeout);
+    for (var record : records) {
+        System.out.printf("topic = %s, partition = %d, offset = %d, key = %s, value = %s%n",
+            record.topic(), record.partition(), record.offset(), record.key(), record.value());
+    }
+
+    try {
+        consumer.commitSync();
+    } catch (CommitFailedException e) {
+        throw ...;
+    }
+}
+```
+
+### 3.3. 异步提交
+
+手动提交偏移量会阻塞当前线程, 直到从 Broker 返回了提交偏移量的响应, 这会对消费者的吞吐量产生影响
+
+顾名思义, 异步提交偏移量无需等待 Broker 的响应, 响应将会以异步方式通过回调来进行通知
+
+```java
+var timeout = Duration.ofMillis(1000);
+
+while (true) {
+    var records = consumer.poll(timeout);
+    for (var record : records) {
+        System.out.println("topic = %s, partition = %d, offset = %d, key = %s, value = %s",
+            record.topic(), record.partition(), record.offset(), record.key(), record.value());
+    }
+
+    consumer.commitAsync((offsets, e) -> {
+        if (e != null) {
+            log.error(...);
+        }
+    });
+}
+```
+
+注意, 异步提交不会进行重试, 发生错误即立即失败, 如需重试, 则需要手动重新调用 `commitAsync` 方法, 可以维护一个全局单调递增的序列号变量 (例如一个 `AtomicLong` 变量), 每次调用 `commitAsync` 方法前增加序列号, 并将当前序列号值传递到回调; 回调返回异常时, 先查看回调保存的序列号和全局序列号是否相等, 如果相等, 则有必要进行重试, 否则即表示已经开始处理新批次的消息, 无需重复提交偏移量
+
+### 3.4. 同步和异步组合提交
+
+一般情况下, 偏移量偶尔提交失败并不会有太大的影响, 因为随后会提交更靠后的偏移量, 从而覆盖掉之前的失败提交, 但对于消费者关闭 (或者消费群组再平衡) 前的最后一次提交, 则应该保障其成功:
+
+- 通过异步和同步的组合来确保消费者关闭前成功提交偏移量;
+- 通过再平衡监听器来确保再平衡前成功提交偏移量;
+
+下面的代码演示如何结合同步和异步方式确保消费者关闭前正确提交偏移量
+
+```java
+var timeout = Duration.ofMillis(1000);
+
+try {
+    while (!closed) {
+        var records = consumer.poll(timeout);
+
+        for (var record : records) {
+            System.out.printf("topic = %s, partition = %d, offset = %d, key = %s, value = %s%n",
+                record.topic(), record.partition(), record.offset(), record.key(), record.value());
+        }
+
+        // 每次消息处理完毕, 进行一次异步消息提交, 如果失败也无需重试
+        consumer.commitAsync();
+    }
+
+    // 当 closed 为 true 时, 表示消费者关闭, 此时进行一次同步的偏移量提交, 确保提交成功
+    consumer.commitSync();
+} catch (Exception e) {
+    log.error(...);
+} finally {
+    consumer.close();
+}
+```
+
+### 3.5. 提交特定偏移量
+
+消费者 API 允许在调用 `commitSync` 和 `commitAsync` 方法时传给它们想要提交的分区和偏移量:
+
+- 假设消费者正在处理一个消息批次, 刚处理好来自主题 `customers` 的分区 `3` 的消息, 其偏移量是 `5000`, 那么就可以调用`commitSync` 来提交这个分区的偏移量 `5001`;
+- 因为一个消费者可能不止读取一个分区, 所以需要跟踪所有分区的偏移量, 因此通过这种方式提交偏移量会让代码变得复杂;
+
+下面是提交特定偏移量的范例代码:
+
+首先定义一个 `Map` 对象用于存储不同分区的偏移量, 以及一个 `count` 变量用于记录接收到的消息数量:
+
+```java
+private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
+private long count = 0;
+```
+
+接着利用上面定义的变量进行特定偏移量的提交
+
+```java
+var timeout = Duration.ofMillis(1000);
+
+try {
+    while (!closed) {
+        var records = consumer.poll(timeout);
+
+        for (var record : records) {
+            System.out.printf("topic = %s, partition = %d, offset = %d, key = %s, value = %s%n",
+                record.topic(), record.partition(), record.offset(), record.key(), record.value());
+
+            // 以当前消息的主题和分区为 key, 将偏移量的下一个位置存入 Map
+            currentOffsets.put(
+                new TopicPartition(record.topic(), record.partition()),
+                new OffsetAndMetadata(record.offset() + 1, null));
+
+            if (count++ % 1000 == 0) {
+                // 提交各主体各分区的偏移量 (本次不进行回调, 所以第二个参数为 null)
+                consumer.commitAsync(currentOffsets, null);
+            }
+        }
+    }
+
+    consumer.commitSync();
+} catch (Exception e) {
+    log.error(...);
+} finally {
+    consumer.close();
+}
+```
+
+所以, `commitSync` 和 `commitAsync` 方法可以通过提交一个 `Map<TopicPartition, OffsetAndMetadata>` 类型的对象来提交所谓的 **特定偏移量**
+
+## 4. 再平衡监听器
+
+消费者 API 中提供了对消费组发生再平衡时进行处理的监听器
+
+通过调用消费者的 `subscribe` 方法, 并传入一个 `ConsumerRebalanceListener` 接口对象, 即刻启动对消费组再平衡的监听, `ConsumerRebalanceListener` 有三个需要实现的方法:
+
+- `onPartitionsAssigned(Collection<TopicPartition> partitions)`, 该回调会在消费者群组重新分配分区之后以及消费者开始读取消息之前被调用, 该方法用于加载与分区相关的状态信息, 设置正确的偏移量等; 该方法必须在 `max.poll.timeout.ms` 设定的时间内执行完毕, 以防止消费者超时导致无法加入群组;
+- `onPartitionsRevoked(Collection<TopicPartition> partitions)`, 该方法会在消费者放弃对分区的所有权 (包括消费组再平衡和消费者被关闭) 时被调用. 对于主动再平衡 (参考 [主动再平衡](#121-主动再平衡) 章节), 则会在再平衡开始之前且消费者停止读取消息之后被调用; 对于协作再平衡 (参考 [协作再平衡](#122-协作再平衡) 章节), 则会在再平衡结束时调用, 且只涉及当前消费者放弃的那部分分区. 可以在该方法中提交偏移量, 即 [同步和异步组合提交](#34-同步和异步组合提交) 章节中提到的消费者应该在再平衡前正确提交偏移量;
+- `onPartitionsLost(TopicPartition partitions)`, 该方法只有在一个消费者相关的 **原生分区** (即一开始就分配给消费者的分区, 而非之后通过再平衡分配的分区), 通过协作再平衡重新分配给其它消费者时被调用, 通过回调告诉程序哪些原生分区不再属于当前消费者; 如果不实现该方法, 则 `onPartitionsRevoked` 会被调用;
+
+所以对于协作再平衡, `ConsumerRebalanceListener` 的行为有如下特殊情况:
+
+1. `onPartitionsAssigned` 方法在每次进行再平衡时都会被调用, 以此来告诉消费者发生了再平衡. 如果没有新的分区分配给消费者, 那么它的参数就是一个空集合;
+2. `onPartitionsRevoked` 会在进行正常的再平衡并且有消费者放弃分区所有权时被调用. 如果它被调用, 那么参数就不会是空集合;
+3. `onPartitionsLost` 会在进行意外的再平衡并且参数集合中的分区已经有新的所有者的情况下被调用;
+4. 如果这 `3` 个方法都被实现, 那么就可以保证在一个正常的再平衡过程中, 分区的新所有者监听的 `onPartitionsAssigned` 方法会在之前的分区所有者的 `onPartitionsRevoked` 被调用完毕并放弃了所有权之后被调用
+
+下面演示了如何消费者失去分区所有权前提交一次偏移量
+
+首先定义公共变量, 用于记录当前消费者所有主题和分区的偏移量
+
+```java
+private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
+```
+
+接着实现 `ConsumerRebalanceListener`, 接口的 `onPartitionsRevoked` 方法, 在其中提交偏移量
+
+```java
+class HandleRebalance implements ConsumerRebalanceListener {
+    // 分配到新分区时, 无需任何动作, 直接通过轮询读取新分区消息即可
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+    }
+
+    // 当发生再平衡前, 提交当前消费者的偏移量
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+        System.out.printf(
+            "Lost partitions in rebalance. Committing current offsets %s%n", currentOffsets);
+        consumer.commitSync(currentOffsets);
+    }
+}
+```
+
+最后, 在启动轮询前执行监听
+
+```java
+try {
+    // 在轮询启动前对再平衡启动监听
+    consumer.subscribe(topics, new HandleRebalance());
+
+    // 在循环中进行轮询
+    while (!closed) {
+        var records = consumer.poll();
+
+        for (var record : records) {
+            System.out.printf("topic = %s, partition = %d, offset = %d, key = %s, value = %s%n",
+                record.topic(), record.partition(), record.offset(), record.key(), record.value());
+
+            // 将每条消息的偏移量写入 Map 对象
+            currentOffsets.put(
+                new TopicPartition(record.topic(), record.partition()),
+                new OffsetAndMetadata(record.offset() + 1, null));
+        }
+
+        // 提交这批消息的偏移量
+        consumer.commitAsync(currentOffsets, null);
+    }
+} catch (WakeupException e) {
+    // ignore
+} catch (Exception e) {
+    log.error(...);
+} finally {
+    consumer.close();
+}
+```
+
+## 5. 从特定偏移量位置读取记录
+
+如果需要从分区的起始位置读取所有的消息, 或者直接跳到分区的末尾读取新消息, 则 Kafka API 分别提供了两个方法:
+
+- `seekToBeginning(Collection<TopicPartition> partitions)`, 将指定主题分区的偏移量设置到起始位置, 即从指定分区的消息日志的头部开始重新读取所有消息;
+- `seekToEnd(Collection<TopicPartition> partitions)`, 将指定主题分区的偏移量设置到结束位置, 即从最新的消息开始读取, 忽略之前的所有消息;
+
+Kafka 还提供了用于查找特定偏移量的 API, 以进行类似如下的操作:
+
+- 对时间敏感的应用程序在处理速度滞后的情况下可以向前跳过几条消息;
+- 如果消费者写入的文件丢失了, 则它可以重置偏移量, 回到某个位置进行数据恢复;
+
+例如将分区的当前偏移量定位到指定的记录生成时间点上
+
+```java
+// 计算当前实际向前一个小时的时间戳 (秒数)
+var oneHourEarlier = Instant.now().atZone(ZoneId.systemDefault()).minusHours(1).toEpochSeconds();
+
+// 创建一个 Map 对象, Key 为 TopicPartition 对象, Value 为一小时前的时间戳
+var partitionTimestampMap = consumer.assignment().stream().collect(
+    Collectors.toMap(tp -> tp, tp -> oneHourEarlier));
+
+// 查找时间戳在一小时前的所有主题分区的偏移量值
+var offsetMap = consumer.offsetsForTimes(partitionTimestampMap);
+
+// 遍历找到的主题分区, 将其偏移量移动到查询到的值上
+for (var entry : offsetMap.entrySet()) {
+    consumer.seek(entry.getKey(), entry.getValue().offset());
+}
+```
+
+## 6. 优雅的关闭消费者
+
+所谓优雅的关闭消费者, 就是要保证消费者结束的时候一定不能正在执行 `poll` 方法
+
+所以, 可以通过等待上一轮 `poll` 结束 (或超时), 处理完这一批消息后, 退出循环, 执行消费者对象的 `close` 方法, 退出程序;
+
+如果消费者 `poll` 方法的超时设置的比较久, 来不及等待其退出, 则可以在另一个线程中调用消费者对象的 `wakeup` 方法, 该方法会导致正在调用的 `poll` 方法立即抛出 `WakeupException`, 从而结束调用, 借此机会退出循环, 执行消费者对象的 `close` 方法, 退出程序;
+
+## 7. 反序列化器
