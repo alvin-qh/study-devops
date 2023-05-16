@@ -4,9 +4,10 @@
   - [1. 设置容器](#1-设置容器)
     - [1.1. 下载镜像](#11-下载镜像)
     - [1.2. 启动容器](#12-启动容器)
-    - [2. 配置](#2-配置)
+  - [2. 配置](#2-配置)
     - [2.1. 通过配置文件](#21-通过配置文件)
     - [2.2. 通过环境变量](#22-通过环境变量)
+  - [3. 使用 Docker Compose](#3-使用-docker-compose)
 
 如果只是做测试使用, 大部分情况下一个 Kafka 实例就完全足够, 可以通过 Docker 容器的方式很方便的在当前宿主机启动 Kafka 实例
 
@@ -90,7 +91,7 @@ docker exec -it kafka kafka-console-consumer.sh \
 
 - `--from-beginning` 表示从上次读取提交的 offset 位置开始继续读取; 不设置此项则从日志分片的最新位置开始读取 (即只读取之后写入的新消息);
 
-### 2. 配置
+## 2. 配置
 
 ### 2.1. 通过配置文件
 
@@ -135,3 +136,11 @@ docker run -d --rm \
 ```
 
 注意, 不以 `KAFKA_CFG_` 为前缀的环境变量是容器本身使用的环境变量, 并非 Kafka 配置参数, 例如 `KAFKA_ENABLE_KRAFT` 环境变量是用于容器启动脚本选择配置文件的表示, 如果为 `yes`, 表示启动 Kraft 模式, 则使用 `/opt/bitnami/kafka/config/kraft/server.properties` 配置文件, 否则会使用 `/opt/bitnami/kafka/config/server.properties` 配置文件
+
+## 3. 使用 Docker Compose
+
+通过 [docker-compose.yml](./docker-compose.yml) 可以更方便的启动容器
+
+```bash
+docker-compose up -d
+```
