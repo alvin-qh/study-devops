@@ -22,6 +22,9 @@
   - [5. 从特定偏移量位置读取记录](#5-从特定偏移量位置读取记录)
   - [6. 优雅的关闭消费者](#6-优雅的关闭消费者)
   - [7. 反序列化器](#7-反序列化器)
+    - [7.1. 使用 Avro 反序列化器](#71-使用-avro-反序列化器)
+    - [7.2. 自定义反序列化器](#72-自定义反序列化器)
+  - [8. 独立消费者](#8-独立消费者)
 
 ## 1. 消费者相关概念
 
@@ -553,3 +556,178 @@ for (var entry : offsetMap.entrySet()) {
 如果消费者 `poll` 方法的超时设置的比较久, 来不及等待其退出, 则可以在另一个线程中调用消费者对象的 `wakeup` 方法, 该方法会导致正在调用的 `poll` 方法立即抛出 `WakeupException`, 从而结束调用, 借此机会退出循环, 执行消费者对象的 `close` 方法, 退出程序;
 
 ## 7. 反序列化器
+
+消费者的反序列化器和生产者的序列化器 (参见 [序列化器](./producer.md#7-序列化器) 章节) 必须一一对应, 例如生产者使用了 `KafkaAvroSerializer` 序列化器, 则客户端则必须使用 `KafkaAvroDeserializer` 反序列化器
+
+### 7.1. 使用 Avro 反序列化器
+
+对应 [使用 Avro 序列化器](./producer.md#71-使用-avro-序列化器) 章节, 如果生产者端使用了 Avro 序列化器, 则消费者端必须使用 Avro 反序列化器对数据进行 Unpack, 步骤如下:
+
+第一步仍是设置 [Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) 服务的地址, 以便消费者从中获取对应的 Schema 定义
+
+```java
+var schemaUrl = "http://localhost:8081";
+```
+
+接下来, 如果消息对象是 Avro 对象, 则可以直接进行读取
+
+```java
+var props = new Properties();
+// 设置 Broker 集群地址
+props.put("bootstrap.servers", "localhost:9092");
+// 设置要加入的消费组
+props.put("group.id", "groupCustomer");
+// 设置 Key 的反序列化器, 使用字符串反序列化器
+props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+// 设置 Value 的反序列化器, 使用 Avro 反序列化器
+props.put("value.deserializer", "io.confluent.kafka.serializers.KafkaAvroDeserializer");
+// 设置 Schema 注册地址
+props.put("schema.registry.url", schemaUrl);
+// 如果要直接 Unpack 为 Avro 对象, 需将该属性设置为 true
+props.put("specific.avro.reader", "true");
+
+// 消息主题
+var topic = "customerContacts";
+
+// 创建消费者对象, 这里假设 Customer 是 Avro 对象类型, 并对指定的主题进行订阅
+var consumer = new KafkaConsumer<String, Customer>(props);
+consumer.subscribe(List.of(topic));
+
+var timeout = Duration.ofMillis(1000);
+
+while (!closed) {
+    var records = consumer.poll(timeout);
+    for (var record : records) {
+        // ...
+    }
+
+    consumer.commitSync();
+}
+```
+
+注意, 上面的例子中的 `Customer` 类型是一个 Avro 对象类型, 而非普通的 Java POJO 类型, 所以需要通过其它方法生产该类型, 参考 [使用 Avro 序列化器](./producer.md#71-使用-avro-序列化器) 章节中的描述
+
+当然, 也可以通过 `GenericRecord` 类型来获取 Avro 消息, 并通过 `get` 方法获取字段值
+
+```java
+var props = new Properties();
+// 设置 Broker 集群地址
+props.put("bootstrap.servers", "localhost:9092");
+// 设置要加入的消费组
+props.put("group.id", "groupCustomer");
+// 设置 Key 的反序列化器, 使用字符串反序列化器
+props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+// 设置 Value 的反序列化器, 使用 Avro 反序列化器
+props.put("value.deserializer", "io.confluent.kafka.serializers.KafkaAvroDeserializer");
+// 设置 Schema 注册地址
+props.put("schema.registry.url", schemaUrl);
+
+// 消息主题
+var topic = "customerContacts";
+
+// 创建消费者对象, 这里假设 Customer 是 Avro 对象类型, 并对指定的主题进行订阅
+var consumer = new KafkaConsumer<String, GenericRecord>(props);
+consumer.subscribe(List.of(topic));
+
+var timeout = Duration.ofMillis(1000);
+
+while (!closed) {
+    var records = consumer.poll(timeout);
+    for (var record : records) {
+        // 获取消息的 GenericRecord 对象
+        var val = record.value();
+
+        // 获取消息的 Key 和 Value
+        System.out.printf("Key=%s, Customer id=%d, name=%s, email=%s%n",
+            record.key(), val.getId(), val.getName(), val.getEmail());
+    }
+
+    consumer.commitSync();
+}
+```
+
+### 7.2. 自定义反序列化器
+
+如果生产者一端通过 [自定义序列化器](./producer.md#72-自定义序列化器) 章节的方式定义了序列化器, 则消费者一端必须通过自定义对应的反序列化器才能正确的 Unpack 消息
+
+通过实现 Kafka 的 `Deserializer<T>` 接口即可自定义一个序列化器如下:
+
+```java
+public class CustomerDeserializer implements Deserializer<Customer> {
+  @Override
+  public void configure(Map configs, boolean isKey) {
+    // 获取消费者配置信息
+  }
+
+  @Override
+  public Customer serialize(String topic, byte[] data) {
+    // 对指定对象执行反序列化
+    try (var bi = new ByteArrayInputStream(data)) {
+      try (var oi = new ObjectInputStream(bi)) {
+        return (Customer) oi.readObject();
+      }
+    }
+  }
+
+  @Override
+  public void close() {
+    // 执行清理代码
+  }
+}
+```
+
+创建消费者对象时, 将 `value.deserializer` 属性设置为自定义的反序列化器即可
+
+## 8. 独立消费者
+
+独立消费者指的是不加入任何群组的消费者, 独立消费者不需要订阅主题 (订阅主题即意味着加入消费组), 而是直接为其分配目标分区
+
+当然, 一个消费者要么加入群组, 要么作为独立消费者存在, 不可能同时兼备两者
+
+```java
+// 消息主题
+var topic = "customerContacts";
+
+// 创建消费者对象, 但不订阅任何主题
+var consumer = new KafkaConsumer<String, String>(props);
+
+// 获取指定主题的分区信息
+var partitionInfos = consumer.partitionsFor(topic);
+if (partitionInfos == null || partitionInfos.isEmpty()) {
+    return;
+}
+
+// 将分区信息分配给消费者
+consumer.assign(partitionInfos.stream()
+    .map(info -> new TopicPartition(info.topic(), info.partition()))
+    .toList());
+
+var timeout = Duration.ofMillis(1000);
+
+try {
+    // 在循环中进行轮询
+    while (!closed) {
+        var records = consumer.poll(timeout);
+
+        for (var record : records) {
+            System.out.printf("topic = %s, partition = %d, offset = %d, key = %s, value = %s%n",
+                record.topic(), record.partition(), record.offset(), record.key(), record.value());
+        }
+
+        // 提交这批消息的偏移量
+        consumer.commitAsync();
+    }
+} catch (WakeupException e) {
+    // ignore
+} catch (Exception e) {
+    log.error(...);
+} finally {
+    consumer.close();
+}
+```
+
+整个过程中没有让消费者订阅任何主题:
+
+- 从特定主题获取到分区信息后, 将其 `assign` 给消费者, 这样该消费者会获取该主题所有分区的消息;
+- 如果无需获取所有分区, 则可以指定部分分区 `assign` 给消费者;
+- 独立消费者不会发送再平衡, 也不会侦听服务端分区变化, 但可以通过定时调用 `consumer.partitionsFor` 方法获取服务端分区的变化;

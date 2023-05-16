@@ -13,6 +13,9 @@
     - [6.1. 配置配额](#61-配置配额)
     - [6.2. 动态修改配额](#62-动态修改配额)
     - [6.3. 配额的工作模式](#63-配额的工作模式)
+  - [7. 序列化器](#7-序列化器)
+    - [7.1. 使用 Avro 序列化器](#71-使用-avro-序列化器)
+    - [7.2. 自定义序列化器](#72-自定义序列化器)
 
 ## 1. 生产者相关概念
 
@@ -168,7 +171,7 @@ public class MobilePartitioner implements Partitioner {
 每个消息还可以包含一系列的 **消息头** (Header), 类似于 HTTP 协议的 Header, 用于记录一些和消息相关的元数据, 例如:
 
 ```java
-var record = new ProducerRecord<>("Topic", "Key", "Value");
+var record = new ProducerRecord<String, String>("Topic", "Key", "Value");
 record.headers().add("value-type", "JSON".getBytes(StandardCharsets.UTF_8));
 ```
 
@@ -235,3 +238,253 @@ bin/kafka-configs --alter \
 > 注意:
 >
 > 如果是通过异步调用 `send()` 方法, 且发送速率超过了配额设置, 则消息会被放到客户端的内存队列中, 如果发送速率持续高于接收速率, 则缓冲区会被耗尽, 并阻塞后续的 `send()` 调用. 如果阻塞时间超出设置的 `delivery.timeout.ms` 时间, 则抛出 `TimeoutException` 异常
+
+## 7. 序列化器
+
+序列化器的作用是将消息处理为字节数组 (`byte[]`), 以便进行发送, 且生产者的序列化器一定要消费者的反序列化一一对应 (参见 [反序列化器](./consumer.md#7-反序列化器) 章节)
+
+Kafka 内置了几乎所有常用的序列化器, 包括: `Avro`, `Thrift` 以及 `Protobuf`, 基本可以覆盖所有应用场景
+
+当然, 生产者也可以不使用 Kafka 提供的序列化器, 而是通过其它方式将消息处理为字节数组 (或处理为字符串后, 编码为字节数组), 常见的包括: Java 序列化, JSON, XML 等, 这样当消费者获取到消息后, 通过对应的手段将其还原为原始消息即可
+
+### 7.1. 使用 Avro 序列化器
+
+Avro 序列化器基于 JSON 格式, 其作用是将一个对象描述为 JSON 格式字符串, 该 JSON 中包括对象的 **元数据** (`namespace`, `type`, `name` 等) 以及对象的字段信息 (`fields`)
+
+Avro 序列化器的一个特性就是 **向下兼容**, 在业务发展过程中, 对象类型的字段很可能会不断发生变化, 这就意味着对象的编码模式必须要做到向后兼容, 防止生产者对消息进行的修改
+
+例如在业务一开始, 对象序列化的模式为:
+
+```json
+{
+  "namespace": "customerManagement.avro",
+  "type": "record",
+  "name": "Customer",
+  "fields": [
+    {
+      "name": "id",
+      "type": "int"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "faxNumber",
+      "type": ["null", "string"],
+      "default": "null"
+    }
+  ]
+}
+```
+
+其中:
+
+- `id`, `name` 字段是必填项;
+- `faxNumber` 字段是可选项, 且默认值为 `null`;
+
+业务经过若干轮迭代后, 需要增加 `email` 字段且不再使用 `faxNumber` 字段, 则模式变更如下:
+
+```json
+{
+  "namespace": "customerManagement.avro",
+  "type": "record",
+  "name": "Customer",
+  "fields": [
+    {
+      "name": "id",
+      "type": "int"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "email",
+      "type": ["null", "string"],
+      "default": "null"
+    }
+  ]
+}
+```
+
+在新的模式下, 消费者端不在设置 `faxNumber` 字段, 但消费者通过 `getFaxNumber` 方法仍能获取一个 `null` 值而不会发生错误, 且通过 `getEmail` 方法可以获取到新增的 `email` 字段
+
+另外, Avro 序列化器还兼容简单类型, 如 `int`, `double`, `string` 等
+
+使用 Avro 序列化器的基本步骤如下:
+
+首先, 需要一个存取 Schema 的中间件服务, 并设置其地址, 例如:
+
+```java
+var schemaUrl = "http://localhost:8081";
+```
+
+其作用如下:
+
+- Avro 序列化协议中, 需要附带类型的 Schema, 以便反序列化器了解如何对数据进行 Unpack;
+- 每次在通讯中携带 Schema 无疑会增加带宽的使用, 所以可以用一个 [Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) 服务来注册所需的 Schema;
+- 当生产者和消费者使用同一个 Schema Registry 服务时, 即可以通过该服务注册和获取 Schema, 而无需和数据一同传输;
+
+接下来, 即可设置序列化器为 `KafkaAvroSerializer` 类型并发送消息
+
+```java
+var props = new Properties();
+// 设置 Broker 集群地址
+props.put("bootstrap.servers", "localhost:9092");
+// 设置 Key 的序列化器, 使用字符串序列化器
+props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+// 设置 Value 的序列化器, 使用 Avro 序列化器
+props.put("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
+// 设置 Schema 注册地址
+props.put("schema.registry.url", schemaUrl);
+
+// 创建生产者对象
+var producer = new KafkaProducer<String, Customer>(props);
+
+// 消息主题
+var topic = "customerContacts";
+
+try {
+    // 模拟发送消息
+    while (!closed) {
+        var customer = CustomerGenerator.create();   // 创建一个 Avro 对象
+        System.out.printf("New Customer generated: %s%n", customer);
+
+        // 发送消息
+        var record = new ProducerRecord<>(topic, customer.getName(), customer);
+        producer.send(record);
+
+        Thread.sleep(1000L);
+    }
+} catch (InterruptException e) {
+    // ignore
+} finally {
+    producer.close();
+}
+```
+
+这里需要注意以下几点:
+
+- `Customer` 类型对象是一个 Avro 对象, 而非 Java 中的 POJO 对象, Avro 对象需要通过特殊方式生成, 参考 [官网范例](https://avro.apache.org/docs/1.11.1/getting-started-java/#serializing-and-deserializing-with-code-generation);
+- 将 Avro 对象放入 `ProducerRecord` 类型对象中进行发送即可, `KafkaAvroSerializer` 会自动进行所需的处理;
+
+当然, 如果不想为 Java 项目中引入特殊的 Avro 对象, 也可以通过 `GenericRecord` 类型来构建发送对象, 例如:
+
+首先, 将 Schema 描述放入一个 `.avsc` 文件中 (例如 `customer.avsc`, 当然, 文件名和扩展名可以任意), 内容如下:
+
+```json
+{
+  "namespace": "customerManagement.avro",
+  "type": "record",
+  "name": "Customer",
+  "fields": [
+    {
+      "name": "id",
+      "type": "int"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "email",
+      "type": ["null", "string"],
+      "default": "null"
+    }
+  ]
+}
+```
+
+将该文件放入 Java 资源目录下, 例如 `resources/avscs/customer.avsc`, 并对该资源进行读取, 例如：
+
+```java
+var schemaContent = Resources.asCharSource("/avscs/customer.avsc").read();
+```
+
+通过该 Schema 描述字符串, 即可想组装一个 `Map` 对象一样组装 `GenericRecord` 对象, 即:
+
+```java
+var props = new Properties();
+// 设置 Broker 集群地址
+props.put("bootstrap.servers", "localhost:9092");
+// 设置 Key 的序列化器, 使用字符串序列化器
+props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+// 设置 Value 的序列化器, 使用 Avro 序列化器
+props.put("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
+// 设置 Schema 注册地址
+props.put("schema.registry.url", schemaUrl);
+
+// 创建生产者对象
+var producer = new KafkaProducer<String, GenericRecord>(props);
+
+// 消息主题
+var topic = "customerContacts";
+
+// 生成一个 Avro Schema 解析器对象, 并获取 Schema 对象
+var parser = new Schema.Parser();
+var schema = parser.parse(schemaContent);
+
+try {
+    // 模拟发送消息
+    while (!closed) {
+        var customer = CustomerGenerator.create();   // 创建一个 Avro 对象
+        System.out.printf("New Customer generated: %s%n", customer);
+
+        // 通过 Schema 对象实例化一个 GenericData.Record 对象, 并写入字段
+        var customerRecord = new GenericData.Record(schema);
+        customerRecord.put("id", customer.getId());
+        customerRecord.put("name", customer.getName());
+        customerRecord.put("email", customer.getEmail());
+
+        // 发送消息
+        var record = new ProducerRecord<>(topic, customer.getName(), customerRecord);
+        producer.send(record);
+
+        Thread.sleep(1000L);
+    }
+} catch (InterruptException e) {
+    // ignore
+} finally {
+    producer.close();
+}
+```
+
+### 7.2. 自定义序列化器
+
+大部分情况下, 无需自定义序列化器, 这一方面会增加系统的复杂度, 令系统不容易维护, 另一方面也很难让自定义序列化器匹配不同的主题
+
+但自定义序列化器仍是一种解决问题的思路, 例如对于特殊类型消息, 自定义序列化器可能具有超高的存储效率或更高的安全性
+
+通过实现 Kafka 的 `Serializer<T>` 接口即可自定义一个序列化器如下:
+
+```java
+public class CustomerSerializer implements Serializer<Customer> {
+  @Override
+  public void configure(Map configs, boolean isKey) {
+    // 获取生产者配置信息
+  }
+
+  @Override
+  public byte[] serialize(String topic, customer data) {
+    // 对指定对象执行序列化
+    try (var bo = new ByteArrayOutputStream()) {
+      try (var oo = new ObjectOutputStream(bo)) {
+        oo.writeObject(data);
+        oo.flush();
+      }
+      return bo.toByteArray();
+    }
+  }
+
+  @Override
+  public void close() {
+    // 执行清理代码
+  }
+}
+```
+
+创建生产者对象时, 将 `value.serializer` 属性设置为自定义序列化器即可, 注意:
+
+1. 使用该自定义序列化器的生产者只能读取特定类型的消息, 其它类型的消息将无法处理 (除非自定序列化器有处理各种类型消息的能力);
+2. 消费者端要定义对应的反序列化器;
