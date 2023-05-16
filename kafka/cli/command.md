@@ -278,7 +278,7 @@ kafka-console-consumer.sh \
     --property print.timestamp=true \
     --property print.key=true \
     --property print.value=true \
-    --bootstrap-server localhost:9092,zk02:909
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--formatter` 显示消费内容的格式，`kafka.tools.DefaultMessageFormatter` 表示默认格式
