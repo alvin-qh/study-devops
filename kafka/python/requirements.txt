@@ -1,5 +1,5 @@
-kazoo
-kafka-python
-pytest
 autopep8
-mypy
+
+kazoo
+confluent-kafka
+pytest

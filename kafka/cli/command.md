@@ -53,11 +53,9 @@ bin/<command>
 kafka-topics.sh --create \
     --partitions 5 \
     --replication-factor 2 \
-    --topic test1 \
+    --topic test-topic \
     --if-not-exists \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
-
-Created topic test1.
 ```
 
 - `--create` 创建主题
@@ -73,13 +71,11 @@ Created topic test1.
 kafka-topics.sh --create \
     --partitions 5 \
     --replication-factor 2 \
-    --topic test1 \
+    --topic test-topic \
     --if-not-exists \
     --config retention.ms=10000 \
     --config segment.ms=10000 \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
-
-Created topic test1.
 ```
 
 - `--config` 要覆盖的配置项。参见 [附1. 可动态修改的主题参数](#附1-可动态修改的主题参数)
@@ -93,7 +89,7 @@ Created topic test1.
 ```bash
 kafka-topics.sh --alter \
     --partitions 10 \
-    --topic test1 \
+    --topic test-topic \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
@@ -106,14 +102,14 @@ kafka-topics.sh --alter \
 ```bash
 kafka-configs.sh --alter \
     --entity-type topics \
-    --entity-name test1 \
+    --entity-name test-topic \
     --add-config retention.ms=259200000 \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--alter` 表示要修改配置
 - `--entity-type topics` 表示要修改主题的配置
-- `--entity-name test1` 表示要修改配置的主题名称
+- `--entity-name test-topic` 表示要修改配置的主题名称
 - `--add-config` 要增加（或修改）的配置项和值，可修改的配置项包括 [附1. 可动态修改的主题参数](#附1-可动态修改的主题参数)
 
 删除主题的某个配置，恢复默认配置（或配置文件定义配置）
@@ -121,7 +117,7 @@ kafka-configs.sh --alter \
 ```bash
 kafka-configs.sh --alter \
     --entity-type topics \
-    --entity-name test1 \
+    --entity-name test-topic \
     --delete-config retention.ms \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
@@ -142,19 +138,19 @@ kafka-topics.sh --list \
 
 #### 1.4.1. 获取指定主题详情
 
-获取 test1 主题详情
+获取 test-topic 主题详情
 
 ```bash
 kafka-topics.sh --describe \
-    --topic test1 \
+    --topic test-topic \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
-Topic: test1    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 10      ReplicationFactor: 2    Configs: segment.bytes=1073741824,file.delete.delay.ms=60000,retention.bytes=536870912
-        Topic: test1    Partition: 0    Leader: 2       Replicas: 2,1   Isr: 2,1
-        Topic: test1    Partition: 1    Leader: 1       Replicas: 1,2   Isr: 1,2
-        Topic: test1    Partition: 2    Leader: 2       Replicas: 2,1   Isr: 2,1
-        Topic: test1    Partition: 3    Leader: 1       Replicas: 1,2   Isr: 1,2
-        Topic: test1    Partition: 4    Leader: 2       Replicas: 2,1   Isr: 2,1
+Topic: test-topic    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 10      ReplicationFactor: 2    Configs: segment.bytes=1073741824,file.delete.delay.ms=60000,retention.bytes=536870912
+        Topic: test-topic    Partition: 0    Leader: 2       Replicas: 2,1   Isr: 2,1
+        Topic: test-topic    Partition: 1    Leader: 1       Replicas: 1,2   Isr: 1,2
+        Topic: test-topic    Partition: 2    Leader: 2       Replicas: 2,1   Isr: 2,1
+        Topic: test-topic    Partition: 3    Leader: 1       Replicas: 1,2   Isr: 1,2
+        Topic: test-topic    Partition: 4    Leader: 2       Replicas: 2,1   Isr: 2,1
 ```
 
 #### 1.4.2. 获取所有主题详情
@@ -170,29 +166,29 @@ kafka-topics.sh --describe \
 
 ```bash
 kafka-topics.sh kafka-topics.sh --describe \
-    --topic test1 \
+    --topic test-topic \
     --topics-with-overrides \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
-Topic: test1    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 5      ReplicationFactor: 2    Configs: segment.bytes=1073741824,file.delete.delay.ms=60000,retention.bytes=536870912
+Topic: test-topic    TopicId: q6MQnYbpTN6t77UYQ703rQ PartitionCount: 5      ReplicationFactor: 2    Configs: segment.bytes=1073741824,file.delete.delay.ms=60000,retention.bytes=536870912
 ```
 
 - `--topics-with-overrides` 显示被覆盖的配置项
 
 ### 1.5. 获取主题在相关分区的偏移量
 
-查看 test1 主题的分区偏移量
+查看 test-topic 主题的分区偏移量
 
 ```bash
 kafka-run-class.sh kafka.tools.GetOffsetShell \
-    --topic test1 \
+    --topic test-topic \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 
-test1:0:2
-test1:1:0
-test1:2:1
-test1:3:0
-test1:4:0
+test-topic:0:2
+test-topic:1:0
+test-topic:2:1
+test-topic:3:0
+test-topic:4:0
 ```
 
 - `--kafka-run-class.sh` 执行某个指定的 Java 类，本例中 `GetOffsetShell` 类表示在命令行中获取偏移量
@@ -201,12 +197,12 @@ test1:4:0
 
 正常情况下，Kafka 不推荐删除主题，通过设置 `retention.ms=1000` 配置项清空其内容即可
 
-删除 test1 主题
+删除 test-topic 主题
 
 ```bash
-kafka-topics.sh --delete \
-    --topic test1 \
-    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
+    kafka-topics.sh --delete \
+        --topic test-topic \
+        --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--delete` 删除主题
@@ -227,10 +223,8 @@ kafka-topics.sh --describe \
 
 ```bash
 kafka-console-producer.sh \
-    --topic test1 \
+    --topic test-topic \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
-
-> _
 ```
 
 ### 2.2. 发送文件中的内容
@@ -239,7 +233,7 @@ kafka-console-producer.sh \
 
 ```bash
 kafka-console-producer.sh \
-    --topic test1 \
+    --topic test-topic \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092 < data.txt
 ```
 
@@ -249,7 +243,7 @@ kafka-console-producer.sh \
 
 ```bash
 kafka-console-producer.sh \
-    --topic test1 \
+    --topic test-topic \
     --property parse.key=true \
     --property key.separator=: \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
@@ -266,7 +260,7 @@ kafka-console-producer.sh \
 
 ```bash
 kafka-console-consumer.sh \
-    --topic test1 --group g1 \
+    --topic test-topic --group g1 \
     --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
@@ -278,7 +272,7 @@ kafka-console-consumer.sh \
 
 ```bash
 kafka-console-consumer.sh \
-    --topic test1 \
+    --topic test-topic \
     --group g1 \
     --formatter kafka.tools.DefaultMessageFormatter \
     --property print.timestamp=true \
@@ -299,7 +293,7 @@ kafka-console-consumer.sh \
 
 ```bash
 kafka-console-consumer.sh \
-    --topic test1 --group g1 \
+    --topic test-topic --group g1 \
     --from-beginning \
     --bootstrap-server localhost:9092,kf02:9092
 ```
@@ -368,17 +362,17 @@ bash zkCli.sh get /brokers/ids/1
 bash zkCli.sh ls /brokers/topics
 
 >
-[__consumer_offsets, test1]
+[__consumer_offsets, test-topic]
 ```
 
 一般情况下，不会通过 Zookeeper 查看主题列表，Kafka 本身提供了相关的 API
 
 ### 4.5. 查看某个主题信息
 
-查看主题 `test1` 的详情
+查看主题 `test-topic` 的详情
 
 ```json
-bash zkCli.sh get /brokers/topics/test1
+bash zkCli.sh get /brokers/topics/test-topic
 
 >
 {

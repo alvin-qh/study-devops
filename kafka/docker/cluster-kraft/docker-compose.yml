@@ -10,13 +10,18 @@ services:
     env_file:
       - ./env/kf.env
     environment:
-      - KAFKA_CFG_NODE_ID=1 # broker id
+      # 定义节点 ID, 用于集群标识, 参见 KAFKA_CFG_CONTROLLER_QUORUM_VOTERS 设置
+      - KAFKA_CFG_NODE_ID=1
+      # 定义对外发布的监听器, 内网为 kf01:9092, 外网为 localhost:19092
+      # 注意, 外网监听器使用的是当前 docker 容器对外映射的端口
+      # 当客户端连接上 Broker 后, 服务端会将这两个地址发布给客户端, 客户端由此得知集群的连接方式
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf01:9092,EXTERNAL://localhost:19092
     volumes:
       - kf01_data:/bitnami/kafka
     networks:
       - kafka_network
     ports:
-      - 9092:9092
+      - 19092:19092
   kf02:
     image: bitnami/kafka
     container_name: kf02
@@ -26,12 +31,13 @@ services:
       - ./env/kf.env
     environment:
       - KAFKA_CFG_NODE_ID=2
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf02:9092,EXTERNAL://localhost:19093
     volumes:
       - kf02_data:/bitnami/kafka
     networks:
       - kafka_network
     ports:
-      - 9093:9092
+      - 19093:19092
   kf03:
     image: bitnami/kafka
     container_name: kf03
@@ -41,12 +47,13 @@ services:
       - ./env/kf.env
     environment:
       - KAFKA_CFG_NODE_ID=3
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf03:9092,EXTERNAL://localhost:19094
     volumes:
       - kf03_data:/bitnami/kafka
     networks:
       - kafka_network
     ports:
-      - 9094:9092
+      - 19094:19092
 networks:
   kafka_network:
 volumes:
