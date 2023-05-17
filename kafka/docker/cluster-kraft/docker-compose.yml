@@ -22,6 +22,16 @@ services:
       - kafka_network
     ports:
       - 19092:19092
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-metadata-quorum.sh --bootstrap-server localhost:9092 describe --status | grep ClusterId | awk '{print $$2}' | grep -q BqeKWXR-QCGwzec3IpAmFQ || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
   kf02:
     image: bitnami/kafka
     container_name: kf02
@@ -38,6 +48,16 @@ services:
       - kafka_network
     ports:
       - 19093:19092
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-metadata-quorum.sh --bootstrap-server localhost:9092 describe --status | grep ClusterId | awk '{print $$2}' | grep -q BqeKWXR-QCGwzec3IpAmFQ || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
   kf03:
     image: bitnami/kafka
     container_name: kf03
@@ -54,6 +74,40 @@ services:
       - kafka_network
     ports:
       - 19094:19092
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-metadata-quorum.sh --bootstrap-server localhost:9092 describe --status | grep ClusterId | awk '{print $$2}' | grep -q BqeKWXR-QCGwzec3IpAmFQ || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  kf_exporter:
+    image: bitnami/kafka-exporter
+    container_name: kafka_exporter
+    privileged: true
+    restart: always
+    command:
+      - --kafka.server=kf01:9092
+      - --kafka.server=kf02:9092
+      - --kafka.server=kf03:9092
+      - --web.listen-address=:9308
+    networks:
+      - kafka_network
+    ports:
+      - 9308:9308
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "timeout 5s bash -c ':>/dev/tcp/localhost/9308' || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 networks:
   kafka_network:
 volumes:

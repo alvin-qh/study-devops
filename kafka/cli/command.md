@@ -200,9 +200,9 @@ test-topic:4:0
 删除 test-topic 主题
 
 ```bash
-    kafka-topics.sh --delete \
-        --topic test-topic \
-        --bootstrap-server localhost:9092,kf02:9092,kf03:9092
+kafka-topics.sh --delete \
+    --topic test-topic \
+    --bootstrap-server localhost:9092,kf02:9092,kf03:9092
 ```
 
 - `--delete` 删除主题
