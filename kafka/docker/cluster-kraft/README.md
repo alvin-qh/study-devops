@@ -8,6 +8,7 @@
   - [2. 测试集群](#2-测试集群)
     - [2.1. 查看集群元数据日志文件](#21-查看集群元数据日志文件)
     - [2.2. 测试集群](#22-测试集群)
+  - [3. 集群容器监控](#3-集群容器监控)
 
 使用容器配置 KRaft 集群更加简单方便, 因为容器的启动脚本会自动进行日志目录的格式化, 所以只要做好配置启动容器即可组成集群
 
@@ -147,11 +148,11 @@ brokers  features  local  metadataQuorum
 
    ```bash
    docker exec -it kf01 kafka-topics.sh --create \
-     --partitions 3 \
-     --replication-factor 2 \
-     --topic test-topic \
-     --if-not-exists \
-     --bootstrap-server localhost:9092,kf02:9020,kf03:9020
+       --partitions 3 \
+       --replication-factor 2 \
+       --topic test-topic \
+       --if-not-exists \
+       --bootstrap-server kf01:9092,kf02:9020,kf03:9020
    ```
 
 2. 查看创建的主题情况
@@ -159,7 +160,7 @@ brokers  features  local  metadataQuorum
    ```bash
    docker exec -it kf01 kafka-topics.sh --describe \
        --topic test-topic \
-       --bootstrap-server localhost:9092,kf02:9020,kf03:9020
+       --bootstrap-server kf01:9092,kf02:9020,kf03:9020
    ```
 
 3. 向该主题发送一条消息
@@ -169,7 +170,7 @@ brokers  features  local  metadataQuorum
        --topic test-topic \
        --property 'parse.key=true' \
        --property 'key.separator=:' \
-       --bootstrap-server localhost:9092,kf02:9020,kf03:9020
+       --bootstrap-server kf01:9092,kf02:9020,kf03:9020
 
    >1:Hello
    ```
@@ -187,7 +188,13 @@ brokers  features  local  metadataQuorum
        --property 'print.timestamp=true' \
        --property 'print.key=true' \
        --property 'print.value=true' \
-       --bootstrap-server localhost:9092,kf02:9020,kf03:9020
+       --bootstrap-server kf01:9092,kf02:9020,kf03:9020
    ```
 
    - `--from-beginning` 表示从上次读取提交的 offset 位置开始继续读取; 不设置此项则从日志分片的最新位置开始读取 (即只读取之后写入的新消息);
+
+## 3. 集群容器监控
+
+通过 `bitnami/kafka-exporter` 镜像可以启动 Kafka Exporter 容器, 对同一个集群中的 Kafka 节点进行监控
+
+Kafka Exporter 的配置使用具体参考 [使用 Kafka Exporter](../../doc/monitor.md#22-使用-kafka-exporter) 章节

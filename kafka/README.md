@@ -28,6 +28,7 @@
       - [2.5.2. KRaft 集群](#252-kraft-集群)
         - [2.5.2.1. KRaft 集群配置](#2521-kraft-集群配置)
         - [2.5.2.2. KRaft 集群容器化配置](#2522-kraft-集群容器化配置)
+  - [3. Kafka 监控](#3-kafka-监控)
 
 ## 1. 安装配置
 
@@ -167,3 +168,7 @@ Broker 安全相关的配置和使用参考 [安全认证](./doc/certificate.md)
 ##### 2.5.2.2. KRaft 集群容器化配置
 
 参考 [KRaft 集群容器化](./docker/cluster-kraft/README.md) 章节
+
+## 3. Kafka 监控
+
+参考 [Kafka 监控](./doc/monitor.md) 章节

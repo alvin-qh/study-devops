@@ -9,6 +9,7 @@
     - [2.1. 通过配置文件](#21-通过配置文件)
     - [2.2. 通过环境变量](#22-通过环境变量)
   - [3. 使用 Docker Compose](#3-使用-docker-compose)
+  - [4. 容器监控](#4-容器监控)
 
 如果只是做测试使用, 大部分情况下一个 Kafka 实例就完全足够, 可以通过 Docker 容器的方式很方便的在当前宿主机启动 Kafka 实例
 
@@ -149,3 +150,9 @@ docker run -d --rm \
 ```bash
 docker-compose up -d
 ```
+
+## 4. 容器监控
+
+通过 `bitnami/kafka-exporter` 镜像可以启动 Kafka Exporter 容器, 对同一网络下的 Kafka 容器进行监控
+
+Kafka Exporter 的配置使用具体参考 [使用 Kafka Exporter](../../doc/monitor.md#22-使用-kafka-exporter) 章节
