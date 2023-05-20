@@ -101,16 +101,13 @@ docker logs -f kafka
 
 ### 2.1. 通过配置文件
 
-容器中 Kafka 的配置和非容器环境的基本一致
+容器中 Kafka 的配置和非容器环境下基本一致
 
 在 `bitnami/kafka` 镜像容器中, 配置文件位于容器的 `/opt/bitnami/kafka/config/kraft` 路径下 (由于本例中, 容器中的 Kafka 均是以 KRaft 模式启动, 如果不使用 Kraft 模式, 则配置文件的位置为 `/opt/bitnami/kafka/config` 路径), 可以将其中部分映射到宿主机的指定文件, 从而达到修改配置的目的, 例如:
 
 ```bash
 docker run -d --rm \
     --name kafka \
-    -e KAFKA_ENABLE_KRAFT=yes \
-    -e ALLOW_PLAINTEXT_LISTENER=yes \
-    -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
     -v ./conf/server.properties:/opt/bitnami/kafka/config/kraft/server.properties \
     bitnami/kafka
 ```

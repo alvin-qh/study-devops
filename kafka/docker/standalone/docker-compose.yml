@@ -17,7 +17,7 @@ services:
     networks:
       - kafka_network
     ports:
-      - 9092:9092
+      - 19092:9092
     healthcheck:
       test:
         [
@@ -30,7 +30,8 @@ services:
       start_period: 30s
   kf_exporter:
     image: bitnami/kafka-exporter
-    container_name: kafka_exporter
+    container_name: kf_exporter
+    hostname: kf_exporter
     privileged: true
     restart: always
     command:

@@ -1,6 +1,6 @@
-# KRaft 集群
+# KRaft 集群配置
 
-- [KRaft 集群](#kraft-集群)
+- [KRaft 集群配置](#kraft-集群配置)
   - [1. KRaft 和控制器](#1-kraft-和控制器)
     - [1.1. Zookeeper 的问题](#11-zookeeper-的问题)
     - [1.2. KRaft 的作用](#12-kraft-的作用)
@@ -11,7 +11,7 @@
   - [3. 启动集群](#3-启动集群)
     - [3.1. 格式化日志存储](#31-格式化日志存储)
     - [3.2. 启动服务节点](#32-启动服务节点)
-  - [4. 测试集群](#4-测试集群)
+  - [4. 集群测试](#4-集群测试)
     - [4.1. 查看集群元数据日志文件](#41-查看集群元数据日志文件)
     - [4.2. 测试集群](#42-测试集群)
 
@@ -69,9 +69,23 @@ Zookeeper 作为协同服务导致了一些长期存在的问题:
    - 对于控制器节点, 通过该配置可以知道其它控制器节点的信息;
    - 对于 Broker 节点, 则可知道控制器集群的各个节点的信息;
 
-4. `controller.listener.names`, 用于指定控制器使用的监听器名称, 需要从 `listener.security.protocol.map` 配置中选择一个;
+4. `listener.security.protocol.map`, 用于指定 Kafka 的监听器, 每个监听器由监听器名称和对应的网络协议组成, 即: `<监听器名称>:<监听器协议>`, 默认配置为:
 
-5. `listeners`, 用于指定侦听器, 控制器节点必须包括具备用于监听其它控制器通信的监听器;
+   ```ini
+   listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
+   ```
+
+   如果客户端 (生产者, 消费者) 和 Kafka 在同一个网络, 则默认配置就够用; 如果要区分内外网, 则需要为内网和外网定义不同的监听器, 例如:
+
+   ```ini
+   listener.security.protocol.map=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,INTERNAL_SSL:SSL,EXTERNAL_SSL:SSL,INTERNAL_SASL_PLAINTEXT:SASL_PLAINTEXT,EXTERNAL_SASL_PLAINTEXT:SASL_PLAINTEXT,INTERNAL_SASL_SSL:SASL_SSL,EXTERNAL_SASL_SSL:SASL_SSL
+   ```
+
+   当然, 一般也无须为所有的协议定义监听器, 按实际情况定义即可
+
+5. `controller.listener.names`, 用于指定控制器使用的监听器名称, 需要从 `listener.security.protocol.map` 配置中选择一个;
+
+6. `listeners`, 用于指定侦听器, 控制器节点必须包括具备用于监听其它控制器通信的监听器;
 
 整个控制器集群的主要配置项如下 (假设配置 `3` 个节点的控制器集群, 主机名分别为 `kfc01`, `kfc02` 和 `kfc03`):
 
@@ -170,7 +184,7 @@ cluster.id=BqeKWXR-QCGwzec3IpAmFQ
 kafka-server-start.sh ./config/server.properties
 ```
 
-## 4. 测试集群
+## 4. 集群测试
 
 假设以混合模式搭建集群, 三个节点分别为 `kf01`, `kf02` 和 `kf03`, 且:
 
@@ -214,7 +228,7 @@ brokers  features  local  metadataQuorum
      --replication-factor 2 \
      --topic test-topic \
      --if-not-exists \
-     --bootstrap-server localhost:9092,kf02:9020,kf03:9020
+     --bootstrap-server kf01:9092,kf02:9020,kf03:9020
    ```
 
 2. 查看创建的主题情况
@@ -222,7 +236,7 @@ brokers  features  local  metadataQuorum
    ```bash
    kafka-topics.sh --describe \
        --topic test-topic \
-       --bootstrap-server localhost:9092,kf02:9020,kf03:9020
+       --bootstrap-server kf01:9092,kf02:9020,kf03:9020
    ```
 
 3. 向该主题发送一条消息
@@ -232,7 +246,7 @@ brokers  features  local  metadataQuorum
        --topic test-topic \
        --property 'parse.key=true' \
        --property 'key.separator=:' \
-       --bootstrap-server localhost:9092,kf02:9020,kf03:9020
+       --bootstrap-server kf01:9092,kf02:9020,kf03:9020
 
    >1:Hello
    ```
@@ -250,7 +264,7 @@ brokers  features  local  metadataQuorum
        --property 'print.timestamp=true' \
        --property 'print.key=true' \
        --property 'print.value=true' \
-       --bootstrap-server localhost:9092,kf02:9020,kf03:9020
+       --bootstrap-server kf01:9092,kf02:9020,kf03:9020
    ```
 
    - `--from-beginning` 表示从上次读取提交的 offset 位置开始继续读取; 不设置此项则从日志分片的最新位置开始读取 (即只读取之后写入的新消息);

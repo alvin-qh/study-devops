@@ -19,7 +19,7 @@ services:
     volumes:
       - kf01_data:/bitnami/kafka
     networks:
-      - kafka_network
+      - kf_network
     ports:
       - 19092:19092
       # 映射 JMX 端口
@@ -37,6 +37,7 @@ services:
   kf02:
     image: bitnami/kafka
     container_name: kf02
+    hostname: kf02
     privileged: true
     restart: always
     env_file:
@@ -47,7 +48,7 @@ services:
     volumes:
       - kf02_data:/bitnami/kafka
     networks:
-      - kafka_network
+      - kf_network
     ports:
       - 19093:19092
     healthcheck:
@@ -63,6 +64,7 @@ services:
   kf03:
     image: bitnami/kafka
     container_name: kf03
+    hostname: kf03
     privileged: true
     restart: always
     env_file:
@@ -73,7 +75,7 @@ services:
     volumes:
       - kf03_data:/bitnami/kafka
     networks:
-      - kafka_network
+      - kf_network
     ports:
       - 19094:19092
     healthcheck:
@@ -88,7 +90,8 @@ services:
       start_period: 30s
   kf_exporter:
     image: bitnami/kafka-exporter
-    container_name: kafka_exporter
+    container_name: kf_exporter
+    hostname: kf_exporter
     privileged: true
     restart: always
     command:
@@ -97,7 +100,7 @@ services:
       - --kafka.server=kf03:9092
       - --web.listen-address=:9308
     networks:
-      - kafka_network
+      - kf_network
     ports:
       - 9308:9308
     healthcheck:
@@ -111,7 +114,7 @@ services:
       retries: 5
       start_period: 30s
 networks:
-  kafka_network:
+  kf_network:
 volumes:
   kf01_data:
   kf02_data:

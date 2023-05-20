@@ -22,13 +22,10 @@
       - [2.3.2. 消费者配置](#232-消费者配置)
     - [2.4. 使用容器](#24-使用容器)
     - [2.5. Kafka 集群](#25-kafka-集群)
-      - [2.5.1. Zookeeper 集群](#251-zookeeper-集群)
-        - [2.5.1.1. Zookeeper 集群配置](#2511-zookeeper-集群配置)
-        - [2.5.1.2. Zookeeper 集群容器化配置](#2512-zookeeper-集群容器化配置)
+      - [2.5.1. Kafka 传统集群](#251-kafka-传统集群)
       - [2.5.2. KRaft 集群](#252-kraft-集群)
-        - [2.5.2.1. KRaft 集群配置](#2521-kraft-集群配置)
-        - [2.5.2.2. KRaft 集群容器化配置](#2522-kraft-集群容器化配置)
-  - [3. Kafka 监控](#3-kafka-监控)
+  - [3. Kafka 常用命令](#3-kafka-常用命令)
+  - [4. Kafka 监控](#4-kafka-监控)
 
 ## 1. 安装配置
 
@@ -153,22 +150,20 @@ Broker 安全相关的配置和使用参考 [安全认证](./doc/certificate.md)
 
 ### 2.5. Kafka 集群
 
-#### 2.5.1. Zookeeper 集群
+#### 2.5.1. Kafka 传统集群
 
-##### 2.5.1.1. Zookeeper 集群配置
-
-##### 2.5.1.2. Zookeeper 集群容器化配置
+1. Kafka 传统集群配置, 参考 [Kafka 传统集群配置](./doc/cluster.md) 章节
+2. Kafka 传统集群容器化配置, 参考 [Kafka 传统集群容器化配置](./docker/cluster-zk/README.md) 章节
 
 #### 2.5.2. KRaft 集群
 
-##### 2.5.2.1. KRaft 集群配置
+1. KRaft 集群配置, 参考 [KRaft 集群配置](./doc/kraft.md) 章节
+2. KRaft 集群容器化配置, 参考 [KRaft 集群容器化配置](./docker/cluster-kraft/README.md) 章节
 
-参考 [KRaft 集群](./doc/kraft.md) 章节
+## 3. Kafka 常用命令
 
-##### 2.5.2.2. KRaft 集群容器化配置
+参考 [Kafka 常用命令](./doc/cli.md)
 
-参考 [KRaft 集群容器化](./docker/cluster-kraft/README.md) 章节
-
-## 3. Kafka 监控
+## 4. Kafka 监控
 
 参考 [Kafka 监控](./doc/monitor.md) 章节

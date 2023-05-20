@@ -1,6 +1,6 @@
-# KRaft 集群容器化
+# KRaft 集群容器化配置
 
-- [KRaft 集群容器化](#kraft-集群容器化)
+- [KRaft 集群容器化配置](#kraft-集群容器化配置)
   - [1. 容器配置](#1-容器配置)
     - [1.1. 设置内外网](#11-设置内外网)
     - [1.2. 设置对外发布地址](#12-设置对外发布地址)
@@ -14,9 +14,9 @@
 
 ## 1. 容器配置
 
-使用 KRaft 容器配置集群和在物理机上进行配置基本一致, 需要注意的主要是以下几点:
+基本的容器配置参考 [单实例容器](../standalone/README.md) 章节, 需要注意的主要是以下几点:
 
-1. 对于通过 `bitnami/kafka` 镜像创建的容器, 仍推荐使用环境变量替代配置文件, 这样一方面可以减少一次文件映射, 避免映射文件的权限问题, 另一方面也较为方便;
+1. 对于通过 `bitnami/kafka` 镜像创建的容器, 推荐使用环境变量替代配置文件, 这样一方面可以减少一次文件映射, 避免映射文件的权限问题, 另一方面也较为方便;
 2. 容器的网络只对容器内部开放, 即容器间通过内部网络控制器组成了 **内网**, 而宿主机则是通过映射容器的端口进行访问, 相当于 **外网**, 所以如果有通过宿主机访问容器中 Kafka 实例的需求, 则 Kafka 要具备多套网络侦听, 分别对应内网和外网的情况;
 
 关于 KRaft 集群的基本配置, 可以参考 [KRaft 集群](../../doc/kraft.md) 章节
@@ -25,9 +25,9 @@
 
 1. 设置 `KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP` 环境变量:
 
-   `KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP` 环境变量即 `listener.security.protocol.map` 配置项, 用于设置监听器和协议的映射关系
+   `KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP` 环境变量用于设置监听器和协议的映射关系
 
-   为了区分内外网, 默认的监听器定义不够用, 需要额外定义 `INTERNAL` 和 `EXTERNAL` 两个监听器
+   在容器环境下, 为了区分内外网, 默认的监听器定义不够用, 需重新定义, 本例中定义了 `INTERNAL`, `EXTERNAL` 和 `CONTROLLER` 三个监听器
 
    ```ini
    KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
@@ -44,7 +44,7 @@
 
 2. 设置 `KAFKA_CFG_LISTENERS` 环境变量:
 
-   `KAFKA_CFG_LISTENERS` 环境变量即 `listeners` 配置项, 用于设置当前节点的监听地址
+   `KAFKA_CFG_LISTENERS` 环境变量用于设置当前节点的监听地址
 
    这里需要增加一个外网监听地址, 本例中设置为 `0.0.0.0:19092`, 即:
 
@@ -52,7 +52,7 @@
    KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:19092,CONTROLLER://:9093
    ```
 
-   - 这里的 `EXTERNAL` 即表示外网监听协议. 因为 `listeners` 设置中不能设置多个重复的监听器, 所以需要在 `listener.security.protocol.map` 设置设置足够的监听器
+   - 这里的 `EXTERNAL` 即表示外网监听协议. 因为 `KAFKA_CFG_LISTENERS` 环境变量中不能设置多个重复的监听器, 所以需要在 `KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP` 设置设置足够的监听器
 
 ### 1.2. 设置对外发布地址
 
@@ -60,13 +60,13 @@
 
 为了解决上述问题, 在上一步还额外配置了一个 `EXTERNAL://:19092` 监听地址, 即监听 `0.0.0.0:19092` 地址, 将该端口和宿主机端口映射后, 将映射后的宿主机地址作为对外地址发布
 
-设置 `KAFKA_CFG_ADVERTISED_LISTENERS` 环境变量即 `advertised.listeners` 配置项, 用于设置实际发布到客户端的监听地址, 即"外网"监听地址
+设置 `KAFKA_CFG_ADVERTISED_LISTENERS` 环境变量, 用于设置实际发布到客户端的监听地址, 即"外网"监听地址
 
 ```ini
 KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://<容器主机名>:9092,EXTERNAL://<宿主机主机名>:19092
 ```
 
-注意, `advertised.listeners` 配置项必须包含 `inter.broker.listener.name` 设置的监听器, 所以必须同时包含 `INTERNAL` 和 `EXTERNAL` 这两个监听器, 前者满足 `inter.broker.listener.name` 配置项的要求, 相当于发布了"内网"监听地址, 后者相当于发布了"外网"监听地址
+注意, `KAFKA_CFG_ADVERTISED_LISTENERS` 环境变量必须包含 `KAFKA_CFG_INTER_BROKER_LISTENER_NAME` 环境变量设置的监听器, 所以必须同时包含 `INTERNAL` 和 `EXTERNAL` 这两个监听器, 前者满足 `KAFKA_CFG_INTER_BROKER_LISTENER_NAME` 环境变量的要求, 相当于发布了"内网"监听地址, 后者相当于发布了"外网"监听地址
 
 这里的 `EXTERNAL://<宿主机主机名>:19092` 实际描述的是从当前容器的宿主机进行访问的地址, 用于同步到客户端 (生产者, 消费者) 进行连接的地址
 
@@ -79,31 +79,37 @@ KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://<容器主机名>:9092,EXTERNAL://<宿
 - `kf01` 节点:
 
   ```yml
+  env_file:
+    - ./env/kf.env
   ports:
     - 19092:19092
   environment:
-    KAFKA_CFG_NODE_ID=1
-    KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf01:9092,EXTERNAL://localhost:19092
+    - KAFKA_CFG_NODE_ID=1
+    - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf01:9092,EXTERNAL://localhost:19092
   ```
 
 - `kf02` 节点:
 
   ```yml
+  env_file:
+    - ./env/kf.env
   ports:
     - 19093:19092
   environment:
-    KAFKA_CFG_NODE_ID=2
-    KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf02:9092,EXTERNAL://localhost:19093
+    - KAFKA_CFG_NODE_ID=2
+    - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf02:9092,EXTERNAL://localhost:19093
   ```
 
 - `kf03` 节点:
 
   ```yml
+  env_file:
+    - ./env/kf.env
   ports:
     - 19094:19092
   environment:
-    KAFKA_CFG_NODE_ID=3
-    KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf03:9092,EXTERNAL://localhost:19094
+    - KAFKA_CFG_NODE_ID=3
+    - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf03:9092,EXTERNAL://localhost:19094
   ```
 
 上面的配置参考 [docker-compose.yml](./docker-compose.yml) 配置文件
