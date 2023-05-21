@@ -58,7 +58,7 @@ Broker 的配置在 Kafka 按照路径的 `config` 目录下, `server.properties
     - 如果启用了此选项, 则或有一个后台线程定期 (通过 `leader.imbalance.check.interval.seconds` 配置指定) 检查各分区的分布情况;
     - 如果各个 Broker 的主题不均衡成都超出指定的百分比 (通过 `leader.imbalance.per.broker.percentage` 配置指定), 则会自动启动一次分区 Leader 再平衡;
 
-8. `delete.topic.enable`, 禁止主题被随意删除;
+8. `delete.topic.enable`, 是否允许客户端删除主题, 一般情况下只允许通过管理工具进行主题删除, 而不能随意删除主题;
 
 ## 2. 主题相关配置
 
