@@ -1,6 +1,6 @@
 autopep8
-mypy
 
+py
 kazoo
 confluent-kafka
 pytest

@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import conf
 from confluent_kafka import (Consumer, KafkaError, KafkaException, Message,
@@ -144,30 +144,44 @@ def poll_and_assert(  # NOSONAR
     if expected_messages is None:
         expected_messages = []
 
+    # 记录已经到达末尾的分区字典
+    # Key 为主题 + 分区, Value 为 Boolean 类型
+    eof: Dict[Tuple[str, int], bool] = {}
+
     # 读取消息, 直到将所分配分区的消息读完
     while 1:
         # 读取消息, 超时时间 2s
         msg = consumer.poll(timeout=2.0)
 
         if msg:
-            # 获取错误信息
-            err = msg.error()
+            # 获取消息的主题, 分区和错误信息
+            topic, partition, err = msg.topic(), msg.partition(), msg.error()
             if err:
                 # 如果已经到达分区结尾, 则退出循环, 否则抛出异常
                 if err.code() != KafkaError._PARTITION_EOF:
                     raise KafkaException(err)
 
                 logger.error(err)
-                break
 
-            if expected_messages:
-                if len(messages) == len(expected_messages):
+                # 记录到达末尾的主题和分区
+                eof[(topic, partition)] = True
+
+                # 判断如果所有主题分区都到达末尾, 则结束循环
+                if len(eof) == len(consumer.assignment()):
+                    break
+
+                continue
+
+            # 收到消息, 将指定主题分区的 EOF 标记取消
+            eof.pop((topic, partition), None)
+
+            if expected_messages and len(messages) == len(expected_messages):
                     messages = messages[1:]
 
-                # 记录最后一条消息
-                messages.append(msg)
-            else:
-                messages = [msg]
+            # 记录最后一条消息
+            messages.append(msg)
+
+    assert messages
 
     if commit:
         try:

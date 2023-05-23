@@ -1,6 +1,7 @@
 .vscode
 .venv
 .pytest_cache
+.mypy_cache
 __pycache__
 .history
 .python-version

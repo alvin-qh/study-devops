@@ -1,8 +1,10 @@
 import logging
 import socket
+from typing import Dict
+from unittest import expectedFailure
 
 import conf
-from confluent_kafka import KafkaError, Message
+from confluent_kafka import Consumer, KafkaError, Message, TopicPartition
 from confluent_kafka.admin import AdminClient
 from misc import (MessageGenerator, close_consumer, create_consumer,
                   create_producer, create_topic_if_not_exists, poll_and_assert)
@@ -324,61 +326,177 @@ def test_transaction_only_producer() -> None:
         close_consumer(consumer_out)
 
 
-# def test_seek_consumer_offset() -> None:
-#     """
-#     测试移动 consumer 的 offset
-#     """
-#     value = b"Hello World!"
+def test_seek_consumer_offset() -> None:
+    """
+    移动消费者偏移量
 
-#     # 连接 Kafka，创建 Producer
-#     producer = ka.KafkaProducer(
-#         client_id=conf.CLIENT_ID,
-#         bootstrap_servers=BOOTSTRAP_SERVERS,
-#     )
+    移动消费者偏移量可以重新获取到"之前"的消息, 几个注意点:
+    1. 创建消费者时, `auto.offset.reset` 配置项要设置为 `earliest`;
+    2. 消费者的 `seek` 方法参数为 `TopicPartition` 对象,
+    即偏移量的移动是针对指定主题和分区的;
+    3. 偏移量提交并不包含发生移动的偏移量;
+    """
+    topic_name = "test-topic"
+    group_id = "test-group-1"
 
-#     try:
-#         # 异步发送消息
-#         future: FutureRecordMetadata = producer.send(conf.TOPIC, value)
+    # 创建主题
+    create_topic_if_not_exists(topic_name)
 
-#         try:
-#             # 获取消息发送结果（异步）
-#             record = future.get(timeout=30)
-#         except KafkaError as err:
-#             pytest.fail(err)
+    # 创建消费者对象
+    consumer = create_consumer(topic_name, group_id)
 
-#         assert record.topic == conf.TOPIC  # 发送的主题
-#         assert record.partition in {0, 1, 2, 3, 4}  # 发送到的分区
-#         assert record.offset >= 0  # 发送分区的偏移量
+    # 创建生产者对象
+    producer = create_producer()
 
-#         producer.flush()  # 刷新 producer，将所有缓存的消息发送
-#     finally:
-#         producer.close()
+    # 生成一条消息
+    msg_data = msg_generator.generate()
 
-#     # 获取 Kafka，创建 Consumer
-#     consumer = ka.KafkaConsumer(
-#         client_id=conf.CLIENT_ID,  # 客户端 ID
-#         group_id=conf.GROUP_ID,  # 消费组 ID
-#         bootstrap_servers=BOOTSTRAP_SERVERS,  # Broker 服务器列表
-#     )
+    # 向主题发送一条消息
+    producer.produce(
+        topic_name,
+        key=msg_data.key,
+        value=msg_data.value,
+    )
 
-#     try:
-#         # 设置主题和分区关系
-#         tp = ka.TopicPartition(topic=conf.TOPIC, partition=record.partition)
+    try:
+        # 获取最新的消息并进行确认
+        msg = poll_and_assert(consumer, expected_messages=[msg_data])[0]
 
-#         # 将设定好的主题分区分配给 consumer
-#         consumer.assign([tp])
+        # 将消费者中指定主题分区的偏移量设置为前一个消息的偏移量
+        consumer.seek(TopicPartition(
+            topic=msg.topic(),
+            partition=msg.partition(),
+            offset=msg.offset(),
+        ))
 
-#         # 移动 offset 表示从头读取
-#         consumer.seek_to_beginning()
+        # 再次读取消息, 确认可以读取到前一个消息
+        # 注意, 在前面调用 poll_and_assert 函数, 内部已经提交了偏移量, 当偏移量 seek 后,
+        # 则无需再次提交偏移量
+        msg = consumer.poll(timeout=2.0)
+        assert msg
+        assert msg.error() is None
 
-#         # 从 consumer 读取记录
-#         for record in consumer:
-#             assert record.topic == conf.TOPIC  # 接收到的主题
-#             assert record.partition in {0, 1, 2, 3, 4}  # 接收到消息的分区
-#             assert record.value == value  # 接收到的值
-#             break
-#     finally:
-#         consumer.close()
+        assert msg.key() == msg_data.key
+        assert msg.value() == msg_data.value
+    finally:
+        close_consumer(consumer)
+
+
+def test_group_regular_member() -> None:
+    """
+    群组固定成员
+
+    默认情况下, 群组成员是动态的, 即一个群组成员离开或加入群组, 都会导致消费组再平衡,
+    即重新为每个消费者重新分配分区, 这个过程会导致
+
+    通过消费者的 `group.instance.id` 配置项可以指定一个消费者在群组中的"固定"标识,
+    当一个消费者离开群组, 稍后又以相同的 `group.instance.id` 加入回群组时,
+    群组无需进行再平衡, 而会直接把原本该消费者负责的分区重新分配给该消费者
+
+    通过 `session.timeout.ms` 参数可以指定群组的固定成员离开多久后, 群组会进行再平衡,
+    将该分区交给其它消费者处理, 另外 `heartbeat.interval.ms` 则是消费者发送心跳包的时间间隔,
+    必须小于 `session.timeout.ms` 设置的时间
+
+    该测试将 `session.timeout.ms` 设置为 3 分钟, 所以观察 Kafka 日志, 在 3 分钟内,
+    执行该测试, 不会发生消费者离开或加入群组的操作, 同时也不会发生群组再平衡
+    """
+    topic_name = "test-group-regular-member-topic"
+    group_id = "test-group-1"
+
+    # 创建主题
+    create_topic_if_not_exists(topic_name)
+
+    # 创建消费者对象
+    consumer = create_consumer(topic_name, group_id, ext_props={
+        "group.instance.id": "9d1b90b5-29a2-4fdd-96d8-96fa8d5ae2ee",  # 固定群组 ID
+        "session.timeout.ms": 180000,  # 会话超时时间
+        "heartbeat.interval.ms": 18000,  # 心跳发送时间间隔
+    })
+
+    # 创建生产者对象
+    producer = create_producer()
+
+    # 生成一条消息
+    msg_data = msg_generator.generate()
+
+    # 向主题发送一条消息
+    producer.produce(
+        topic_name,
+        key=msg_data.key,
+        value=msg_data.value,
+    )
+
+    try:
+        # 获取最新的消息并进行确认
+        poll_and_assert(consumer, expected_messages=[msg_data])
+    finally:
+        close_consumer(consumer)
+
+
+def test_assign_specified_partition() -> None:
+    """
+    独立消费者
+
+    所谓独立消费者, 即不直接进行主题订阅, 而是为该消费者直接分配确定的主题和分区, 有如下特点:
+    1. 固定消费者直接从指定主题的分区获取消息, 该组不再进行再平衡操作;
+    2. 和固定消费者同组的消费者均必须为固定消费者 (不能发生主题订阅), 且各自关联的主题分区不能交叉;
+    """
+    topic_name = "test-topic"
+    group_id = "test-group-2"
+
+    # 创建主题
+    create_topic_if_not_exists(topic_name)
+
+    # 创建消费者对象, 并且不直接进行主题订阅
+    consumer = Consumer({
+        "bootstrap.servers": conf.BOOTSTRAP_SERVERS,
+        "group.id": group_id,
+        "enable.auto.commit": False,
+        "auto.offset.reset": "earliest",
+        "enable.partition.eof": True
+    })
+
+    # 为消费者分配指定的主题和分区
+    consumer.assign([
+        TopicPartition(
+            topic=topic_name,
+            partition=1,  # 指定接收分区 1 的消息
+        ),
+        TopicPartition(
+            topic=topic_name,
+            partition=2,  # 指定接收分区 2 的消息
+        ),
+    ])
+
+    # 创建生产者对象
+    producer = create_producer()
+
+    # 记录消息和分区对应关系的字典
+    partition_msg: Dict[int, MessageData] = {}
+
+    # 向三个分区各发送一条消息
+    for partition in range(3):
+        # 生成一条消息
+        msg_data = msg_generator.generate()
+
+        # 发送消息
+        producer.produce(
+            topic_name,
+            key=msg_data.key,
+            value=msg_data.value,
+            partition=partition,  # 指定发送消息的目标分区
+        )
+
+        partition_msg[partition] = msg_data
+
+    try:
+        # 读取消息, 并确认只有分区 1 和 2 的消息返回
+        poll_and_assert(
+            consumer,
+            expected_messages=[partition_msg[1], partition_msg[2]],
+        )
+    finally:
+        close_consumer(consumer)
 
 
 # def test_kv_record() -> None:

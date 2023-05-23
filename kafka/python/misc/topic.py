@@ -31,10 +31,13 @@ def create_topic_if_not_exists(
     # 判断该主题是否具备分区, 如果不具备, 说明该主题尚未创建
     if not topic.partitions:
         # 创建指定主题, 参数为 NewTopic 对象的列表
-        admin_client.create_topics([
-            NewTopic(
-                topic=topic_name,  # 主题名称
-                num_partitions=num_partitions,  # 主题分区数量
-                replication_factor=replication_factor,  # 主题副本数量
-            )
-        ])
+        admin_client.create_topics(
+            [
+                NewTopic(
+                    topic=topic_name,  # 主题名称
+                    num_partitions=num_partitions,  # 主题分区数量
+                    replication_factor=replication_factor,  # 主题副本数量
+                )
+            ],
+            operation_timeout=5.0
+        )
