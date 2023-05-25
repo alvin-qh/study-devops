@@ -113,6 +113,21 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+  schemaregistry:
+    image: bitnami/schema-registry
+    container_name: kf_schema_registry
+    hostname: kf_schema_registry
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/registry.env
+    depends_on:
+      - kf01
+      - kf02
+    networks:
+      - kf_network
+    ports:
+      - 18081:8081
 networks:
   kf_network:
 volumes:

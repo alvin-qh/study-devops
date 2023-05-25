@@ -1,6 +1,7 @@
 autopep8
 
-py
 kazoo
 confluent-kafka
 pytest
+requests
+fastavro

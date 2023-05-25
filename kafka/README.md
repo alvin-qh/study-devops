@@ -26,6 +26,7 @@
       - [2.5.2. KRaft 集群](#252-kraft-集群)
   - [3. Kafka 常用命令](#3-kafka-常用命令)
   - [4. Kafka 监控](#4-kafka-监控)
+  - [5. Schema Registry](#5-schema-registry)
 
 ## 1. 安装配置
 
@@ -162,8 +163,12 @@ Broker 安全相关的配置和使用参考 [安全认证](./doc/certificate.md)
 
 ## 3. Kafka 常用命令
 
-参考 [Kafka 常用命令](./doc/cli.md)
+参考 [Kafka 常用命令](./doc/cli.md) 章节
 
 ## 4. Kafka 监控
 
 参考 [Kafka 监控](./doc/monitor.md) 章节
+
+## 5. Schema Registry
+
+参考 [Schema Registry](./doc/schema_registry.md) 章节

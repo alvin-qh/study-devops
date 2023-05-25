@@ -272,7 +272,7 @@ Avro 序列化器的一个特性就是 **向下兼容**, 在业务发展过程�
     {
       "name": "faxNumber",
       "type": ["null", "string"],
-      "default": "null"
+      "default": null
     }
   ]
 }
@@ -302,7 +302,7 @@ Avro 序列化器的一个特性就是 **向下兼容**, 在业务发展过程�
     {
       "name": "email",
       "type": ["null", "string"],
-      "default": "null"
+      "default": null
     }
   ]
 }
@@ -390,16 +390,16 @@ try {
     {
       "name": "email",
       "type": ["null", "string"],
-      "default": "null"
+      "default": null
     }
   ]
 }
 ```
 
-将该文件放入 Java 资源目录下, 例如 `resources/avscs/customer.avsc`, 并对该资源进行读取, 例如：
+将该文件放入 Java 资源目录下, 例如 `resources/kafka-schema/customer.avsc`, 并对该资源进行读取, 例如：
 
 ```java
-var schemaContent = Resources.asCharSource("/avscs/customer.avsc").read();
+var schemaContent = Resources.asCharSource("/kafka-schema/customer.avsc").read();
 ```
 
 通过该 Schema 描述字符串, 即可想组装一个 `Map` 对象一样组装 `GenericRecord` 对象, 即:

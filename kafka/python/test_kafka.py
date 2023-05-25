@@ -1,14 +1,16 @@
 import logging
+import os
 import socket
 from typing import Dict
-from unittest import expectedFailure
+from uuid import uuid4
 
 import conf
 from confluent_kafka import Consumer, KafkaError, Message, TopicPartition
 from confluent_kafka.admin import AdminClient
-from misc import (MessageGenerator, close_consumer, create_consumer,
-                  create_producer, create_topic_if_not_exists, poll_and_assert)
-from misc.message import MessageData
+from confluent_kafka.serialization import MessageField, SerializationContext
+from misc import (AvroSchema, MessageData, MessageGenerator, close_consumer,
+                  create_consumer, create_producer, create_topic,
+                  poll_and_assert)
 
 # 可配置项参考: https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md
 
@@ -20,10 +22,10 @@ def test_topic() -> None:
     """
     测试主题操作
     """
-    topic_name = "test-topic"
+    topic_name = "py-test__simple-topic"
 
     # 创建主题
-    create_topic_if_not_exists(topic_name)
+    create_topic(topic_name)
 
     # 创建管理客户端
     admin_client = AdminClient({
@@ -70,17 +72,19 @@ def test_topic() -> None:
     assert p0.id == 0
     assert len(p0.replicas) == 2
     assert p0.leader in p0.replicas
-    assert p0.isrs == p0.replicas
+    assert set(p0.isrs) == set(p0.replicas)
 
     p1 = topic.partitions[1]
     assert p1.id == 1
+    assert len(p1.replicas) == 2
     assert p1.isrs == p1.replicas
-    assert p1.leader in p1.replicas
+    assert set(p1.isrs) == set(p1.replicas)
 
     p2 = topic.partitions[2]
     assert p2.id == 2
+    assert len(p2.replicas) == 2
     assert p2.isrs == p2.replicas
-    assert p2.leader in p2.replicas
+    assert set(p2.isrs) == set(p2.replicas)
 
 
 # 实例化消息生成器对象
@@ -96,11 +100,11 @@ def test_producer_produce_sync() -> None:
 
     `producer.flush` 方法会将缓冲区的消息全部发送, 并在消息发送成功后返回
     """
-    topic_name = "test-topic"
-    group_id = "test-group-1"
+    topic_name = "py-test__simple-topic"
+    group_id = "py-test__simple-group"
 
     # 创建主题
-    create_topic_if_not_exists(topic_name)
+    create_topic(topic_name)
 
     # 创建消费者对象, 注意, 该对象要在测试一开始创建, 以便拿到发送数据前的 offset
     consumer = create_consumer(topic_name, group_id)
@@ -135,11 +139,11 @@ def test_producer_produce_async() -> None:
     通过 `producer.produce` 方法的 `callback` 参数可以设置一个回调,
     当消息成功发送后该回调会被调用
     """
-    topic_name = "test-topic"
-    group_id = "test-group-1"
+    topic_name = "py-test__simple-topic"
+    group_id = "py-test__simple-group"
 
     # 创建主题
-    create_topic_if_not_exists(topic_name)
+    create_topic(topic_name)
 
     # 回调函数是否被调用
     sent = False
@@ -225,15 +229,15 @@ def test_transaction_only_producer() -> None:
     4. 在事务中不能由消费者提交偏移量, 因为这种方式并不能将偏移量提交给所有节点,
     而必须通过生产者的 `send_offsets_to_transaction` 方法将消费偏移量提交给事务控制器
     """
-    input_topic_name = "test-topic-in"
-    output_topic_name = "test-topic-out"
-    group_id = "test-group-1"
+    input_topic_name = "py-test__ctp-input-topic"
+    output_topic_name = "py-test__ctp-output-topic"
+    group_id = "py-test__ctp_group"
 
     # 创建输入数据主题, 即 input 主题
-    create_topic_if_not_exists(input_topic_name)
+    create_topic(input_topic_name)
 
     # 创建输出数据主题, 即 output 主题
-    create_topic_if_not_exists(output_topic_name)
+    create_topic(output_topic_name)
 
     # 创建向 input 主题写入消息的生产者
     input_producer = create_producer()
@@ -336,11 +340,11 @@ def test_seek_consumer_offset() -> None:
     即偏移量的移动是针对指定主题和分区的;
     3. 偏移量提交并不包含发生移动的偏移量;
     """
-    topic_name = "test-topic"
-    group_id = "test-group-1"
+    topic_name = "py-test__seek-topic"
+    group_id = "py-test__seek-group"
 
     # 创建主题
-    create_topic_if_not_exists(topic_name)
+    create_topic(topic_name)
 
     # 创建消费者对象
     consumer = create_consumer(topic_name, group_id)
@@ -400,11 +404,11 @@ def test_group_regular_member() -> None:
     该测试将 `session.timeout.ms` 设置为 3 分钟, 所以观察 Kafka 日志, 在 3 分钟内,
     执行该测试, 不会发生消费者离开或加入群组的操作, 同时也不会发生群组再平衡
     """
-    topic_name = "test-group-regular-member-topic"
-    group_id = "test-group-1"
+    topic_name = "py-test__regular-member-topic"
+    group_id = "py-test__regular-member-group"
 
     # 创建主题
-    create_topic_if_not_exists(topic_name)
+    create_topic(topic_name)
 
     # 创建消费者对象
     consumer = create_consumer(topic_name, group_id, ext_props={
@@ -441,11 +445,11 @@ def test_assign_specified_partition() -> None:
     1. 固定消费者直接从指定主题的分区获取消息, 该组不再进行再平衡操作;
     2. 和固定消费者同组的消费者均必须为固定消费者 (不能发生主题订阅), 且各自关联的主题分区不能交叉;
     """
-    topic_name = "test-topic"
-    group_id = "test-group-2"
+    topic_name = "py-test__assign-topic"
+    group_id = "py-test__assign-group"
 
     # 创建主题
-    create_topic_if_not_exists(topic_name)
+    create_topic(topic_name)
 
     # 创建消费者对象, 并且不直接进行主题订阅
     consumer = Consumer({
@@ -495,6 +499,62 @@ def test_assign_specified_partition() -> None:
             consumer,
             expected_messages=[partition_msg[1], partition_msg[2]],
         )
+    finally:
+        close_consumer(consumer)
+
+
+schema_file = os.path.realpath(os.path.join(
+    os.path.dirname(__file__),
+    "../schema/customer.avro"
+))
+
+
+def test_avro_serialize() -> None:
+    schema = AvroSchema("http://localhost:18081", schema_file=schema_file)
+
+    serializer = schema.create_serializer()
+    deserializer = schema.create_deserializer()
+
+    topic_name = "py-test__avro-topic"
+    group_id = "py-test__avro-group"
+
+    create_topic(topic_name)
+
+    consumer = create_consumer(topic_name, group_id)
+
+    src_obj = {
+        "id": 1,
+        "name": "Alvin",
+        "email": "alvin.qh@fakemail.com",
+    }
+
+    key = f"key-{uuid4()}".encode()
+    value = serializer(
+        src_obj,
+        ctx=SerializationContext(topic_name, MessageField.VALUE)
+    )
+
+    producer = create_producer()
+
+    # 向主题发送一条消息
+    producer.produce(
+        topic_name,
+        key=key,
+        value=value,
+    )
+
+    try:
+        msg = poll_and_assert(consumer)[0]
+
+        assert msg.topic() == topic_name
+        assert msg.key() == key
+        assert msg.value() == value
+
+        dst_obj = deserializer(
+            msg.value(),
+            SerializationContext(msg.topic(), MessageField.VALUE)
+        )
+        assert dst_obj == src_obj
     finally:
         close_consumer(consumer)
 

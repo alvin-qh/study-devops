@@ -1,8 +1,14 @@
+import logging
 import conf
+from confluent_kafka import KafkaError, KafkaException
 from confluent_kafka.admin import AdminClient, NewTopic
 
 
-def create_topic_if_not_exists(
+# 日志对象
+logger = logging.getLogger(__name__)
+
+
+def create_topic(
     topic_name: str,
     num_partitions=3,
     replication_factor=2,
@@ -20,24 +26,28 @@ def create_topic_if_not_exists(
         "bootstrap.servers": conf.BOOTSTRAP_SERVERS,  # 指定 Broker 地址
     })
 
-    # 列举指定的主题 (如果 topic 参数为 None, 则列举所有主题)
-    # 返回的结果为 ClusterMetadata 对象, 记录集群元数据, 其中的 topics 属性为主题字典
-    meta = admin_client.list_topics(topic=topic_name, timeout=5.0)
-    assert topic_name in meta.topics
+    # 创建指定主题, 参数为 NewTopic 对象的列表
+    # 返回结果为一个字典对象, Key 为要创建的主题名称, Value 为主题创建的 Future 对象
+    # Future 对象的 result 方法返回 None 表示创建成功
+    result = admin_client.create_topics(
+        [
+            NewTopic(
+                topic=topic_name,  # 主题名称
+                num_partitions=num_partitions,  # 主题分区数量
+                replication_factor=replication_factor,  # 主题副本数量
+            )
+        ],
+        operation_timeout=5.0,
+        validate_only=False,
+    )
 
-    # 根据主题名称从主题字典中获取对应主题对象
-    topic = meta.topics[topic_name]
+    # 确认主题创建成功
+    assert topic_name in result
 
-    # 判断该主题是否具备分区, 如果不具备, 说明该主题尚未创建
-    if not topic.partitions:
-        # 创建指定主题, 参数为 NewTopic 对象的列表
-        admin_client.create_topics(
-            [
-                NewTopic(
-                    topic=topic_name,  # 主题名称
-                    num_partitions=num_partitions,  # 主题分区数量
-                    replication_factor=replication_factor,  # 主题副本数量
-                )
-            ],
-            operation_timeout=5.0
-        )
+    try:
+        assert result[topic_name].result(timeout=5.0) is None
+    except KafkaException as e:
+        if e.args[0].code() != KafkaError.TOPIC_ALREADY_EXISTS:
+            raise e
+
+        logger.error(e)
