@@ -8,12 +8,15 @@
       "type": "int"
     },
     {
-      "name": "name1",
+      "name": "name",
       "type": "string"
     },
     {
       "name": "email",
-      "type": ["null", "string"],
+      "type": [
+        "null",
+        "string"
+      ],
       "default": null
     }
   ]

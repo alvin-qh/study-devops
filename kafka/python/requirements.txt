@@ -5,3 +5,4 @@ confluent-kafka
 pytest
 requests
 fastavro
+jsonschema

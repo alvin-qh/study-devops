@@ -2,7 +2,7 @@ from .consumer import close_consumer, create_consumer, poll_and_assert
 from .message import MessageData, MessageGenerator
 from .producer import create_producer
 from .topic import create_topic
-from .serialization import AvroSchema
+from .schema import AvroSchema, JsonSchema
 
 
 __all__ = [
@@ -14,4 +14,5 @@ __all__ = [
     "create_producer",
     "create_topic",
     "AvroSchema",
+    "JsonSchema",
 ]

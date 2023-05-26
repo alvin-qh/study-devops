@@ -8,9 +8,9 @@ import conf
 from confluent_kafka import Consumer, KafkaError, Message, TopicPartition
 from confluent_kafka.admin import AdminClient
 from confluent_kafka.serialization import MessageField, SerializationContext
-from misc import (AvroSchema, MessageData, MessageGenerator, close_consumer,
-                  create_consumer, create_producer, create_topic,
-                  poll_and_assert)
+from misc import (AvroSchema, JsonSchema, MessageData, MessageGenerator,
+                  close_consumer, create_consumer, create_producer,
+                  create_topic, poll_and_assert)
 
 # 可配置项参考: https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md
 
@@ -273,7 +273,7 @@ def test_transaction_only_producer() -> None:
         # 注意, 这里不能提交偏移量 (包括自动和手动), 所以 commit 参数为 False
         msg = poll_and_assert(
             input_consumer, expected_messages=[msg_data], commit=False,
-        )[0]
+        )[-1]
 
         def delivery_report(err: KafkaError, msg: Message) -> None:
             """
@@ -364,7 +364,7 @@ def test_seek_consumer_offset() -> None:
 
     try:
         # 获取最新的消息并进行确认
-        msg = poll_and_assert(consumer, expected_messages=[msg_data])[0]
+        msg = poll_and_assert(consumer, expected_messages=[msg_data])[-1]
 
         # 将消费者中指定主题分区的偏移量设置为前一个消息的偏移量
         consumer.seek(TopicPartition(
@@ -503,37 +503,56 @@ def test_assign_specified_partition() -> None:
         close_consumer(consumer)
 
 
-schema_file = os.path.realpath(os.path.join(
+# 保存 Avro Schema 描述的文件路径
+avro_schema_file = os.path.realpath(os.path.join(
     os.path.dirname(__file__),
     "../schema/customer.avro"
 ))
 
 
 def test_avro_serialize() -> None:
-    schema = AvroSchema("http://localhost:18081", schema_file=schema_file)
+    """
+    通过 `Avro` 协议进行消息的序列化和反序列化
+    """
+    # 创建 AvroSchema 对象
+    schema = AvroSchema("http://localhost:18081", schema_file=avro_schema_file)
 
+    # 创建 Avro 序列化器对象
+    # 本例中序列化的对象为 Dict 类型, 所以无需传递 to_dict 参数
     serializer = schema.create_serializer()
+
+    # 创建 Avro 反序列器对象
+    # 本例中反序列化的结果为 Dict 类型, 所以无需传递 from_dict 参数
     deserializer = schema.create_deserializer()
 
     topic_name = "py-test__avro-topic"
     group_id = "py-test__avro-group"
 
+    # 尝试创建主题
     create_topic(topic_name)
 
+    # 创建消费者对象
     consumer = create_consumer(topic_name, group_id)
 
+    # 要发送的消息对象
+    # 如果是 Dict 类型对象, 则可以直接发送, 如果是其它类型对象, 则需要转换为 Dict 类型对象
     src_obj = {
         "id": 1,
         "name": "Alvin",
         "email": "alvin.qh@fakemail.com",
     }
 
-    key = f"key-{uuid4()}".encode()
-    value = serializer(
-        src_obj,
-        ctx=SerializationContext(topic_name, MessageField.VALUE)
+    # 创建消息 Key 和 Value
+    # Key 为字符串, Value 为 Avro 序列化结果
+    key, value = (
+        f"key-{uuid4()}".encode(),
+        serializer(
+            src_obj,
+            ctx=SerializationContext(topic_name, MessageField.VALUE),
+        )
     )
 
+    # 创建生产者对象
     producer = create_producer()
 
     # 向主题发送一条消息
@@ -544,12 +563,15 @@ def test_avro_serialize() -> None:
     )
 
     try:
-        msg = poll_and_assert(consumer)[0]
+        # 获取最新的一条消息
+        msg = poll_and_assert(consumer)[-1]
 
+        # 确认消息的主题, Key 和 Value
         assert msg.topic() == topic_name
         assert msg.key() == key
         assert msg.value() == value
 
+        # 对获取的消息 Value 进行反序列化, 确认反序列化结果正确
         dst_obj = deserializer(
             msg.value(),
             SerializationContext(msg.topic(), MessageField.VALUE)
@@ -559,120 +581,79 @@ def test_avro_serialize() -> None:
         close_consumer(consumer)
 
 
-# def test_kv_record() -> None:
-#     """
-#     测试 producer 发送 Key/Value 键值对消息
-#     """
-#     key = b'key'
-#     value = b"Hello World!"
-
-#     # 连接 Kafka，创建 Producer
-#     producer = ka.KafkaProducer(
-#         client_id=conf.CLIENT_ID,
-#         bootstrap_servers=BOOTSTRAP_SERVERS,
-#     )
-
-#     try:
-#         # 异步发送消息
-#         future: FutureRecordMetadata = producer.send(
-#             conf.TOPIC,
-#             key=key,
-#             value=value,
-#         )
-
-#         try:
-#             # 获取消息发送结果（异步）
-#             record = future.get(timeout=30)
-#         except KafkaError as err:
-#             pytest.fail(err)
-
-#         assert record.topic == conf.TOPIC  # 发送的主题
-#         assert record.partition in {0, 1, 2, 3, 4}  # 发送到的分区
-#         assert record.offset >= 0  # 发送分区的偏移量
-
-#         producer.flush()  # 刷新 producer，将所有缓存的消息发送
-#     finally:
-#         producer.close()
-
-#     # 获取 Kafka，创建 Consumer
-#     consumer = ka.KafkaConsumer(
-#         conf.TOPIC,  # 消费信息的主题
-#         client_id=conf.CLIENT_ID,  # 客户端 ID
-#         group_id=conf.GROUP_ID,  # 消费组 ID
-#         bootstrap_servers=BOOTSTRAP_SERVERS,  # Broker 服务器列表
-#         auto_offset_reset="earliest",  # 自动重置 offset 到最早位置
-#     )
-#     try:
-#         # 从 consumer 读取记录
-#         for record in consumer:
-#             assert record.topic == conf.TOPIC  # 接收到的主题
-#             assert record.partition in {0, 1, 2, 3, 4}  # 接收到消息的分区
-#             assert record.key == key  # 接收到的 key
-#             assert record.value == value  # 接收到的值
-#             break
-#     finally:
-#         consumer.close()
+# 保存 Json Schema 描述的文件路径
+json_schema_file = os.path.realpath(os.path.join(
+    os.path.dirname(__file__),
+    "../schema/customer.json"
+))
 
 
-# def test_json_deserializer() -> None:
-#     """
-#     测试 producer 发送编码信息和 consumer 解码信息
-#     """
-#     key = b'key'
-#     value = {
-#         "name": "Alvin",
-#         "action": "Hello",
-#     }
+def test_json_serialize() -> None:
+    """
+    通过 `Json` 协议进行消息的序列化和反序列化
+    """
+    # 创建 JsonSchema 对象
+    schema = JsonSchema("http://localhost:18081", schema_file=json_schema_file)
 
-#     # 连接 Kafka，创建 Producer
-#     producer = ka.KafkaProducer(
-#         client_id=conf.CLIENT_ID,
-#         bootstrap_servers=BOOTSTRAP_SERVERS,
-#         value_serializer=lambda x: (
-#             json.dumps(x).encode("utf8")
-#         ),  # 编码器，对 value 进行编码
-#     )
+    # 创建 JSON 序列化器对象
+    # 本例中序列化的对象为 Dict 类型, 所以无需传递 to_dict 参数
+    serializer = schema.create_serializer()
 
-#     try:
-#         # 异步发送消息
-#         future: FutureRecordMetadata = producer.send(
-#             conf.TOPIC,
-#             key=key,
-#             value=value,
-#         )
+    # 创建 JSON 反序列器对象
+    # 本例中反序列化的结果为 Dict 类型, 所以无需传递 from_dict 参数
+    deserializer = schema.create_deserializer()
 
-#         try:
-#             # 获取消息发送结果（异步）
-#             record = future.get(timeout=30)
-#         except KafkaError as err:
-#             pytest.fail(err)
+    topic_name = "py-test__json-topic"
+    group_id = "py-test__json-group"
 
-#         assert record.topic == conf.TOPIC  # 发送的主题
-#         assert record.partition in {0, 1, 2, 3, 4}  # 发送到的分区
-#         assert record.offset >= 0  # 发送分区的偏移量
+    # 尝试创建主题
+    create_topic(topic_name)
 
-#         producer.flush()  # 刷新 producer，将所有缓存的消息发送
-#     finally:
-#         producer.close()
+    # 创建消费者对象
+    consumer = create_consumer(topic_name, group_id)
 
-#     # 获取 Kafka，创建 Consumer
-#     consumer = ka.KafkaConsumer(
-#         conf.TOPIC,  # 消费信息的主题
-#         client_id=conf.CLIENT_ID,  # 客户端 ID
-#         group_id=conf.GROUP_ID,  # 消费组 ID
-#         bootstrap_servers=BOOTSTRAP_SERVERS,  # Broker 服务器列表
-#         auto_offset_reset="earliest",  # 自动重置 offset 到最早位置
-#         value_deserializer=lambda x: json.loads(
-#             x.decode("utf8"),
-#         )  # 解码器，对 value 进行解码
-#     )
-#     try:
-#         # 从 consumer 读取记录
-#         for record in consumer:
-#             assert record.topic == conf.TOPIC  # 接收到的主题
-#             assert record.partition in {0, 1, 2, 3, 4}  # 接收到消息的分区
-#             assert record.key == key  # 接收到的 key
-#             assert record.value == value  # 接收到的值
-#             break
-#     finally:
-#         consumer.close()
+    # 要发送的消息对象
+    # 如果是 Dict 类型对象, 则可以直接发送, 如果是其它类型对象, 则需要转换为 Dict 类型对象
+    src_obj = {
+        "id": 1,
+        "name": "Alvin",
+        "email": "alvin.qh@fakemail.com",
+    }
+
+    # 创建消息 Key 和 Value
+    # Key 为字符串, Value 为 JSON 序列化结果
+    key, value = (
+        f"key-{uuid4()}".encode(),
+        serializer(
+            src_obj,
+            ctx=SerializationContext(topic_name, MessageField.VALUE),
+        )
+    )
+
+    # 创建生产者对象
+    producer = create_producer()
+
+    # 向主题发送一条消息
+    producer.produce(
+        topic_name,
+        key=key,
+        value=value,
+    )
+
+    try:
+        # 获取最新的一条消息
+        msg = poll_and_assert(consumer)[-1]
+
+        # 确认消息的主题, Key 和 Value
+        assert msg.topic() == topic_name
+        assert msg.key() == key
+        assert msg.value() == value
+
+        # 对获取的消息 Value 进行反序列化, 确认反序列化结果正确
+        dst_obj = deserializer(
+            msg.value(),
+            SerializationContext(msg.topic(), MessageField.VALUE)
+        )
+        assert dst_obj == src_obj
+    finally:
+        close_consumer(consumer)
