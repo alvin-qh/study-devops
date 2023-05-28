@@ -6,11 +6,15 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
-// 创建消费者对象
+// # 创建消费者对象
 //
 // 本函数用于创建消费者对象, 并订阅指定的主题
 //
-// extConf 参数要包含除 "bootstrap.servers" 外的其它消费者配置项
+// 参数:
+//   - `topic`: 要订阅的主题名称
+//   - `extConf`: 扩展配置项, 应包含除 `"bootstrap.servers"` 外的其它消费者配置项
+//
+// 返回消费者对象以及错误对象
 func CreateConsumer(topic string, extConf *kafka.ConfigMap) (*kafka.Consumer, error) {
 	// 创建消费者对象
 	consumer, err := kafka.NewConsumer(newConfig(extConf))
@@ -27,10 +31,17 @@ func CreateConsumer(topic string, extConf *kafka.ConfigMap) (*kafka.Consumer, er
 	return consumer, nil
 }
 
-// 读取指定主题的最后 N 条消息
+// # 读取指定主题的最后 `N` 条消息
 //
-// 根据给定的消费者对象和消息条数 N, 读取该消费者订阅主题的最后 N 条消息, 返回实际数量 (<=N) 的消息集合
-func PollLastNMessage(consumer *kafka.Consumer, n int) ([]*kafka.Message, error) {
+// 根据给定的消费者对象和消息条数 `N`, 读取该消费者订阅主题的最后 N 条消息, 返回实际数量 (`<=N`) 的消息集合
+//
+// 参数:
+//   - `consumer`: 消费者对象
+//   - `n`: 要获取的最新消息的条数
+//   - `commit`: 接收完消息后是否提交偏移量
+//
+// 返回消息对象集合即错误对象
+func PollLastNMessage(consumer *kafka.Consumer, n int, commit bool) ([]*kafka.Message, error) {
 	// 创建消息切片集合
 	msgs := make([]*kafka.Message, 0)
 
@@ -79,9 +90,11 @@ func PollLastNMessage(consumer *kafka.Consumer, n int) ([]*kafka.Message, error)
 	}
 
 	// 提交偏移量
-	_, err := consumer.Commit()
-	if err != nil {
-		return nil, err
+	if commit {
+		_, err := consumer.Commit()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return msgs, nil

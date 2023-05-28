@@ -214,6 +214,13 @@ services:
     ports:
       # 在宿主机通过 curl -fs http://localhost:9308/metrics 可查看结果
       - 9308:9308
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 32M
+        reservations:
+          memory: 16M
     healthcheck:
       test:
         [

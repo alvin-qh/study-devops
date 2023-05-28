@@ -24,6 +24,13 @@ services:
       - 19092:19092
       # 映射 JMX 端口
       # - 9999:9999
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
     healthcheck:
       test:
         [
@@ -51,6 +58,13 @@ services:
       - kf_network
     ports:
       - 19093:19092
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
     healthcheck:
       test:
         [
@@ -78,6 +92,13 @@ services:
       - kf_network
     ports:
       - 19094:19092
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
     healthcheck:
       test:
         [
@@ -103,6 +124,13 @@ services:
       - kf_network
     ports:
       - 9308:9308
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 32M
+        reservations:
+          memory: 16M
     healthcheck:
       test:
         [
@@ -128,6 +156,13 @@ services:
       - kf_network
     ports:
       - 18081:8081
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
 networks:
   kf_network:
 volumes:

@@ -203,7 +203,7 @@ def test_producer_produce_async() -> None:
         close_consumer(consumer)
 
 
-def test_transaction_only_producer() -> None:
+def test_transaction() -> None:
     """
     测试事务
 

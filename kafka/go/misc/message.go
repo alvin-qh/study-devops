@@ -16,36 +16,53 @@ type messageOption struct {
 // buildMessage 函数的可选参数类型, 为函数类型, 参数为 messageOption 结构体, 用于设置结构体字段值
 type MessageOption = func(*messageOption)
 
-// 设置消息 Key 前缀字符串
+// # 设置消息 Key 前缀字符串
 //
-// 本函数返回 MessageOption 函数, 用于改变 messageOption 结构体的 KeyPrefix 字段值
+// 参数:
+//   - `keyPrefix`: 消息 Key 的前缀字符串
+//
+// 返回 `MessageOption` 函数, 用于改变 `messageOption` 结构体的 `KeyPrefix` 字段值
 func WithKeyPrefix(keyPrefix string) MessageOption {
 	return func(opt *messageOption) {
 		opt.KeyPrefix = keyPrefix
 	}
 }
 
-// 设置消息 Value 前缀字符串
+// # 设置消息 Value 前缀字符串
 //
-// 本函数返回 MessageOption 函数, 用于改变 messageOption 结构体的 ValuePrefix 字段值
+// 参数:
+//   - `valuePrefix`: 消息 Value 的前缀字符串
+//
+// 返回 `MessageOption` 函数, 用于改变 `messageOption` 结构体的 `ValuePrefix` 字段值
 func WithValuePrefix(valuePrefix string) MessageOption {
 	return func(opt *messageOption) {
 		opt.ValuePrefix = valuePrefix
 	}
 }
 
-// 设置消息分区值
+// # 设置消息分区值
 //
-// 本函数返回 MessageOption 函数, 用于改变 messageOption 结构体的 Partition 字段值
+// 参数:
+//   - `partition`: 分区索引值
+//
+// 返回 `MessageOption` 函数, 用于改变 `messageOption` 结构体的 `Partition` 字段值
 func WithPartition(partition int32) MessageOption {
 	return func(opt *messageOption) {
 		opt.Partition = partition
 	}
 }
 
-// 构建消息对象
+// # 构建消息对象
 //
-// 本函数用于创建一个 kafka.Message 对象, 即要发送的消息, 需要设置消息的 "主题", "Key" 和 "Value" 值
+// 本函数用于创建一个 `kafka.Message` 对象, 即要发送的消息
+//
+// 参数:
+//   - `topic`: 主题名称
+//   - `key`: 消息 Key
+//   - `value`: 消息 Value
+//   - `opts`: 消息设置项集合
+//
+// 返回 `kafka.Message` 对象指针以及错误信息
 func buildMessage(topic string, key string, value string, opts []MessageOption) (*kafka.Message, error) {
 	// 设置默认参数选项
 	o := messageOption{
@@ -70,9 +87,13 @@ func buildMessage(topic string, key string, value string, opts []MessageOption) 
 	}, nil
 }
 
-// 创建一个消息对象
+// # 创建一个消息对象
 //
-// 创建消息对象需指定"消息主题", 该方法会自动生成一个 Key 和 Value 值为随机的消息对象
+// 参数:
+//   - `topic`: 消息所属分区
+//   - `opts`: 消息配置可选参数
+//
+// 返回 `kafka.Message` 对象指针以及错误信息
 func GenerateMessage(topic string, opts ...MessageOption) (*kafka.Message, error) {
 	// 创建 UUID 对象, 用于消息的 Key
 	uidKey, err := uuid.NewUUID()
@@ -90,11 +111,15 @@ func GenerateMessage(topic string, opts ...MessageOption) (*kafka.Message, error
 	return buildMessage(topic, uidKey.String(), uidValue.String(), opts)
 }
 
-// 创建一个 Key 为固定值的消息对象
+// # 创建一个 Key 为固定值的消息对象
 //
 // 固定 Key 值是为了让消息发送到固定的分区
 //
-// 创建消息对象需指定"消息主题", 该方法会自动生成一个 Key 值固定, Value 值随机的消息对象
+// 参数:
+//   - `topic`: 消息所属分区
+//   - `opts`: 消息配置可选参数
+//
+// 返回 `kafka.Message` 对象指针以及错误信息
 func GenerateMessageWithFixedKey(topic string, opts ...MessageOption) (*kafka.Message, error) {
 	// 生成一个 UUID 对象, 用于消息的 Value
 	uidValue, err := uuid.NewUUID()
