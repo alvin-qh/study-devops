@@ -14,6 +14,7 @@
         "apscheduler",
         "armhf",
         "asciifolding",
+        "assertj",
         "autoclean",
         "autoinc",
         "autoincrement",
