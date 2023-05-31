@@ -31,4 +31,12 @@ public final class KafkaClientConfig {
     public static Properties loadCommonConfig(Map<String, String> extConf) throws IOException {
         return mergeConfig(loadConfig("conf/common.properties"), extConf);
     }
+
+    public static Properties loadProducerConfig(Map<String, String> extConf) throws IOException {
+        return mergeConfig(loadConfig("conf/producer.properties"), extConf);
+    }
+
+    public static Properties loadConsumerConfig(Map<String, String> extConf) throws IOException {
+        return mergeConfig(loadConfig("conf/consumer.properties"), extConf);
+    }
 }
