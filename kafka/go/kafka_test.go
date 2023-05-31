@@ -7,6 +7,7 @@ import (
 	"kafka/misc"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/stretchr/testify/assert"
@@ -51,20 +52,12 @@ func TestProducerProduce(t *testing.T) {
 	err = producer.Produce(msg, ch)
 	assert.NoError(t, err)
 
-	// 从频道中获取消息发送结果
-	ev := <-ch
-	// 根据发送结果的类型分别处理
-	switch e := ev.(type) {
-	case *kafka.Message:
-		// 结果为 *kafka.Message 类型时, 确认发送消息
-		assert.Equal(t, *e.TopicPartition.Topic, topicName)
-		assert.GreaterOrEqual(t, e.TopicPartition.Partition, int32(0))
-		assert.Equal(t, e.Key, msg.Key)
-		assert.Equal(t, e.Value, msg.Value)
-	case error:
-		// 结果为错误对象
-		assert.Fail(t, e.Error())
-	}
+	rMsg, err := misc.WaitProduceResult(ch)
+	assert.NoError(t, err)
+	assert.Equal(t, *rMsg.TopicPartition.Topic, topicName)
+	assert.GreaterOrEqual(t, rMsg.TopicPartition.Partition, int32(0))
+	assert.Equal(t, rMsg.Key, msg.Key)
+	assert.Equal(t, rMsg.Value, msg.Value)
 
 	// 创建生产者对象
 	consumer, err := misc.CreateConsumer(topicName, &kafka.ConfigMap{
@@ -138,16 +131,13 @@ func TestTransaction(t *testing.T) {
 	// 为 input 生产者创建频道
 	inputCh := make(chan kafka.Event)
 
-	// 将消息发送到 input 主题
+	// 发送 input 消息
 	err = inputProducer.Produce(inputMsg, inputCh)
 	assert.NoError(t, err)
 
-	// 等待 input 生产者完成消息发送
-	ev := <-inputCh
-	switch e := ev.(type) {
-	case error:
-		assert.Fail(t, e.Error())
-	}
+	// 等待 input 消息发送完毕
+	_, err = misc.WaitProduceResult(inputCh)
+	assert.NoError(t, err)
 
 	// 获取当前及其的主机名作为事务 ID
 	hostname, err := os.Hostname()
@@ -191,56 +181,43 @@ func TestTransaction(t *testing.T) {
 		outputProducer.AbortTransaction(context.TODO())
 		assert.Fail(t, err.Error())
 	}
+	assert.Len(t, inputMsgs, 1)
+
+	// 确认从 input 消费者读取的消息和通过 input 生产者发送的消息一致
+	assert.Equal(t, *(inputMsgs[0].TopicPartition.Topic), inputTopicName)
+	assert.Equal(t, inputMsgs[0].Key, inputMsg.Key)
+	assert.Equal(t, inputMsgs[0].Value, inputMsg.Value)
+
+	// 对 input 消费者读取的消息进行转换处理
+	outputMsg := kafka.Message{
+		TopicPartition: kafka.TopicPartition{
+			Topic:     &outputTopicName,
+			Partition: kafka.PartitionAny,
+		},
+		Key:   []byte(fmt.Sprintf("%v-transformed", string(inputMsgs[0].Key))),
+		Value: []byte(fmt.Sprintf("%v-transformed", string(inputMsgs[0].Value))),
+	}
 
 	// 为 output 生产者创建频道
-	outputCh := make(chan kafka.Event, len(inputMsgs))
+	outputCh := make(chan kafka.Event)
 
-	// 遍历从 input 消费者获取的消息, 进行 Transfer 后通过 output 生产者发送到 output 主题中
-	for _, im := range inputMsgs {
-		// 确认从 input 消费者读取的消息和通过 input 生产者发送的消息一致
-		assert.Equal(t, *im.TopicPartition.Topic, inputTopicName)
-		assert.Equal(t, im.Key, inputMsg.Key)
-		assert.Equal(t, im.Value, inputMsg.Value)
-
-		// 对 input 消费者读取的消息进行转换处理
-		outputMsg := kafka.Message{
-			TopicPartition: kafka.TopicPartition{
-				Topic:     &outputTopicName,
-				Partition: kafka.PartitionAny,
-			},
-			Key:   []byte(fmt.Sprintf("%v-transformed", string(im.Key))),
-			Value: []byte(fmt.Sprintf("%v-transformed", string(im.Value))),
-		}
-
-		// 将处理后的消息通过 output 生产者发送到 output 主题上
-		if err = outputProducer.Produce(&outputMsg, outputCh); err != nil {
-			// 出现错误, 回滚事务
-			outputProducer.AbortTransaction(context.TODO())
-			assert.Fail(t, err.Error())
-		}
+	// 将处理后的消息通过 output 生产者发送到 output 主题上
+	if err = outputProducer.Produce(&outputMsg, outputCh); err != nil {
+		// 出现错误, 回滚事务
+		outputProducer.AbortTransaction(context.TODO())
+		assert.Fail(t, err.Error())
 	}
 
 	// 等待 output 生产者完成消息发送
-	ev = <-outputCh
-	switch e := ev.(type) {
-	case error:
-		assert.Fail(t, e.Error())
-	}
-
-	// 获取 input 消费者的所有主题分区
-	tp, err := inputConsumer.Assignment()
+	_, err = misc.WaitProduceResult(outputCh)
 	assert.NoError(t, err)
 
-	// 获取 input 消费者所有主题分区的当前偏移量
-	tp, err = inputConsumer.Position(tp)
-	assert.NoError(t, err)
-
-	// 获取 input 消费者的群组元数据
-	meta, err := inputConsumer.GetConsumerGroupMetadata()
-	assert.NoError(t, err)
-
-	// 通过 output 生产者将 input 消费者的偏移量发送到 Kafka 群组
-	err = outputProducer.SendOffsetsToTransaction(context.TODO(), tp, meta)
+	// 在事务中提交 input 消费者的偏移量
+	err = misc.SendConsumerOffsetsToTransaction(
+		context.TODO(),
+		outputProducer,
+		inputConsumer,
+	)
 	assert.NoError(t, err)
 
 	// 提交事务
@@ -266,7 +243,240 @@ func TestTransaction(t *testing.T) {
 
 	// 确认消息为从 output 生产者发送的消息
 	assert.Len(t, outputMsgs, 1)
-	assert.Equal(t, *outputMsgs[0].TopicPartition.Topic, outputTopicName)
+	assert.Equal(t, *(outputMsgs[0].TopicPartition.Topic), outputTopicName)
 	assert.Equal(t, outputMsgs[0].Key, []byte(fmt.Sprintf("%v-transformed", string(inputMsg.Key))))
 	assert.Equal(t, outputMsgs[0].Value, []byte(fmt.Sprintf("%v-transformed", string(inputMsg.Value))))
+}
+
+// # 移动消费者偏移量
+//
+// 移动消费者偏移量可以重新获取到"之前"的消息, 几个注意点:
+//  1. 创建消费者时, `auto.offset.reset` 配置项要设置为 `earliest`;
+//  2. 消费者的 `seek` 方法参数为 `TopicPartition` 对象, 即偏移量的移动是针对指定主题和分区的;
+//  3. 偏移量提交并不包含发生移动的偏移量;
+func TestSeekConsumerOffset(t *testing.T) {
+	topicName := "py-test__seek-topic"
+	groupId := "py-test__seek-group"
+
+	// 创建主题
+	_, err := misc.CreateTopic(topicName)
+	assert.NoError(t, err)
+
+	// 创建生产者对象
+	producer, err := misc.CreateProducer(nil)
+	assert.NoError(t, err)
+
+	// 在函数结束前关闭生产者对象
+	defer producer.Close()
+
+	// 创建一条消息对象
+	msg, err := misc.GenerateMessage(topicName)
+	assert.NoError(t, err)
+
+	// 创建生产者频道
+	ch := make(chan kafka.Event)
+
+	// 生产者发送消息
+	err = producer.Produce(msg, ch)
+	assert.NoError(t, err)
+
+	// 等待生产者发送消息成功
+	_, err = misc.WaitProduceResult(ch)
+	assert.NoError(t, err)
+
+	// 创建消费者
+	consumer, err := misc.CreateConsumer(topicName, &kafka.ConfigMap{
+		"group.id":             groupId,    // 消费者分组 ID
+		"enable.auto.commit":   false,      // 禁止自动提交偏移量
+		"auto.offset.reset":    "earliest", // 从服务端记录的最早的偏移量开始读取
+		"enable.partition.eof": true,       // 允许读取分区 EOF 消息
+	})
+	assert.NoError(t, err)
+
+	// 在函数结束前关闭消费者对象
+	defer consumer.Close()
+
+	// 通过消费者获取最新一条消息
+	msgs, err := misc.PollLastNMessage(consumer, 1, true)
+	assert.NoError(t, err)
+	assert.Len(t, msgs, 1)
+
+	// 确认消费者获取的消息为生产者发送的消息
+	assert.Equal(t, *(msgs[0].TopicPartition.Topic), topicName)
+	assert.Equal(t, msgs[0].Key, msg.Key)
+	assert.Equal(t, msgs[0].Value, msg.Value)
+
+	// 将消费者偏移量移动到前一条消息
+	err = consumer.Seek(msgs[0].TopicPartition, 5000)
+	assert.NoError(t, err)
+
+	// 令消费者再次获取消息, 注意, 此次获取消息不能在提交偏移量
+	rMsg, err := consumer.ReadMessage(5 * time.Second)
+	assert.NoError(t, err)
+
+	// 确认消费者获取到了上次获取过的消息
+	assert.Equal(t, *(rMsg.TopicPartition.Topic), topicName)
+	assert.Equal(t, rMsg.Key, msg.Key)
+	assert.Equal(t, rMsg.Value, msg.Value)
+}
+
+// # 群组固定成员
+//
+// 默认情况下, 群组成员是动态的, 即一个群组成员离开或加入群组, 都会导致消费组再平衡, 即重新为每个消费者重新分配分区,
+// 这个过程会导致长时间等待
+//
+// 通过消费者的 `group.instance.id` 配置项可以指定一个消费者在群组中的"固定"标识, 当一个消费者离开群组, 稍后又以
+// 相同的 `group.instance.id` 加入回群组时, 群组无需进行再平衡, 而会直接把原本该消费者负责的分区重新分配给该消费者
+//
+// 通过 `session.timeout.ms` 参数可以指定群组的固定成员离开多久后, 群组会进行再平衡, 将该分区交给其它消费者处理,
+// 另外 `heartbeat.interval.ms` 则是消费者发送心跳包的时间间隔, 必须小于 `session.timeout.ms` 设置的时间
+//
+// 该测试将 `session.timeout.ms` 设置为 3 分钟, 所以观察 Kafka 日志, 在 3 分钟内, 执行该测试, 不会发生消费者离
+// 开或加入群组的操作, 同时也不会发生群组再平衡
+func TestGroupRegularMember(t *testing.T) {
+	topicName := "py-test__regular-member-topic"
+	groupId := "py-test__regular-member-group"
+
+	// 创建主题
+	_, err := misc.CreateTopic(topicName)
+	assert.NoError(t, err)
+
+	// 创建生产者对象
+	producer, err := misc.CreateProducer(nil)
+	assert.NoError(t, err)
+
+	// 在函数结束前关闭生产者对象
+	defer producer.Close()
+
+	// 创建一条消息对象
+	msg, err := misc.GenerateMessage(topicName)
+	assert.NoError(t, err)
+
+	// 创建生产者频道
+	ch := make(chan kafka.Event)
+
+	// 生产者发送消息
+	err = producer.Produce(msg, ch)
+	assert.NoError(t, err)
+
+	// 等待生产者发送消息成功
+	_, err = misc.WaitProduceResult(ch)
+	assert.NoError(t, err)
+
+	// 创建消费者, 设置固定群组 ID
+	consumer, err := misc.CreateConsumer(topicName, &kafka.ConfigMap{
+		"group.id":              groupId,                                // 消费者分组 ID
+		"group.instance.id":     "0bb6da93-7f59-4ff4-aea2-0e8348252d4f", // 固定群组 ID
+		"session.timeout.ms":    180000,                                 // 会话超时时间
+		"heartbeat.interval.ms": 18000,                                  // 心跳发送时间间隔
+		"enable.auto.commit":    false,                                  // 禁止自动提交偏移量
+		"auto.offset.reset":     "earliest",                             // 从服务端记录的最早的偏移量开始读取
+		"enable.partition.eof":  true,                                   // 允许读取分区 EOF 消息
+	})
+	assert.NoError(t, err)
+
+	// 在函数结束前关闭消费者对象
+	defer consumer.Close()
+
+	// 通过消费者获取最新一条消息
+	msgs, err := misc.PollLastNMessage(consumer, 1, true)
+	assert.NoError(t, err)
+	assert.Len(t, msgs, 1)
+
+	// 确认消费者获取的消息为生产者发送的消息
+	assert.Equal(t, *(msgs[0].TopicPartition.Topic), topicName)
+	assert.Equal(t, msgs[0].Key, msg.Key)
+	assert.Equal(t, msgs[0].Value, msg.Value)
+}
+
+// # 独立消费者
+//
+// 所谓独立消费者, 即不直接进行主题订阅, 而是为该消费者直接分配确定的主题和分区, 有如下特点:
+//  1. 固定消费者直接从指定主题的分区获取消息, 该组不再进行再平衡操作;
+//  2. 和固定消费者同组的消费者均必须为固定消费者 (不能发生主题订阅), 且各自关联的主题分区不能交叉;
+func TestAssignSpecifiedPartition(t *testing.T) {
+	topicName := "py-test__assign-topic"
+	groupId := "py-test__assign-group"
+
+	// 创建主题
+	_, err := misc.CreateTopic(topicName)
+	assert.NoError(t, err)
+
+	// 创建生产者对象
+	producer, err := misc.CreateProducer(nil)
+	assert.NoError(t, err)
+
+	// 在函数结束前关闭生产者对象
+	defer producer.Close()
+
+	// 创建生产者频道
+	ch := make(chan kafka.Event)
+
+	// 记录已发送消息的字典
+	partitionMsgs := make(map[int32]*kafka.Message)
+
+	// 向各个分区发送消息
+	for partition := int32(0); partition < 3; partition++ {
+		msg, err := misc.GenerateMessage(topicName, misc.WithPartition(partition))
+		assert.NoError(t, err)
+
+		err = producer.Produce(msg, ch)
+		assert.NoError(t, err)
+
+		// 等待生产者发送消息成功
+		_, err = misc.WaitProduceResult(ch)
+		assert.NoError(t, err)
+
+		// 记录已发送消息
+		partitionMsgs[partition] = msg
+	}
+
+	// 创建消费者对象, 注意, 这里不能对主题进行订阅
+	consumer, err := kafka.NewConsumer(misc.NewConfig(&kafka.ConfigMap{
+		"group.id":             groupId,    // 消费者分组 ID
+		"enable.auto.commit":   false,      // 禁止自动提交偏移量
+		"auto.offset.reset":    "earliest", // 从服务端记录的最早的偏移量开始读取
+		"enable.partition.eof": true,       // 允许读取分区 EOF 消息
+	}))
+	assert.NoError(t, err)
+
+	// 在函数结束前关闭消费者对象
+	defer consumer.Close()
+
+	// 为消费者分配指定主题的 1, 2 两个分区, 0 分区不消费
+	// 注意: Offset 要设置为 kafka.OffsetStored, 表示使用服务端存储的偏移量
+	err = consumer.Assign([]kafka.TopicPartition{
+		{
+			Topic:     &topicName,
+			Partition: 1,
+			Offset:    kafka.OffsetStored,
+		},
+		{
+			Topic:     &topicName,
+			Partition: 2,
+			Offset:    kafka.OffsetStored,
+		},
+	})
+	assert.NoError(t, err)
+
+	// 读取最新的 3 条消息
+	msgs, err := misc.PollLastNMessage(consumer, 3, true)
+	assert.NoError(t, err)
+
+	// 确认只能读取到 2 条消息, 因为消费者只分配了两个分区
+	assert.Len(t, msgs, 2)
+
+	// 确认获取的消息不包含 0 分区消息
+	assert.NotContains(t, [...]int32{msgs[0].TopicPartition.Partition, msgs[1].TopicPartition.Partition}, 0)
+
+	// 确认接收的消息即发送的消息
+	pm := partitionMsgs[msgs[0].TopicPartition.Partition]
+	assert.Equal(t, *(msgs[0].TopicPartition.Topic), topicName)
+	assert.Equal(t, msgs[0].Key, pm.Key)
+	assert.Equal(t, msgs[0].Value, pm.Value)
+
+	pm = partitionMsgs[msgs[1].TopicPartition.Partition]
+	assert.Equal(t, *(msgs[1].TopicPartition.Topic), topicName)
+	assert.Equal(t, msgs[1].Key, pm.Key)
+	assert.Equal(t, msgs[1].Value, pm.Value)
 }

@@ -176,7 +176,7 @@ def poll_and_assert(  # NOSONAR
             eof.pop((topic, partition), None)
 
             if expected_messages and len(messages) == len(expected_messages):
-                    messages = messages[1:]
+                messages = messages[1:]
 
             # 记录最后一条消息
             messages.append(msg)

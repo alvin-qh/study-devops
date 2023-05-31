@@ -1,6 +1,7 @@
 package misc
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -17,7 +18,7 @@ import (
 // 返回消费者对象以及错误对象
 func CreateConsumer(topic string, extConf *kafka.ConfigMap) (*kafka.Consumer, error) {
 	// 创建消费者对象
-	consumer, err := kafka.NewConsumer(newConfig(extConf))
+	consumer, err := kafka.NewConsumer(NewConfig(extConf))
 	if err != nil {
 		return nil, err
 	}
@@ -29,6 +30,39 @@ func CreateConsumer(topic string, extConf *kafka.ConfigMap) (*kafka.Consumer, er
 	}
 
 	return consumer, nil
+}
+
+// # 通过指定生产者发送指定消费者的当前偏移量
+//
+// 在指定生产者启动事务的前提下, 事务中的消费者不能直接提交偏移量, 而应该将偏移量作为事务的一部分, 由生产者提交给集群管理器
+//
+// 参数:
+//   - `ctx`: 异步上下文对象, 可以设置超时时间, 或者为 `context.TODO()` 设置无限等待
+//   - `producer`: 启动事务的生产者对象
+//   - `consumer`: 要提交偏移量的消费者对象
+//
+// 返回错误对象
+func SendConsumerOffsetsToTransaction(ctx context.Context, producer *kafka.Producer, consumer *kafka.Consumer) error {
+	// 获取消费者的所有主题分区
+	tp, err := consumer.Assignment()
+	if err != nil {
+		return err
+	}
+
+	// 获取消费者所有主题分区的当前偏移量
+	tp, err = consumer.Position(tp)
+	if err != nil {
+		return err
+	}
+
+	// 获取 input 消费者的群组元数据
+	meta, err := consumer.GetConsumerGroupMetadata()
+	if err != nil {
+		return err
+	}
+
+	// 通过 output 生产者将 input 消费者的偏移量发送到 Kafka 群组
+	return producer.SendOffsetsToTransaction(ctx, tp, meta)
 }
 
 // # 读取指定主题的最后 `N` 条消息

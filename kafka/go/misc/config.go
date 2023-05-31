@@ -65,6 +65,6 @@ func merge(left *kafka.ConfigMap, right *kafka.ConfigMap) *kafka.ConfigMap {
 //   - `extConf`: 要合并的 `kafka.ConfigMap` 字典指针
 //
 // 返回新的 `kafka.ConfigMap` 字典指针, 包含了 `commonConfig` 内容以及 `extConf` 参数的内容
-func newConfig(extConf *kafka.ConfigMap) *kafka.ConfigMap {
+func NewConfig(extConf *kafka.ConfigMap) *kafka.ConfigMap {
 	return merge(copy(&commonConfig), extConf)
 }

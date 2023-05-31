@@ -54,7 +54,7 @@ func WithReplicationFactor(replicationFactor int) CreateOption {
 // 返回主题创建结果和错误对象
 func CreateTopic(topicName string, opts ...CreateOption) (*kafka.TopicResult, error) {
 	// 创建 AdminClient 对象
-	adminClient, err := kafka.NewAdminClient(newConfig(nil))
+	adminClient, err := kafka.NewAdminClient(NewConfig(nil))
 	if err != nil {
 		return nil, err
 	}
