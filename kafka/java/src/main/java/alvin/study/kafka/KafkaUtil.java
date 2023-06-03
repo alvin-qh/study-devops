@@ -3,12 +3,16 @@ package alvin.study.kafka;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -121,5 +125,19 @@ public final class KafkaUtil {
 
         // 返回结果
         return List.copyOf(results);
+    }
+
+    /**
+     * 通过消费者对象获取各个分区的偏移量
+     *
+     * @param consumer 消费者对象
+     * @return 以 {@link TopicPartition} 为 Key, {@link OffsetAndMetadata} 为 Value 的 {@link Map} 对象,
+     *         表示各个分区的偏移量
+     */
+    public static Map<TopicPartition, OffsetAndMetadata> createPartitionOffsetFromConsumer(Consumer<?, ?> consumer) {
+        return consumer.assignment().stream().collect(
+            Collectors.toMap(
+                tp -> tp,
+                tp -> new OffsetAndMetadata(consumer.position(tp))));
     }
 }
