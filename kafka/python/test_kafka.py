@@ -337,7 +337,7 @@ def test_seek_consumer_offset() -> None:
     移动消费者偏移量可以重新获取到"之前"的消息, 几个注意点:
     1. 创建消费者时, `auto.offset.reset` 配置项要设置为 `earliest`;
     2. 消费者的 `seek` 方法参数为 `TopicPartition` 对象,
-    即偏移量的移动是针对指定主题和分区的;
+    即偏移量的移动是针对指定主题和分区的偏移量;
     3. 偏移量提交并不包含发生移动的偏移量;
     """
     topic_name = "py-test__seek-topic"

@@ -13,7 +13,7 @@ import lombok.SneakyThrows;
  * 处理 Kafka 客户端配置项的工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-final class KafkaClientConfig {
+public final class KafkaClientConfig {
     /**
      * 从资源中读取配置项
      *

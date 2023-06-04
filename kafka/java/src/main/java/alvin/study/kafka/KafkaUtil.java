@@ -4,13 +4,16 @@ import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 
@@ -69,7 +72,7 @@ public final class KafkaUtil {
      * @param n        要获取消息的数量
      * @return {@link ConsumerRecord} 类型的对象集合, 表示获取的消息
      */
-    public static <K, V> List<ConsumerRecord<K, V>> pollLastNRecords(Consumer<K, V> consumer, int n) {
+    public static <K, V> ConsumerRecords<K, V> pollLastNRecords(Consumer<K, V> consumer, int n) {
         return pollLastNRecords(consumer, n, true);
     }
 
@@ -81,10 +84,10 @@ public final class KafkaUtil {
      * @param consumer {@link Consumer} 类型消费者对象
      * @param n        要获取消息的数量
      * @param commit   是否提交消息偏移量
-     * @return {@link ConsumerRecord} 类型的对象集合, 表示获取的消息
+     * @return {@link ConsumerRecords} 对象, 表示获取的消息
      */
     @SneakyThrows
-    public static <K, V> List<ConsumerRecord<K, V>> pollLastNRecords(Consumer<K, V> consumer, int n, boolean commit) {
+    public static <K, V> ConsumerRecords<K, V> pollLastNRecords(Consumer<K, V> consumer, int n, boolean commit) {
         // 保存结果的集合对象
         var results = new ArrayDeque<ConsumerRecord<K, V>>();
 
@@ -124,7 +127,18 @@ public final class KafkaUtil {
         }
 
         // 返回结果
-        return List.copyOf(results);
+        return new ConsumerRecords<>(results.stream().collect(
+            Collectors.groupingBy(r -> new TopicPartition(r.topic(), r.partition()))));
+    }
+
+    /**
+     * 通过消费者获取所有分区
+     *
+     * @param consumer 消费者对象
+     * @return 以分区 ID 为 Key, {@link TopicPartition} 为 Value 的 {@link Map} 对象, 表示各个分区
+     */
+    public static Map<Integer, TopicPartition> partitionFromConsumer(Consumer<?, ?> consumer) {
+        return consumer.assignment().stream().collect(Collectors.toMap(tp -> tp.partition(), tp -> tp));
     }
 
     /**
@@ -134,10 +148,22 @@ public final class KafkaUtil {
      * @return 以 {@link TopicPartition} 为 Key, {@link OffsetAndMetadata} 为 Value 的 {@link Map} 对象,
      *         表示各个分区的偏移量
      */
-    public static Map<TopicPartition, OffsetAndMetadata> createPartitionOffsetFromConsumer(Consumer<?, ?> consumer) {
+    public static Map<TopicPartition, OffsetAndMetadata> partitionOffsetFromConsumer(Consumer<?, ?> consumer) {
         return consumer.assignment().stream().collect(
             Collectors.toMap(
                 tp -> tp,
                 tp -> new OffsetAndMetadata(consumer.position(tp))));
+    }
+
+    /**
+     * 获取 {@link ConsumerRecords} 结果中的第一个元素
+     *
+     * @param <K>     消息 Key 类型
+     * @param <V>     消息 Value 类型
+     * @param records 消费者获取消息结果集合
+     * @return 消息结果集合中的第一个元素
+     */
+    public static <K, V> Optional<ConsumerRecord<K, V>> firstResult(ConsumerRecords<K, V> records) {
+        return StreamSupport.stream(records.spliterator(), false).findFirst();
     }
 }
