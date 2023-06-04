@@ -4,21 +4,21 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 import java.net.InetAddress;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Test;
 
@@ -563,63 +563,66 @@ class KafkaTest {
     @Test
     @SneakyThrows
     void avro_shouldUseRecordWithAvroSchema() {
-        var topicName = "java-test__assign-topic";
-        var groupId = "java-test__assign-group";
+        var topicName = "java-test__avro-topic";
+        var groupId = "java-test__avro-group";
 
         // 创建主题
         KafkaUtil.createTopic(topicName);
 
-        // 记录已发送消息和分区关系的 Map
-        var partitionRecord = new HashMap<Integer, ProducerRecord<String, String>>();
+        // 记录发送的消息对象
+        ProducerRecord<String, GenericRecord> record = null;
 
         // 创建生产者
-        try (var producer = KafkaClientBuilder.<String, String>createProducer()) {
-            // 向每个分区各发送一条消息
-            for (var i = 0; i < 3; i++) {
-                var record = recordGenerator.generate(topicName, i);
+        // 对于消息的 Value, 设置 value.serializer 配置项以支持 Avro 序列化
+        // 指定 schema.registry.url 配置项, 设置 Schema Registry 服务地址
+        try (var producer = KafkaClientBuilder.<String, GenericRecord>createProducer(Map.of(
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer",
+            "schema.registry.url", "http://localhost:18081" // 设置 Schema Registry 服务地址
+        ))) {
+            // 通过 Schema 定义, 创建 Avro 数据对象
+            var value = new GenericData.Record(KafkaUtil.parseSchema("../schema/customer.avro"));
+            // 设置数据字段
+            value.put("id", 1);
+            value.put("name", "Alvin");
+            value.put("email", "alvin@fake-mail.com");
 
-                // 发送消息
-                var future = producer.send(record);
+            // 生成要发送的消息对象
+            record = new ProducerRecord<>(topicName, "key-" + UUID.randomUUID(), value);
 
-                // 获取消息发送结果
-                var meta = future.get(2, TimeUnit.SECONDS);
-                then(meta.topic()).isEqualTo(topicName);
-                then(meta.hasOffset()).isTrue();
-                then(meta.offset()).isGreaterThanOrEqualTo(0L);
-                then(meta.partition()).isIn(0, 1, 2);
+            // 发送消息
+            var future = producer.send(record);
 
-                // 记录分区和已发送消息的关系
-                partitionRecord.put(i, record);
-            }
+            // 获取消息发送结果
+            var meta = future.get(2, TimeUnit.SECONDS);
+            then(meta.topic()).isEqualTo(topicName);
+            then(meta.hasOffset()).isTrue();
+            then(meta.offset()).isGreaterThanOrEqualTo(0L);
+            then(meta.partition()).isIn(0, 1, 2);
         }
 
-        // 创建消费者, 由于要分配固定主题分区, 所以这里不对主题进行订阅
-        try (var consumer = new KafkaConsumer<String, String>(KafkaClientConfig.loadConsumerConfig(Map.of(
-            ConsumerConfig.GROUP_ID_CONFIG, groupId // 设置消费组
-        )))) {
-            // 为消费者分配主题和分区
-            consumer.assign(List.of(
-                new TopicPartition(topicName, 1), // 分配主题的分区 1
-                new TopicPartition(topicName, 2)  // 分配主题的分区 2
-            ));
+        // 创建消费者
+        // 对于消息的 Value, 设置 value.deserializer 配置项以支持 Avro 反序列化
+        // 指定 schema.registry.url 配置项, 设置 Schema Registry 服务地址
+        try (var consumer = KafkaClientBuilder.<String, GenericRecord>createConsumer(topicName, groupId, Map.of(
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroDeserializer",
+            "schema.registry.url", "http://localhost:18081" // 设置 Schema Registry 服务地址
+        ))) {
+            // 读取最新的 1 条消息
+            var records = KafkaUtil.pollLastNRecords(consumer, 1);
 
-            // 接收最新的 3 条消息
-            var records = KafkaUtil.pollLastNRecords(consumer, 3);
-
-            // 确认消息接收正确
-            then(records.count()).isEqualTo(2);
-
-            // 确认接收的消息
-            for (var r : records) {
-                // 确认没有 0 分区的消息
-                then(r.partition()).isNotEqualTo(0);
-
-                // 确认接收消息正确
-                var record = partitionRecord.get(r.partition());
-                then(r.topic()).isEqualTo(topicName);
-                then(r.key()).isEqualTo(record.key());
-                then(r.value()).isEqualTo(record.value());
-            }
+            // 确认读取的消息和发送的消息一致
+            var r = KafkaUtil.firstResult(records).get();
+            then(r.topic()).isEqualTo(topicName);
+            then(r.key()).isEqualTo(record.key());
+            then(r.value().get("id"))
+                    .isEqualTo(record.value().get("id"))
+                    .isEqualTo(1);
+            then(r.value().get("name"))
+                    .hasToString(record.value().get("name").toString())
+                    .hasToString("Alvin");
+            then(r.value().get("email"))
+                    .hasToString(record.value().get("email").toString())
+                    .hasToString("alvin@fake-mail.com");
         }
     }
 }

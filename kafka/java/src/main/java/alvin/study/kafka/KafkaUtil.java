@@ -1,5 +1,6 @@
 package alvin.study.kafka;
 
+import java.io.File;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.avro.Schema;
 import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -165,5 +167,17 @@ public final class KafkaUtil {
      */
     public static <K, V> Optional<ConsumerRecord<K, V>> firstResult(ConsumerRecords<K, V> records) {
         return StreamSupport.stream(records.spliterator(), false).findFirst();
+    }
+
+    /**
+     * 获取本地文件中的 Avro Schema 对象
+     *
+     * @param schemaFile 保存 Avro Schema 的文件路径
+     * @return {@link Schema} 对象, 表示 Apache Avro Schema 对象
+     */
+    @SneakyThrows
+    public static Schema parseSchema(String schemaFile) {
+        var parser = new Schema.Parser();
+        return parser.parse(new File(schemaFile));
     }
 }

@@ -21,6 +21,7 @@
     <version.guava>31.1-jre</version.guava>
     <version.lombok>1.18.26</version.lombok>
     <version.jackson>2.14.1</version.jackson>
+    <version.kafka-avro>7.4.0</version.kafka-avro>
 
     <version.junit>5.9.1</version.junit>
     <version.assertj>3.24.1</version.assertj>
@@ -52,6 +53,20 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <repositories>
+    <!-- 设置 Confluent Maven 地址 -->
+    <repository>
+      <id>central</id>
+      <url>https://repo1.maven.org/maven2/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <dependencies>
     <!-- Kafka Client 依赖 -->
@@ -87,6 +102,13 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
+    </dependency>
+
+    <!-- Kafka Avro Serialize 依赖 -->
+    <dependency>
+      <groupId>io.confluent</groupId>
+      <artifactId>kafka-avro-serializer</artifactId>
+      <version>${version.kafka-avro}</version>
     </dependency>
 
     <!-- JUnit 5 依赖 -->
