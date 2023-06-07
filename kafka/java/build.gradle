@@ -1,0 +1,52 @@
+plugins {
+  id "java"
+}
+
+sourceCompatibility = "17"
+targetCompatibility = "17"
+
+test {
+  useJUnitPlatform()
+}
+
+compileJava {
+  options.encoding = "UTF-8"
+  options.compilerArgs << "-parameters"
+  options.annotationProcessorPath = configurations.annotationProcessor
+}
+
+sourceSets {
+  main {
+    output.resourcesDir = java.classesDirectory
+  }
+}
+
+repositories {
+  maven {
+    url "https://maven.aliyun.com/nexus/content/groups/public/"
+  }
+  maven {
+    url "https://packages.confluent.io/maven/"
+  }
+  jcenter()
+}
+
+dependencies {
+  implementation "org.apache.kafka:kafka-clients:${VER_KAFKA_CLIETN}",
+    "io.confluent:kafka-avro-serializer:${VER_KAFKA_AVRO}",
+    "com.google.guava:guava:${VER_GUAVA}",
+    "com.fasterxml.jackson.core:jackson-core:${VER_JACKSON}",
+    "com.fasterxml.jackson.core:jackson-databind:${VER_JACKSON}",
+    "com.fasterxml.jackson.core:jackson-annotations:${VER_JACKSON}"
+
+  compileOnly "org.projectlombok:lombok:${VER_LOMBOK}"
+
+  annotationProcessor "org.projectlombok:lombok:${VER_LOMBOK}"
+
+  testImplementation "org.junit.jupiter:junit-jupiter:${VER_JUNIT}",
+    "org.assertj:assertj-core:${VER_ASSERTJ}"
+
+  testCompileOnly "org.projectlombok:lombok:${VER_LOMBOK}"
+
+  testAnnotationProcessor "org.projectlombok:lombok:${VER_LOMBOK}"
+}
