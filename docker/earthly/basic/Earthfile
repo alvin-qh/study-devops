@@ -1,0 +1,24 @@
+VERSION 0.7
+FROM golang:1.20.4-alpine3.18
+
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn
+
+build:
+  WORKDIR /build
+
+  COPY go.mod go.sum .
+  RUN go mod download
+
+  COPY main.go .
+  RUN go build -o target/go-demo main.go
+
+  SAVE ARTIFACT target/go-demo /go-demo
+
+docker:
+  WORKDIR /binary
+
+  COPY +build/go-demo .
+  ENTRYPOINT ["/binary/go-demo"]
+
+  SAVE IMAGE --push go-demo:1.0
