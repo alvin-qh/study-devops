@@ -1,8 +1,0 @@
-autopep8
-
-kazoo
-confluent-kafka
-pytest
-requests
-fastavro
-jsonschema
