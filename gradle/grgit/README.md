@@ -37,7 +37,7 @@ apply plugin: "org.ajoberstar.grgit"
 
 ## 使用插件
 
-`grgit` 对象表示 git 最新状体，即 `HEAD` 的状态
+`grgit` 对象表示 git 最新状体, 即 `HEAD` 的状态
 
 `grgit.log()` 表示 git 的 log 信息
 

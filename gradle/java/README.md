@@ -31,11 +31,11 @@ root_project
 多少子项目生效由 `settings.gradle` 文件定义
 
 ```groovy
-rootProject.name = 'study-java'
+rootProject.name = "study-java"
 
 include( // 包含的子项目名称
-    'sub_project1',
-    'sub_project2'
+  "sub_project1",
+  "sub_project2"
 )
 ```
 
@@ -89,7 +89,7 @@ source-sets
 - `sourceSets.main.output.resourcesDir` 获取 src/main 下资源输出路径
 
 ```bash
-$ gradle -q --offset showProjectDir
+gradle -q --offline showProjectDir
 ```
 
 `compileClasspath`, `runtimeClasspath` 分别表示编译期和运行期的 classpath 定义，包含了 `.class` 文件路径和 `.jar` 文件路径
@@ -123,12 +123,13 @@ source-sets
 
 ```groovy
 sourceSets {
-    boot {
-        java {
-        }
-        resources {
-        }
+  boot {
+    java {
     }
+
+    resources {
+    }
+  }
 }
 ```
 
@@ -138,21 +139,21 @@ sourceSets {
 
 ```groovy
 sourceSets {
-    boot {
-        java {
-            srcDirs("src/boot/java")
-        }
-        resources {
-            srcDirs("src/boot/resources")
-        }
+  boot {
+    java {
+        srcDirs("src/boot/java")
     }
+    resources {
+        srcDirs("src/boot/resources")
+    }
+  }
 }
 ```
 
 设置和获取 `sourceSets` 变量值
 
 ```bash
-$ gradle -q --offline showSourceSets
+gradle -q --offline showSourceSets
 ```
 
 ### 2.3. 设置编译参数
@@ -160,8 +161,16 @@ $ gradle -q --offline showSourceSets
 通过 `JavaCompile` task 可以设置 java 的编译选项
 
 ```groovy
+compileJava {
+  options.compilerArgs += ["-Xdoclint:none", "-Xlint:none", "-nowarn"]
+}
+```
+
+或者
+
+```groovy
 tasks.withType(JavaCompile) {
-    options.compilerArgs += ['-Xdoclint:none', '-Xlint:none', '-nowarn']
+  options.compilerArgs += ["-Xdoclint:none", "-Xlint:none", "-nowarn"]
 }
 ```
 
@@ -175,33 +184,33 @@ tasks.withType(JavaCompile) {
 
 ```groovy
 task runMain(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath // 设置 classpath 参数
-    main = 'alvin.gradle.java.Main' // 设置 main 方法所在的类
-    args 'A', 'B', 'C'  // 传递给 main 方法的默认参数
+  classpath = sourceSets.main.runtimeClasspath // 设置 classpath 参数
+  main = "alvin.gradle.java.Main" // 设置 main 方法所在的类
+  args "A", "B", "C"  // 传递给 main 方法的默认参数
 }
 ```
 
 使用默认参数执行 main 方法
 
 ```bash
-$ gradle runMain
+gradle runMain
 ```
 
 通过命令行传递参数
 
 ```bash
-$ gradle runMain --args="X Y Z"
+gradle runMain --args="X Y Z"
 ```
 
 除了使用 `JavaExec` 类型任务外，也可以使用 `Exec` 类型任务，但该类型任务并不是专用于 java 项目的，所以需要设置启动项目的命令行
 
 ```groovy
 task runWithExecJar(type: Exec) {
-    dependsOn jar
+  dependsOn jar
 
-    group = project.group
-    description = "Run the output executable jar with ExecTask"
-    commandLine "java", "-jar", jar.archiveFile.get(), "A B C"
+  group = project.group
+  description = "Run the output executable jar with ExecTask"
+  commandLine "java", "-jar", jar.archiveFile.get(), "A B C"
 }
 ```
 
@@ -217,17 +226,17 @@ task runWithExecJar(type: Exec) {
 
 ```groovy
 jar {
-    manifest { // Manifest.MF 文件生成规则
-        attributes(
-            'Implementation-Title': 'Gradle Demo', // 项目标题
-            'Implementation-Version': version,  // 版本号
-            'Main-Class': 'alvin.gradle.java.Main', // 主类名
-            "Class-Path": makeClassPath() // 依赖 classpath 路径
-        )
-    }
+  manifest { // Manifest.MF 文件生成规则
+    attributes(
+      "Implementation-Title": "Gradle Demo", // 项目标题
+      "Implementation-Version": version,  // 版本号
+      "Main-Class": "alvin.gradle.java.Main", // 主类名
+      "Class-Path": makeClassPath() // 依赖 classpath 路径
+    )
+  }
 
-    // jar 打包文件名
-    archiveFileName = "${project.group}.${project.name}-${project.version}.jar"
+  // jar 打包文件名
+  archiveFileName = "${project.group}.${project.name}-${project.version}.jar"
 }
 ```
 
@@ -235,14 +244,14 @@ jar {
 
 ```groovy
 task copyJarsToLib {
-    def toDir = "${buildDir}/libs/libs"
-    doLast {
-        // 将运行时依赖拷贝到 build/libs/libs 目录下
-        copy {
-            from configurations.runtimeClasspath
-            into toDir
-        }
+  def toDir = "${buildDir}/libs/libs"
+  doLast {
+    // 将运行时依赖拷贝到 build/libs/libs 目录下
+    copy {
+      from configurations.runtimeClasspath
+      into toDir
     }
+  }
 }
 
 jar.dependsOn copyJarsToLib // 令 jar 依赖于 copyJarsToLib
@@ -252,25 +261,25 @@ jar.dependsOn copyJarsToLib // 令 jar 依赖于 copyJarsToLib
 
 ```groovy
 def makeClassPath() {
-    // 将 runtimeClasspath 的路径放入集合
-    def jarNames = configurations.runtimeClasspath.collect {
-        it.getName()
-    }
-    // 获取 classpath
-    return '. libs/' + jarNames.join(' libs/')
+  // 将 runtimeClasspath 的路径放入集合
+  def jarNames = configurations.runtimeClasspath.collect {
+    it.getName()
+  }
+  // 获取 classpath
+  return ". libs/" + jarNames.join(" libs/")
 }
 ```
 
 如此一来，`build` task 可在 `build/libs` 下输出 jar 文件，在 `build/libs/libs` 下输出所有依赖的 jar 文件
 
 ```bash
-$ gradle build
+gradle build
 ```
 
 运行编译结果
 
 ```bash
-$ java -jar build/libs/alvin.gradle.java-1.0.jar arg1 arg2
+java -jar build/libs/alvin.gradle.java-1.0.jar arg1 arg2
 ```
 
 ### 2.6. 构建 FatJar
@@ -283,34 +292,34 @@ $ java -jar build/libs/alvin.gradle.java-1.0.jar arg1 arg2
 
 ```groovy
 task fatJar(type: Jar) {
-    // 打包结果中排除如下文件，会导致冲突
-    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.MF'
+  // 打包结果中排除如下文件，会导致冲突
+  exclude "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "META-INF/*.MF"
 
-    manifest { // Manifest.MF 文件生成规则
-        attributes(
-            'Implementation-Title': 'Gradle Demo',
-            'Implementation-Version': project.version,
-            'Main-Class': 'alvin.gradle.java.Main',
-        )
+  manifest { // Manifest.MF 文件生成规则
+    attributes(
+      "Implementation-Title": "Gradle Demo",
+      "Implementation-Version": project.version,
+      "Main-Class": "alvin.gradle.java.Main",
+    )
+  }
+
+  // 打包文件名
+  archiveFileName = "${project.group}.${project.name}-${project.version}-fat.jar"
+
+  // 将运行时所需的 jar 文件解压缩后放入 jar 包
+  from {
+    configurations.runtimeClasspath.collect {
+      it.isDirectory() ? it : zipTree(it)
     }
-
-    // 打包文件名
-    archiveFileName = "${project.group}.${project.name}-${project.version}-fat.jar"
-
-    // 将运行时所需的 jar 文件解压缩后放入 jar 包
-    from {
-        configurations.runtimeClasspath.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    with jar
+  }
+  with jar
 }
 ```
 
 运行编译结果
 
 ```bash
-$ java -jar build/libs/alvin.gradle.java-1.0-fat.jar arg1 arg2
+java -jar build/libs/alvin.gradle.java-1.0-fat.jar arg1 arg2
 ```
 
 ### 2.7. 清理生成的文件
@@ -318,7 +327,7 @@ $ java -jar build/libs/alvin.gradle.java-1.0-fat.jar arg1 arg2
 构建过程中产生的文件可以清理
 
 ```bash
-$ gradle -q clean
+gradle -q clean
 ```
 
 ## 3. 单元测试
@@ -331,16 +340,16 @@ $ gradle -q clean
 
 ```groovy
 test {
-    useJUnitPlatform() // 使用 JUnit5 测试框架
+  useJUnitPlatform() // 使用 JUnit5 测试框架
 
-    reports.html.required = true // 输出 HTML 测试报告
+  reports.html.required = true // 输出 HTML 测试报告
 
-    // 配置测试日志输出类型
-    testLogging {
-        events "SKIPPED", "FAILED"  // 输出 log 的日志状态
-        showStackTraces = true // 显示堆栈信息
-        exceptionFormat = "full" // 异常信息格式化程度
-    }
+  // 配置测试日志输出类型
+  testLogging {
+    events "SKIPPED", "FAILED"  // 输出 log 的日志状态
+    showStackTraces = true // 显示堆栈信息
+    exceptionFormat = "full" // 异常信息格式化程度
+  }
 }
 ```
 
@@ -348,22 +357,22 @@ test {
 
 ```groovy
 dependencies {
-    ...
+  ...
 
-    // 单元测试依赖
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2",
-                       "org.junit.jupiter:junit-jupiter-engine:5.7.2",
-                       dependencies.create("org.hamcrest:hamcrest-all:1.3") {
-                           exclude group: 'junit' // 排除 JUnit4 依赖
-                           exclude group: 'org.junit.vintage'
-                       },
-                       dependencies.create("com.google.guava:guava-testlib:31.0.1-jre") {
-                           exclude group: 'junit' // 排除 JUnit4 依赖
-                           exclude group: 'org.junit.vintage'
-                       }
+  // 单元测试依赖
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2",
+      "org.junit.jupiter:junit-jupiter-engine:5.7.2",
+      dependencies.create("org.hamcrest:hamcrest-all:1.3") {
+        exclude group: "junit" // 排除 JUnit4 依赖
+        exclude group: "org.junit.vintage"
+      },
+      dependencies.create("com.google.guava:guava-testlib:31.0.1-jre") {
+        exclude group: "junit" // 排除 JUnit4 依赖
+        exclude group: "org.junit.vintage"
+      }
 
-    // 单元测试编译期依赖
-    testCompileOnly "org.junit.platform:junit-platform-launcher:1.7.2"
+  // 单元测试编译期依赖
+  testCompileOnly "org.junit.platform:junit-platform-launcher:1.7.2"
 }
 ```
 
@@ -372,17 +381,17 @@ dependencies {
 执行单元测试
 
 ```bash
-$ gradle test
+gradle test
 ```
 
 执行指定的单元测试
 
 ```bash
-$ gradle test --tests <pattern>
+gradle test --tests <pattern>
 ```
 
 例如
 
 ```bash
-$ gradle test --tests '*shouldCommandLineArgsFormatted*'
+gradle test --tests "*shouldCommandLineArgsFormatted*"
 ```

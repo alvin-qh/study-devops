@@ -17,7 +17,7 @@
 
 ### 1.1. 安装插件
 
-`checkstyle` 是一个 gradle 官方插件，直接引入即可
+`checkstyle` 是一个 gradle 官方插件, 直接引入即可
 
 ```groovy
 plugins {
@@ -41,9 +41,9 @@ checkstyle {
 }
 ```
 
-`checkstyle` 插件引入了 `checkstyleMain` 和 `checkstyleTest` 两个 task，分别用于对 `main.java` 和 `test.java` 两个位置的代码进行检测
+`checkstyle` 插件引入了 `checkstyleMain` 和 `checkstyleTest` 两个 task, 分别用于对 `main.java` 和 `test.java` 两个位置的代码进行检测
 
-需要对这两个 task 进行配置，主要是指定**规则文件的路径**
+需要对这两个 task 进行配置, 主要是指定**规则文件的路径**
 
 ```groovy
 // 对 main.java 配置检查
@@ -69,11 +69,11 @@ task checkStyle(dependsOn: [checkstyleMain, checkstyleTest]) {
 }
 ```
 
-定义一个同时依赖 `checkstyleMain` 和 `checkstyleTest` 的 task，可以一次性完成所有检测
+定义一个同时依赖 `checkstyleMain` 和 `checkstyleTest` 的 task, 可以一次性完成所有检测
 
 ### 2.2. 执行 task
 
-`checkstyle` 插件引入后，`check` task 会依赖 `checkstyleMain` 和 `checkstyleTest` 两个 task，而 `build` 任务又会依赖 `check` task，所以很多 task 都会导致 `checkstyle` task 执行
+`checkstyle` 插件引入后, `check` task 会依赖 `checkstyleMain` 和 `checkstyleTest` 两个 task, 而 `build` 任务又会依赖 `check` task, 所以很多 task 都会导致 `checkstyle` task 执行
 
 ```bash
 gradle checkStyle
@@ -91,14 +91,14 @@ gradle build
 
 > [检查规则配置](https://checkstyle.org/checks.html)
 
-checkstyle 的检查规则是通过一组 `module` 组合完成的，最顶部的是一个 `Checker` module，用于包含一组对代码文件整体检测的 module，其中的 `TreeWalker` module 用于包含一组对语法进行进一步检测的 module
+checkstyle 的检查规则是通过一组 `module` 组合完成的, 最顶部的是一个 `Checker` module, 用于包含一组对代码文件整体检测的 module, 其中的 `TreeWalker` module 用于包含一组对语法进行进一步检测的 module
 
 ### 3.2. 过滤列表
 
 > [文件过滤器模块](https://checkstyle.org/config_filefilters.html)
 > [规则过滤器模块](https://checkstyle.org/config_filters.html)
 
-如果要过滤部分文件不参与代码检测，则使用 `BeforeExecutionExclusionFileFilter` module 即可
+如果要过滤部分文件不参与代码检测, 则使用 `BeforeExecutionExclusionFileFilter` module 即可
 
 ```xml
 <module name="BeforeExecutionExclusionFileFilter">
@@ -109,7 +109,7 @@ checkstyle 的检查规则是通过一组 `module` 组合完成的，最顶部�
 
 规则过滤一般是通过 `SuppressionFilter` 的过滤器 module 以及一个 `suppressions.xml` 来定义
 
-在 `Checker` module 下，定义 `SuppressionFilter` module，引入忽略列表
+在 `Checker` module 下, 定义 `SuppressionFilter` module, 引入忽略列表
 
 ```xml
 <module name="Checker">
@@ -121,7 +121,7 @@ checkstyle 的检查规则是通过一组 `module` 组合完成的，最顶部�
 </module>
 ```
 
-对于 `suppressions.xml` 文件，需要说明那些文件忽略那些规则
+对于 `suppressions.xml` 文件, 需要说明那些文件忽略那些规则
 
 ```xml
 <?xml version="1.0"?>
