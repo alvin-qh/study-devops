@@ -10,7 +10,7 @@
       - [1.2.2. 自定义变量](#122-自定义变量)
       - [1.2.3. 引入变量文件](#123-引入变量文件)
       - [1.2.4. 使用环境变量](#124-使用环境变量)
-      - [1.2.5. facts 变量](#125-facts-变量)
+      - [1.2.5. Facts 变量](#125-facts-变量)
       - [1.2.6. 在任务中设置变量值](#126-在任务中设置变量值)
     - [1.3. 条件执行](#13-条件执行)
       - [1.3.1. 基本条件](#131-基本条件)
@@ -35,11 +35,11 @@
       - [1.6.5. 确保命令执行返回成功](#165-确保命令执行返回成功)
       - [1.6.6. Aborting a play on all hosts](#166-aborting-a-play-on-all-hosts)
   - [2. 高级功能](#2-高级功能)
-    - [2.1. 前置、后置任务](#21-前置后置任务)
+    - [2.1. 前置, 后置任务](#21-前置-后置任务)
     - [2.2. 导入外部剧本](#22-导入外部剧本)
     - [2.3. 导入外部任务](#23-导入外部任务)
 
-Playbook 是一个 `yaml` 文件，由 "play" 和 "task" 构成，每个 "task" 相当于一个 Ad-Hoc 命令，组织起来就是一个批处理命令，可以在远程主机执行一个完整的操作
+Playbook 是一个 `yaml` 文件, 由 "play" 和 "task" 构成, 每个 "task" 相当于一个 Ad-Hoc 命令, 组织起来就是一个批处理命令, 可以在远程主机执行一个完整的操作
 
 ## 1. 基本使用
 
@@ -96,7 +96,7 @@ ansible-playbook var.yml --tags G1
 
 #### 1.2.2. 自定义变量
 
-在 playbook 中，通过 `vars` 字段定义自定义变量
+在 playbook 中, 通过 `vars` 字段定义自定义变量
 
 ```yml
 vars:
@@ -118,7 +118,7 @@ ansible-playbook var.yml --tags G2 -e "user_name=Emma user_age=32"
 
 #### 1.2.3. 引入变量文件
 
-变量文件可以定义为 `json` 或 `yaml` 格式，在 playbook 中通过 `include_vars` 属性引入外部变量文件
+变量文件可以定义为 `json` 或 `yaml` 格式, 在 playbook 中通过 `include_vars` 属性引入外部变量文件
 
 ```yml
 tasks:
@@ -132,7 +132,7 @@ tasks:
 ansible-playbook var.yml --tags G3
 ```
 
-变量中可以使用加密内容，并通过 `vault-id` 进行解密
+变量中可以使用加密内容, 并通过 `vault-id` 进行解密
 
 #### 1.2.4. 使用环境变量
 
@@ -173,9 +173,9 @@ tasks:
 VAR_MSG="HELLO WORLD" ansible-playbook var.yml --tags G4
 ```
 
-#### 1.2.5. facts 变量
+#### 1.2.5. Facts 变量
 
-当 playbook 的 `gather_facts` 属性为 `True` 时，会收集远程主机的 `ansible_facts` 变量集合，即远程主机的所有 facts 变量
+当 playbook 的 `gather_facts` 属性为 `True` 时, 会收集远程主机的 `ansible_facts` 变量集合, 即远程主机的所有 facts 变量
 
 ```yml
 tasks:
@@ -213,7 +213,7 @@ ansible-playbook var.yml --tags G6
 
 #### 1.3.1. 基本条件
 
-在任务中，可以通过 `when <cond>` 可以进行条件判断，符合条件的任务才会被实际执行
+在任务中, 可以通过 `when <cond>` 可以进行条件判断, 符合条件的任务才会被实际执行
 
 ```yml
 tasks:
@@ -230,7 +230,7 @@ ansible-playbook cond.yml --tags G1
 
 #### 1.3.2. 组合条件
 
-可以通过 `and`, `or` 组合多个条件，或通过 `not` 否定某个条件
+可以通过 `and`, `or` 组合多个条件, 或通过 `not` 否定某个条件
 
 ```yml
 tasks:
@@ -249,7 +249,7 @@ ansible-playbook cond.yml --tags G2
 
 #### 1.3.3. 在注册的变量上使用条件
 
-前一步任务可以使用 `register` 将结果保存到变量中，后面的任务可以根据注册的变量进行条件操作
+前一步任务可以使用 `register` 将结果保存到变量中, 后面的任务可以根据注册的变量进行条件操作
 
 ```yaml
 tasks:
@@ -271,9 +271,9 @@ ansible-playbook cond.yml --tags G3
 
 #### 1.3.4. 将操作结果作为条件变量
 
-任务的操作结果包括 `skipped`，`succeeded`，`failed`，分别表示“任务被跳过”，“任务成功”和“任务失败”
+任务的操作结果包括 `skipped`, `succeeded`, `failed`, 分别表示 "任务被跳过", "任务成功" 和 "任务失败"
 
-当任务执行结果符合上述三种情况时，任务注册的变量会保存任务结果
+当任务执行结果符合上述三种情况时, 任务注册的变量会保存任务结果
 
 ```yaml
 # 任务跳过的情况
@@ -369,7 +369,7 @@ ansible-playbook loop.yml --tags G1
 
 #### 1.4.2. 遍历多集合组合后的结果
 
-在任务中通过 `with_nested: [<collection1>, <collection2>, ...]` 可以对多个集合求笛卡尔积，并进行循环遍历
+在任务中通过 `with_nested: [<collection1>, <collection2>, ...]` 可以对多个集合求笛卡尔积, 并进行循环遍历
 
 对两个集合求笛卡尔积后遍历
 
@@ -430,7 +430,7 @@ ansible-playbook loop.yml --tags G3
 
 #### 1.4.4. 对字典进行遍历
 
-通过 `with_dict <dictionary>` 可以对一个字典集合进行遍历，得到其每一个 key 和 value 值，并为每一次遍历重复执行一次任务
+通过 `with_dict <dictionary>` 可以对一个字典集合进行遍历, 得到其每一个 key 和 value 值, 并为每一次遍历重复执行一次任务
 
 ```yml
 vars:
@@ -450,7 +450,7 @@ ansible-playbook loop.yml --tags G4
 
 #### 1.4.5. 遍历文件列表
 
-在任务中，通过 `with_fileglob [<glob1>, <glob2>, ...]` 可以以 glob 语法遍历文件，获取一个文件列表，并为列表中的每个文件重复执行当前任务
+在任务中, 通过 `with_fileglob [<glob1>, <glob2>, ...]` 可以以 glob 语法遍历文件, 获取一个文件列表, 并为列表中的每个文件重复执行当前任务
 
 ```yml
 tasks:
@@ -469,7 +469,7 @@ ansible-playbook loop.yml --tags G5
 
 ### 1.5. Block
 
-子任务块可以看作是一个整体，包含了多个子任务，共享整个任务的信息
+子任务块可以看作是一个整体, 包含了多个子任务, 共享整个任务的信息
 
 > 查看 [block.yml](./block.yml) 文件
 
@@ -502,7 +502,7 @@ ansible-playbook block.yml --tags G1
 
 #### 1.5.2. 利用任务组处理错误
 
-`rescue` 和 `always` 也各是一组子任务。当 `block` 执行出现错误时，可以通过 `rescue` 块进行错误处理；在 `block` 执行结束后，`always` 块必然执行
+`rescue` 和 `always` 也各是一组子任务。当 `block` 执行出现错误时, 可以通过 `rescue` 块进行错误处理；在 `block` 执行结束后, `always` 块必然执行
 
 ```yml
 tasks:
@@ -541,7 +541,7 @@ ansible-playbook block.yml --tags G2
 
 #### 1.5.3. 因错误终止任务
 
-通过 `any_errors_fatal` 属性，当出现错误时，会停止所有远程主机上后续任务执行
+通过 `any_errors_fatal` 属性, 当出现错误时, 会停止所有远程主机上后续任务执行
 
 ```yml
 hosts: all_servers
@@ -575,7 +575,7 @@ ansible-playbook block.yml --tags G3
 
 #### 1.6.1. 忽略错误任务
 
-任务的 `ignore_errors` 属性可以忽略出现错误的任务，继续后续任务
+任务的 `ignore_errors` 属性可以忽略出现错误的任务, 继续后续任务
 
 ```yml
 tasks:
@@ -592,7 +592,7 @@ ansible-playbook error.yml --tags G1
 
 #### 1.6.2. 忽略无法访问的远程主机
 
-任务的 `ignore_unreachable` 属性可以忽略无法访问的远程主机，并停止任务发送给该主机；`meta: clear_host_errors` 可以清除主机上的错误信息，让每次任务都进行尝试，而不是因为前一次任务导致忽略该主机的后续任务
+任务的 `ignore_unreachable` 属性可以忽略无法访问的远程主机, 并停止任务发送给该主机；`meta: clear_host_errors` 可以清除主机上的错误信息, 让每次任务都进行尝试, 而不是因为前一次任务导致忽略该主机的后续任务
 
 ```yml
 hosts: unknown
@@ -616,9 +616,9 @@ ansible-playbook error.yml --tags G2
 
 #### 1.6.3. 定义任务失败
 
-任务的 `failed_when` 属性定义了任务失败的条件，只要满足该条件，则定义该任务失败
+任务的 `failed_when` 属性定义了任务失败的条件, 只要满足该条件, 则定义该任务失败
 
-当执行命令返回结果中包含 "Error" 字符串时，定义任务失败
+当执行命令返回结果中包含 "Error" 字符串时, 定义任务失败
 
 ```yml
 tasks:
@@ -649,7 +649,7 @@ ansible-playbook error.yml --tags G3
 
 #### 1.6.4. 定义 "changed" 状态
 
-如果一个 task 对远程主机做出改变（文件、状态），则该 task 被标记为 `changed`，可以通过任务的 `changed_when` 属性来定义 `changed` 状态
+如果一个 task 对远程主机做出改变（文件, 状态）, 则该 task 被标记为 `changed`, 可以通过任务的 `changed_when` 属性来定义 `changed` 状态
 
 ```yml
 tasks:
@@ -679,7 +679,7 @@ ansible-playbook error.yml --tags G4
 
 #### 1.6.5. 确保命令执行返回成功
 
-可以使用 shell 命令的 `||` 操作，保证 shell 命令永远返回正确，即 `<shell command> || /usr/bin/true`
+可以使用 shell 命令的 `||` 操作, 保证 shell 命令永远返回正确, 即 `<shell command> || /usr/bin/true`
 
 ```yml
 tasks:
@@ -698,7 +698,7 @@ ansible-playbook error.yml --tags G5
 
 #### 1.6.6. Aborting a play on all hosts
 
-通过任务的 `any_errors_fatal` 属性，可以定义一旦发生错误，立即停止所有主机后续任务的执行
+通过任务的 `any_errors_fatal` 属性, 可以定义一旦发生错误, 立即停止所有主机后续任务的执行
 
 ```yml
 hosts: all_server
@@ -720,7 +720,7 @@ tasks:
 ansible-playbook error.yml --tags G6-1
 ```
 
-可以通过剧本的 `max_fail_percentage` 属性，设置最大错误比率的阈值，超过该阈值则停止整个剧本
+可以通过剧本的 `max_fail_percentage` 属性, 设置最大错误比率的阈值, 超过该阈值则停止整个剧本
 
 ```yml
 tasks:
@@ -751,7 +751,7 @@ ansible-playbook error.yml --tags G6-2
 
 > 查看 [adv.yml](./adv.yml) 文件
 
-### 2.1. 前置、后置任务
+### 2.1. 前置, 后置任务
 
 剧本的 `pre_tasks` 部分会在所有任务执行前执行；`post_tasks` 部分会在所有任务结束后执行
 
@@ -777,7 +777,7 @@ ansible-playbook adv.yml --tags G1
 
 ### 2.2. 导入外部剧本
 
-剧本的 `import_playbook` 表示从外部导入剧本的内容，包括剧本的属性和任务
+剧本的 `import_playbook` 表示从外部导入剧本的内容, 包括剧本的属性和任务
 
 ```yml
 - name: Import external playbooks
@@ -794,7 +794,7 @@ ansible-playbook adv.yml --tags G2
 
 ### 2.3. 导入外部任务
 
-任务的 `import_tasks` 表示从外部导入子任务，子任务行为类似于 `block` 定义的子任务，是一个整体
+任务的 `import_tasks` 表示从外部导入子任务, 子任务行为类似于 `block` 定义的子任务, 是一个整体
 
 ```yml
 tasks: Import external task

@@ -24,13 +24,13 @@
 
 > 参考 [`ansible.cfg`](./ansible.cfg) 文件
 
-在 `ansible.cfg` 文件中，主要需要指定远程服务器的配置（`Inventory` 配置文件）以及所使用的 ssh 配置
+在 `ansible.cfg` 文件中, 主要需要指定远程服务器的配置（`Inventory` 配置文件）以及所使用的 ssh 配置
 
 ### 1.2. 配置 Inventory
 
 > 参考 [`inventory`](./conf/inventory) 文件
 
-在 `inventory` 配置文件中，主要需配置要连接的远程主机以及远程访问该主机所需的参数，例如：
+在 `inventory` 配置文件中, 主要需配置要连接的远程主机以及远程访问该主机所需的参数, 例如:
 
 ```ini
 [web_servers]
@@ -42,17 +42,17 @@ web03
 ansible_ssh_user=<username>
 ```
 
-假设 Web 服务部署需要 3 台机器（web01~03），且这 3 台机器需要完全一致的部署流程，则可以将这三台主机统一设置为一个远程主机，统一管理
+假设 Web 服务部署需要 3 台机器（web01~03）, 且这 3 台机器需要完全一致的部署流程, 则可以将这三台主机统一设置为一个远程主机, 统一管理
 
 ### 1.3. 配置 ssh
 
 > 参考 [`ssh_config`](./conf/ssh_config) 文件
 
-`inventory` 配置中的主机，都需要在 ssh 配置中定义，可以使用 `~/.ssh` 中的 `config` 文件进行定义，也可以在 `ansible.cfg` 文件中通过 `ssh_args` 配置来指定额外的 ssh 配置文件和密钥文件
+`inventory` 配置中的主机, 都需要在 ssh 配置中定义, 可以使用 `~/.ssh` 中的 `config` 文件进行定义, 也可以在 `ansible.cfg` 文件中通过 `ssh_args` 配置来指定额外的 ssh 配置文件和密钥文件
 
 ## 2. Ansible 命令行模式
 
-Ansible 命令行模式，即通过 `ansible` 命令执行 Ansible 内置的模块或远程服务器的 shell 命令
+Ansible 命令行模式, 即通过 `ansible` 命令执行 Ansible 内置的模块或远程服务器的 shell 命令
 
 执行内置模块
 
@@ -124,7 +124,7 @@ debian1 | SUCCESS => {
 }
 ```
 
-- `--extra-vars` 设置扩展参数，`ansible_become_pass` 表示设置 `sudo` 用户密码
+- `--extra-vars` 设置扩展参数, `ansible_become_pass` 表示设置 `sudo` 用户密码
 
 #### 2.1.5. 以 `root` 用户执行
 
@@ -137,7 +137,7 @@ debian1 | SUCCESS => {
 }
 ```
 
-- `--become-method` 切换用户的命令，默认为 `sudo`。`su` 表示切换到 `root` 用户
+- `--become-method` 切换用户的命令, 默认为 `sudo`。`su` 表示切换到 `root` 用户
 
 #### 2.1.6. 通过 `expect` 脚本自动输入密码
 

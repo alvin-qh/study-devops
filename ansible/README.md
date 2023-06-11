@@ -14,7 +14,7 @@
 
 #### 1.2.1. 创建密钥
 
-在本机上执行如下命令，生成密钥：
+在本机上执行如下命令, 生成密钥:
 
 ```bash
 ssh-keygen -t rsa -P '' -C <username>
@@ -52,9 +52,9 @@ Host vsrv03
 
 在本机安装 Python 开发环境
 
-#### 1.2.1. 安装 pyenv
+#### 1.2.1. 安装 PyENV
 
-##### 下载并安装 pyenv 工具链
+##### 下载并安装 PyENV 工具链
 
 ```bash
 curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
@@ -62,7 +62,7 @@ curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer 
 
 ##### 设置环境变量
 
-修改 `~/.bashrc` (或 `~/.zshrc` 以及 `~/.bash_profile` 文件), 增加如下内容：
+修改 `~/.bashrc` (或 `~/.zshrc` 以及 `~/.bash_profile` 文件), 增加如下内容:
 
 ```bash
 export PATH="~/.pyenv/bin:$PATH"
