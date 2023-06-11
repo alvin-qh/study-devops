@@ -1,59 +1,59 @@
 plugins {
-    id 'java'
-    id 'checkstyle'
+  id "java"
+  id "checkstyle"
 }
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+sourceCompatibility = "17"
+targetCompatibility = "17"
 
 repositories {
-    maven {
-        url 'https://maven.aliyun.com/nexus/content/groups/public/'
-    }
-    jcenter()
+  maven {
+    url "https://maven.aliyun.com/nexus/content/groups/public/"
+  }
+  mavenCentral()
 }
 
 // 配置 JUnit5 测试框架
 test {
-    useJUnitPlatform()
+  useJUnitPlatform()
 
-    reports.html.required = true
+  reports.html.required = true
 
-    testLogging {
-        events "SKIPPED", "FAILED"
+  testLogging {
+    events "SKIPPED", "FAILED"
 
-        showStackTraces = true
-        exceptionFormat = "full"
-    }
+    showStackTraces = true
+    exceptionFormat = "full"
+  }
 }
 
 // 配置 checkstyle 工具
 checkstyle {
-    toolVersion = '9.2.1' // 工具链版本号
-    configDirectory = rootProject.file('config') // 配置文件存储路径
+  toolVersion = "9.2.1" // 工具链版本号
+  configDirectory = rootProject.file("config") // 配置文件存储路径
 
-    showViolations true // 显示验证结果
+  showViolations true // 显示验证结果
 }
 
 // 配置 checkstyle task
 tasks.withType(Checkstyle) {
-    reports {
-        xml.required = false
-        html.required = true
-        // html.stylesheet resources.text.fromFile('config/xsl/checkstyle-custom.xsl')
-    }
+  reports {
+    xml.required = false
+    html.required = true
+    // html.stylesheet resources.text.fromFile("config/xsl/checkstyle-custom.xsl")
+  }
 }
 
 /* 检查 main.java 下的代码 */
 checkstyleMain {
-    outputs.upToDateWhen { false }
-    configFile = file("${project.projectDir}/config/checkstyle.xml") // 指定规则配置文件
+  outputs.upToDateWhen { false }
+  configFile = file("${project.projectDir}/config/checkstyle.xml") // 指定规则配置文件
 }
 
 /* 检查 test.java 下的代码 */
 checkstyleTest {
-    outputs.upToDateWhen { false }
-    configFile = file("${project.projectDir}/config/checkstyle-test.xml") // 指定规则配置文件
+  outputs.upToDateWhen { false }
+  configFile = file("${project.projectDir}/config/checkstyle-test.xml") // 指定规则配置文件
 }
 
 /* 定义检查全部代码的 task，注意名字需要和内置 checkstyle 有所区别 */
@@ -64,7 +64,8 @@ task checkStyle(dependsOn: [checkstyleMain, checkstyleTest]) {
 checkStyle.mustRunAfter check
 
 dependencies {
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2",
-                       "org.junit.jupiter:junit-jupiter-engine:5.7.2"
-    testCompileOnly "org.junit.platform:junit-platform-launcher:1.7.2"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2",
+      "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+
+  testCompileOnly "org.junit.platform:junit-platform-launcher:1.7.2"
 }

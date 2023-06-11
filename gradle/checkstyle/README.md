@@ -21,8 +21,8 @@
 
 ```groovy
 plugins {
-    id 'java'
-    id 'checkstyle'  // 引入插件
+    id "java"
+    id "checkstyle"  // 引入插件
 }
 ```
 
@@ -30,14 +30,14 @@ plugins {
 
 ```groovy
 checkstyle {
-    toolVersion = '9.0.1' // 工具链版本
-    showViolations true  // 显示验证规则
+  toolVersion = "9.0.1" // 工具链版本
+  showViolations true  // 显示验证规则
 
-    reports {
-        xml.required = false
-        html.required = true
-        // html.stylesheet resources.text.fromFile('config/xsl/checkstyle-custom.xsl')
-    }
+  reports {
+    xml.required = false
+    html.required = true
+    // html.stylesheet resources.text.fromFile("config/xsl/checkstyle-custom.xsl")
+  }
 }
 ```
 
@@ -48,14 +48,14 @@ checkstyle {
 ```groovy
 // 对 main.java 配置检查
 checkstyleMain {
-    outputs.upToDateWhen { false }
-    configFile = file("${project.projectDir}/config/checkstyle.xml") // 指定检查规则文件
+  outputs.upToDateWhen { false }
+  configFile = file("${project.projectDir}/config/checkstyle.xml") // 指定检查规则文件
 }
 
 // 对 test.java 配置检查
 checkstyleTest {
-    outputs.upToDateWhen { false }
-    configFile = file("${project.projectDir}/config/checkstyle-test.xml") // 指定检查规则文件
+  outputs.upToDateWhen { false }
+  configFile = file("${project.projectDir}/config/checkstyle-test.xml") // 指定检查规则文件
 }
 ```
 
@@ -102,8 +102,8 @@ checkstyle 的检查规则是通过一组 `module` 组合完成的，最顶部�
 
 ```xml
 <module name="BeforeExecutionExclusionFileFilter">
-    <!-- 忽略所有的 module-info.java 文件 -->
-    <property name="fileNamePattern" value="module\-info\.java$"/>
+  <!-- 忽略所有的 module-info.java 文件 -->
+  <property name="fileNamePattern" value="module\-info\.java$"/>
 </module>
 ```
 
@@ -113,11 +113,11 @@ checkstyle 的检查规则是通过一组 `module` 组合完成的，最顶部�
 
 ```xml
 <module name="Checker">
-    ...
-    <module name="SuppressionFilter">
-        <!-- 引入当前目录的 suppressions.xml 文件 -->
-        <property name="file" value="${config_loc}/suppressions.xml"/>
-    </module>
+  ...
+  <module name="SuppressionFilter">
+    <!-- 引入当前目录的 suppressions.xml 文件 -->
+    <property name="file" value="${config_loc}/suppressions.xml"/>
+  </module>
 </module>
 ```
 
@@ -131,7 +131,7 @@ checkstyle 的检查规则是通过一组 `module` 组合完成的，最顶部�
   "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <suppress files="Main.java" checks="."/>
-    <suppress files="Versions.java" checks="."/>
+  <suppress files="Main.java" checks="."/>
+  <suppress files="Versions.java" checks="."/>
 </suppressions>
 ```
