@@ -10,7 +10,7 @@ common.prop=commonValue
 使用 `gradle.properties` 文件
 
 ```bash
-$ gradle -q --offline showGlobalProps
+gradle -q --offline showGlobalProps
 ```
 
 设置环境变量 + 命令行参数情况
@@ -20,8 +20,8 @@ $ gradle -q --offline showGlobalProps
 - `-Dorg.gradle.project.<name>` 命令行中通过特殊 JVM 参数传值
 
 ```bash
-$ ORG_GRADLE_PROJECT_systemEnvironmentProp=systemEnvironmentValue \
-    gradle -q --offline showProps \
-        -PcommandLineProp=commandLineValue \
-        -Dorg.gradle.project.systemCommandLineProp=systemCommandLineValue
+ORG_GRADLE_PROJECT_systemEnvironmentProp=systemEnvironmentValue \
+  gradle -q --offline showProps \
+    -PcommandLineProp=commandLineValue \
+    -Dorg.gradle.project.systemCommandLineProp=systemCommandLineValue
 ```

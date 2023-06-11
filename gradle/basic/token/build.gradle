@@ -1,18 +1,18 @@
 task clean(type: Delete) {
-    delete 'build'
-    followSymlinks = true
+  delete "build"
+  followSymlinks = true
 }
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
 task token {
-    dependsOn clean
-    doLast {
-        copy {
-            from 'conf'
-            include '*.*'
-            into 'build/conf'
-            filter(ReplaceTokens, tokens: [name: 'user', value: 'Alvin'])
-        }
+  dependsOn clean
+  doLast {
+    copy {
+      from "conf"
+      include "*.*"
+      into "build/conf"
+      filter(ReplaceTokens, tokens: [name: "user", value: "Alvin"])
     }
+  }
 }

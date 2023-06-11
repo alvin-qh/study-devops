@@ -2,12 +2,12 @@
 
 /* 简单任务 */
 task simpleTask {
-    doLast {
-        println "Simple Task"
-        2.times {
-            println "\tnumber is: ${it}"
-        }
+  doLast {
+    println "Simple Task"
+    2.times {
+      println "\tnumber is: ${it}"
     }
+  }
 }
 
 // <<< End section 1
@@ -16,17 +16,17 @@ task simpleTask {
 
 /* 依赖任务 */
 task dependTask {
-    dependsOn "beDependedTask"  // 当前任务依赖于 beDependedTask，所以 beDependedTask 先于当前任务执行
-    doLast {
-        println "Task depend others"
-    }
+  dependsOn "beDependedTask"  // 当前任务依赖于 beDependedTask，所以 beDependedTask 先于当前任务执行
+  doLast {
+    println "Task depend others"
+  }
 }
 
 /* 被 dependTask 所依赖的任务 */
 task beDependedTask {
-    doLast {
-        println 'Task be depended by other'
-    }
+  doLast {
+    println "Task be depended by other"
+  }
 }
 
 // <<< End section 2
@@ -35,11 +35,11 @@ task beDependedTask {
 
 /* 动态任务，有执行的代码动态产生的任务 */
 4.times { num ->
-    task "dynamicTask${num}" {  // 动态生成任务名
-        doLast {
-            println "This is dynamic task ${num}"
-        }
+  task "dynamicTask${num}" {  // 动态生成任务名
+    doLast {
+      println "This is dynamic task ${num}"
     }
+  }
 }
 
 // <<< End section 3
@@ -48,11 +48,11 @@ task beDependedTask {
 
 /* 动态产生 4 个任务 */
 4.times { num ->
-    task "taskDepends${num}" {
-        doLast {
-            println "This is dynamic task ${num}"
-        }
+  task "taskDepends${num}" {
+    doLast {
+      println "This is dynamic task ${num}"
     }
+  }
 }
 
 taskDepends1.dependsOn taskDepends3
@@ -69,24 +69,24 @@ File[] fileList(String dir) {
 
 /* 在 task 中调用 groovy 函数 */
 task loadFile {
-    doLast {
-        fileList('./').each { file ->
-            // 调用 ant 包读取文件
-            ant.loadfile(srcFile: file, property: "fl_${file.name}")
-            println "\n>>>>\nFile \"${file.name}\" was found:\n${ant.properties["fl_${file.name}"].substring(0, 50)}...\n<<<<"
-        }
+  doLast {
+    fileList("./").each { file ->
+      // 调用 ant 包读取文件
+      ant.loadfile(srcFile: file, property: "fl_${file.name}")
+      println "\n>>>>\nFile \"${file.name}\" was found:\n${ant.properties["fl_${file.name}"].substring(0, 20)}...\n<<<<"
     }
+  }
 }
 
 /* 在 task 中调用 groovy 函数 */
 task checksum {
-    doLast {
-        fileList("./").each { file ->
-            // 调用 ant 包求文件 checksum
-            ant.checksum(file: file, property: "cs_${file.name}")
-            println "${file.name} - checksum: ${ant.properties["cs_${file.name}"]}"
-        }
+  doLast {
+    fileList("./").each { file ->
+      // 调用 ant 包求文件 checksum
+      ant.checksum(file: file, property: "cs_${file.name}")
+      println "${file.name} - checksum: ${ant.properties["cs_${file.name}"]}"
     }
+  }
 }
 
 // <<< End section 5
@@ -95,9 +95,9 @@ task checksum {
 
 /* 默认任务 */
 task defaultTask {
-    doLast {
-        println "I am default task"
-    }
+  doLast {
+    println "I am default task"
+  }
 }
 
 // 设置 "defaultTask" 任务为默认任务
@@ -109,26 +109,26 @@ defaultTasks "defaultTask"
 
 /* 对任务调用链进行处理 */
 gradle.taskGraph.whenReady { g ->
-    if (g.hasTask(":release")) { // 判断调用链中是否有名为 release 的 task
-        version = "1.0"
-    } else {
-        version = "1.0-SNAPSHOT"
-    }
+  if (g.hasTask(":release")) { // 判断调用链中是否有名为 release 的 task
+    version = "1.0"
+  } else {
+    version = "1.0-SNAPSHOT"
+  }
 }
 
 /* release task，如果启动该任务，则 version 值为 "1.0" */
 task release {
-    dependsOn "distribution"
-    doLast {
-        println "We release now"
-    }
+  dependsOn "distribution"
+  doLast {
+    println "We release now"
+  }
 }
 
 /* distribution task, 如果启动该任务，则 version 值为 "1.0-SNAPSHOT" */
 task distribution {
-    doLast {
-        println "We build the zip with version=${version}"
-    }
+  doLast {
+    println "We build the zip with version=${version}"
+  }
 }
 
 // <<< End section 7
@@ -137,12 +137,12 @@ task distribution {
 
 /* 引入依赖 */
 buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "commons-codec:commons-codec:1.11" // 引入 apache common codec 包
-    }
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "commons-codec:commons-codec:1.11" // 引入 apache common codec 包
+  }
 }
 
 // 导入包
@@ -151,11 +151,11 @@ import org.apache.commons.codec.binary.Base64
 
 /* 使用扩展 Java 包 */
 task base64encode {
-    doLast {
-        def base64 = new Base64()
-        def encodedString = base64.encode("hello world".getBytes(StandardCharsets.UTF_8))
-        println new String(encodedString)
-    }
+  doLast {
+    def base64 = new Base64()
+    def encodedString = base64.encode("hello world".getBytes(StandardCharsets.UTF_8))
+    println new String(encodedString)
+  }
 }
 
 // <<< End section 8

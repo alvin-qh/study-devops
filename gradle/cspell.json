@@ -7,11 +7,13 @@
         "buildscript",
         "checkstyle",
         "classpath",
+        "Dorg",
         "grgit",
         "hamcrest",
         "Jacoco",
         "javac",
         "loadfile",
+        "Pcommand",
         "println",
         "testlib",
         "TOTALCOUNT"
