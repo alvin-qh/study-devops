@@ -76,11 +76,11 @@ task checkStyle(dependsOn: [checkstyleMain, checkstyleTest]) {
 `checkstyle` 插件引入后，`check` task 会依赖 `checkstyleMain` 和 `checkstyleTest` 两个 task，而 `build` 任务又会依赖 `check` task，所以很多 task 都会导致 `checkstyle` task 执行
 
 ```bash
-$ gradle checkStyle
-$ gradle checkstyleMain
-$ gradle checkstyleTest
-$ gradle check
-$ gradle build
+gradle checkStyle
+gradle checkstyleMain
+gradle checkstyleTest
+gradle check
+gradle build
 ```
 
 ## 3. 检查规则
