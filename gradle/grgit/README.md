@@ -2,7 +2,7 @@
 
 参见 [Plugin](https://plugins.gradle.org/plugin/org.ajoberstar.grgit) 页面
 
-### 引入插件
+## 引入插件
 
 引入插件有两种方式
 
@@ -10,7 +10,7 @@
 
 ```groovy
 plugins {
-    id 'org.ajoberstar.grgit' version '4.1.1'
+  id "org.ajoberstar.grgit" version "4.1.1"
 }
 ```
 
@@ -21,21 +21,21 @@ plugins {
 ```groovy
 // 设置引入插件的依赖
 buildscript {
-    repositories {
-        maven {
-        url "https://plugins.gradle.org/m2/"
-        }
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
     }
-    dependencies {
-        classpath "org.ajoberstar.grgit:grgit-gradle:4.1.1" // 设置 grgit 插件依赖
-    }
+  }
+  dependencies {
+    classpath "org.ajoberstar.grgit:grgit-gradle:4.1.1" // 设置 grgit 插件依赖
+  }
 }
 
 // 引入 grgit 插件
 apply plugin: "org.ajoberstar.grgit"
 ```
 
-### 使用插件
+## 使用插件
 
 `grgit` 对象表示 git 最新状体，即 `HEAD` 的状态
 
@@ -51,5 +51,5 @@ logs[1].getAbbreviatedId() // 获取倒数第 2 个 log 的版本 id
 使用 grgit 插件
 
 ```bash
-$ gradle -q showGitVersion
+gradle -q showGitVersion
 ```
