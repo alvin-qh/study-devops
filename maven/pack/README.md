@@ -22,9 +22,9 @@
 
 ```xml
 <plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>exec-maven-plugin</artifactId>
-    <version>3.0.0</version>
+  <groupId>org.codehaus.mojo</groupId>
+  <artifactId>exec-maven-plugin</artifactId>
+  <version>3.0.0</version>
 </plugin>
 ```
 

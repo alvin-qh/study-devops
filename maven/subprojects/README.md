@@ -52,8 +52,8 @@ project
 
 ```xml
 <modules>
-    <module>app</module>
-    <module>lib</module>
+  <module>app</module>
+  <module>lib</module>
 </modules>
 ```
 
@@ -65,27 +65,27 @@ project
 
 ```xml
 <dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.junit</groupId>
-            <artifactId>junit-bom</artifactId>
-            <version>${version.junit}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>org.junit</groupId>
+      <artifactId>junit-bom</artifactId>
+      <version>${version.junit}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${version.guava}</version>
-        </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${version.guava}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${version.lombok}</version>
-        </dependency>
-    </dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${version.lombok}</version>
+    </dependency>
+  </dependencies>
 </dependencyManagement>
 ```
 
@@ -97,41 +97,41 @@ project
 
 ```xml
 <build>
-    <pluginManagement>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.maven-compiler}</version>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                </configuration>
-            </plugin>
+  <pluginManagement>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.maven-compiler}</version>
+        <configuration>
+          <source>17</source>
+          <target>17</target>
+        </configuration>
+      </plugin>
 
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${version.maven-surefire}</version>
-            </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.maven-surefire}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${version.maven-exec}</version>
-            </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${version.maven-exec}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${version.maven-jar}</version>
-            </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${version.maven-jar}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${version.maven-shade}</version>
-            </plugin>
-        </plugins>
-    </pluginManagement>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${version.maven-shade}</version>
+      </plugin>
+    </plugins>
+  </pluginManagement>
 </build>
 ```
 
@@ -145,10 +145,10 @@ project
 
 ```xml
 <parent>
-    <groupId>alvin.study</groupId>
-    <artifactId>study-maven-subprojects</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+  <groupId>alvin.study</groupId>
+  <artifactId>study-maven-subprojects</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <relativePath>../pom.xml</relativePath>
 </parent>
 ```
 
@@ -162,11 +162,11 @@ project
 
 ```xml
 <dependencyManagement>
-    <dependencies>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>study-maven-subprojects-lib</artifactId>
-        <version>${project.version}</version>
-    </dependencies>
+  <dependencies>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>study-maven-subprojects-lib</artifactId>
+    <version>${project.version}</version>
+  </dependencies>
 </dependencyManagement>
 ```
 
@@ -176,10 +176,10 @@ project
 
 ```xml
 <dependencies>
-    <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>study-maven-subprojects-lib</artifactId>
-    </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>study-maven-subprojects-lib</artifactId>
+  </dependency>
 </dependencies>
 ```
 

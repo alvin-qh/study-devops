@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>alvin.study</groupId>
@@ -27,24 +26,26 @@
     <jdbc.url.h2>jdbc:h2:${project.basedir}/.data/dev</jdbc.url.h2>
     <jdbc.user.h2>dev</jdbc.user.h2>
     <jdbc.password.h2>password</jdbc.password.h2>
+
     <failsOnError />
 
     <version.junit>5.9.1</version.junit>
     <version.guava>31.1-jre</version.guava>
-    <version.checkstyle>10.5.0</version.checkstyle>
+    <version.checkstyle>10.12.0</version.checkstyle>
     <version.spotbugs>4.7.3</version.spotbugs>
     <version.h2>2.1.214</version.h2>
-    <version.flyway>9.8.3</version.flyway>
+    <version.flyway>9.19.1</version.flyway>
 
-    <version.maven-compiler>3.10.1</version.maven-compiler>
-    <version.maven-surefire>3.0.0-M7</version.maven-surefire>
-    <version.maven-checkstyle>3.2.0</version.maven-checkstyle>
-    <version.maven-site>4.0.0-M3</version.maven-site>
-    <version.maven-pi-report>3.4.1</version.maven-pi-report>
+    <version.maven-compiler>3.11.0</version.maven-compiler>
+    <version.maven-surefire>3.1.0</version.maven-surefire>
+    <version.maven-checkstyle>3.3.0</version.maven-checkstyle>
+    <version.maven-site>4.0.0-M8</version.maven-site>
+    <version.maven-pi-report>3.4.4</version.maven-pi-report>
     <version.maven-jxr>3.3.0</version.maven-jxr>
-    <version.maven-spotbugs>4.7.3.0</version.maven-spotbugs>
+    <version.maven-spotbugs>4.7.3.4</version.maven-spotbugs>
     <version.maven-flyway>${version.flyway}</version.maven-flyway>
-    <version.maven-build-number>3.0.0</version.maven-build-number>
+    <version.maven-build-number>3.1.0</version.maven-build-number>
+    <version.maven-resources>3.3.1</version.maven-resources>
   </properties>
 
   <dependencyManagement>
@@ -138,6 +139,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
         <version>${version.maven-site}</version>
+        <configuration>
+          <locales>zh_CN</locales>
+        </configuration>
       </plugin>
 
       <!-- 静态代码分析插件 -->
@@ -154,9 +158,9 @@
         </dependencies>
         <configuration>
           <encoding>UTF-8</encoding>
-          <consoleOutput>true</consoleOutput>
-          <failsOnError>true</failsOnError>
-          <linkXRef>true</linkXRef>
+          <effort>Max</effort>
+          <threshold>Low</threshold>
+          <xmlOutput>true</xmlOutput>
         </configuration>
         <!--
         <executions>
@@ -220,6 +224,12 @@
           <!-- git 版本号长度 -->
           <shortRevisionLength>8</shortRevisionLength>
         </configuration>
+      </plugin>
+
+      <!-- 资源处理插件 -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${version.maven-resources}</version>
       </plugin>
     </plugins>
 

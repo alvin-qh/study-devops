@@ -98,7 +98,8 @@ my-app
 ```xml
 <properties>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  <maven.compiler.source>11</maven.compiler.source>
+
+  <maven.compiler.source>17</maven.compiler.source>
   <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
 </properties>
 ```
@@ -111,7 +112,7 @@ my-app
 
 对依赖进行定义, 主要是其版本. 该标签下定义的依赖并不直接引入项目, 但当前项目或子项目在引用依赖时, 无需在明确版本号
 
-以定义 `JUnit 5` 依赖为例, 本例中引入 `Junit` 的 BOM 文件, 即 Junit 所有相关组件的"物料清单". 一些成系列的依赖都具有 BOM 清单 (例如 Spring 系列), 便于引入
+以定义 `JUnit 5` 依赖为例, 本例中引入 `Junit` 的 BOM 文件, 即 Junit 所有相关组件的 "物料清单". 一些成系列的依赖都具有 BOM 清单 (例如 Spring 系列), 便于引入
 
 ```xml
 <dependencyManagement>
@@ -186,8 +187,8 @@ my-app
       <artifactId>maven-compiler-plugin</artifactId>
       <version>3.8.1</version>
       <configuration>
-        <source>11</source>
-        <target>11</target>
+        <source>17</source>
+        <target>17</target>
         <encoding>UTF-8</encoding>
       </configuration>
     </plugin>
@@ -200,5 +201,5 @@ my-app
 </build>
 ```
 
-- `maven-compiler-plugin` 增加 `$ mvn compile` 指令, 用来编译整个项目
-- `maven-surefire-plugin` 增加 `$ mvn test` 指令, 执行单元测试
+- `maven-compiler-plugin` 增加 `mvn compile` 指令, 用来编译整个项目
+- `maven-surefire-plugin` 增加 `mvn test` 指令, 执行单元测试

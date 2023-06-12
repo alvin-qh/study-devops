@@ -25,13 +25,14 @@
     <version.guava>31.1-jre</version.guava>
 
     <!-- 定义插件版本 -->
-    <version.maven-compiler>3.10.1</version.maven-compiler>
-    <version.maven-surefire>3.0.0-M7</version.maven-surefire>
+    <version.maven-compiler>3.11.0</version.maven-compiler>
+    <version.maven-surefire>3.1.0</version.maven-surefire>
     <version.maven-exec>3.1.0</version.maven-exec>
     <version.maven-jar>3.3.0</version.maven-jar>
-    <version.maven-dependency>3.4.0</version.maven-dependency>
-    <version.maven-assembly>3.4.2</version.maven-assembly>
+    <version.maven-dependency>3.6.0</version.maven-dependency>
+    <version.maven-assembly>3.6.0</version.maven-assembly>
     <version.maven-shade>3.4.1</version.maven-shade>
+    <version.maven-resources>3.3.1</version.maven-resources>
   </properties>
 
   <!-- 依赖声明, 所有子项目可使用声明后的依赖 -->
@@ -281,6 +282,12 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- 资源处理插件 -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${version.maven-resources}</version>
       </plugin>
     </plugins>
   </build>
