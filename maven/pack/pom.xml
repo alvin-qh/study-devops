@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>alvin.study</groupId>
   <artifactId>study-maven-package</artifactId>
@@ -74,6 +73,17 @@
 
   <!-- 项目构建 -->
   <build>
+    <pluginManagement>
+      <plugins>
+        <!-- 资源处理插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${version.maven-resources}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <!-- 编译插件 -->
       <plugin>
@@ -220,7 +230,7 @@
             <!-- 附加在 package 任务上 -->
             <phase>package</phase>
             <goals>
-              <!-- 执行 single 这个 goal, 表示进行单一 jar 文件打包 -->
+              <!-- 执行 single 这个 goal, 表示进行单一 jar 文件打包 --> 
               <goal>single</goal>
             </goals>
           </execution>
@@ -240,21 +250,18 @@
           <!-- 定义所需要的转换器 -->
           <transformers>
             <!-- 处理 META-INF/MANIFEST.MF 文件内容 -->
-            <transformer
-              implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
               <manifestEntries>
                 <!-- 定义入口类 -->
                 <Main-Class>alvin.study.maven.Main</Main-Class>
               </manifestEntries>
             </transformer>
             <!-- 将指定的资源文件进行合并, 以防重名冲突 -->
-            <transformer
-              implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
               <!-- 要合并的文件 -->
               <resource>META-INF/spring.handlers</resource>
             </transformer>
-            <transformer
-              implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
               <resource>META-INF/spring.schemas</resource>
             </transformer>
           </transformers>
@@ -282,12 +289,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-
-      <!-- 资源处理插件 -->
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>${version.maven-resources}</version>
       </plugin>
     </plugins>
   </build>
