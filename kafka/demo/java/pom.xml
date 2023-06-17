@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>alvin.study</groupId>
   <artifactId>kafka</artifactId>
@@ -28,8 +27,9 @@
     <version.assertj>3.24.1</version.assertj>
 
     <!-- 定义插件版本 -->
-    <version.maven-compiler>3.10.1</version.maven-compiler>
-    <version.maven-surefire>3.0.0-M7</version.maven-surefire>
+    <version.maven-compiler>3.11.0</version.maven-compiler>
+    <version.maven-surefire>3.1.2</version.maven-surefire>
+    <version.maven-resources>3.3.1</version.maven-resources>
   </properties>
 
   <dependencyManagement>
@@ -57,8 +57,8 @@
   <repositories>
     <!-- 设置 Confluent Maven 地址 -->
     <repository>
-      <id>central</id>
-      <url>https://repo1.maven.org/maven2/</url>
+      <id>confluent</id>
+      <url>https://packages.confluent.io/maven/</url>
       <releases>
         <enabled>true</enabled>
       </releases>
@@ -135,6 +135,17 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <!-- 资源处理插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${version.maven-resources}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <!-- 配置编译插件 -->
       <plugin>
