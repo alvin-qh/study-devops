@@ -112,15 +112,14 @@
           <artifactId>maven-shade-plugin</artifactId>
           <version>${version.maven-shade}</version>
         </plugin>
+
+        <!-- 资源处理插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${version.maven-resources}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
-
-    <plugins>
-      <!-- 资源处理插件 -->
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>${version.maven-resources}</version>
-      </plugin>
-    </plugins>
   </build>
 </project>
