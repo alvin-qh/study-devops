@@ -163,23 +163,23 @@ under the License.
     -->
     <mirror>
       <id>aliyunmaven</id>
-      <mirrorOf>*</mirrorOf>
+      <mirrorOf>external:*,!confluent</mirrorOf>
       <name>阿里云公共仓库</name>
       <url>https://maven.aliyun.com/repository/public</url>
     </mirror>
 
     <mirror>
       <id>huaweicloud</id>
-      <mirrorOf>external:*,!aliyunmaven</mirrorOf>
+      <mirrorOf>external:*,!confluent</mirrorOf>
       <name>华为云公共仓库</name>
       <url>https://mirrors.huaweicloud.com/repository/maven/</url>
     </mirror>
 
     <mirror>
       <id>apachemaven</id>
-      <mirrorOf>external:*,!aliyunmaven,!huaweicloud</mirrorOf>
+      <mirrorOf>external:*,!confluent</mirrorOf>
       <name>Apache 公共仓库</name>
-      <url>https://repo.maven.apache.org/maven2</url>
+      <url>https://repo1.maven.org/maven2</url>
     </mirror>
   </mirrors>
 
@@ -273,14 +273,20 @@ under the License.
       </properties>
     </profile>
     -->
+    <profile>
+      <id>downloadSources</id>
+      <properties>
+        <downloadSources>true</downloadSources>
+        <downloadJavadocs>true</downloadJavadocs>
+      </properties>
+    </profile>
   </profiles>
 
   <!-- activeProfiles
    | List of profiles that are active for all builds.
    |
-  <activeProfiles>
-    <activeProfile>alwaysActiveProfile</activeProfile>
-    <activeProfile>anotherAlwaysActiveProfile</activeProfile>
-  </activeProfiles>
   -->
+  <activeProfiles>
+    <activeProfile>downloadSources</activeProfile>
+  </activeProfiles>
 </settings>
