@@ -46,6 +46,17 @@
 
   <!-- 项目构建 -->
   <build>
+    <pluginManagement>
+      <plugins>
+        <!-- 资源处理插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${version.maven-resources}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <!-- 编译插件 -->
       <plugin>
@@ -61,12 +72,6 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${version.maven-surefire}</version>
-      </plugin>
-
-      <!-- 资源处理插件 -->
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>${version.maven-resources}</version>
       </plugin>
     </plugins>
   </build>
