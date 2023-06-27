@@ -6,14 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// buildMessage 函数的可选参数项结构体
+// `buildMessage` 函数的可选参数项结构体
 type messageOption struct {
 	KeyPrefix   string // 消息 Key 前缀字符串
 	ValuePrefix string // 消息 Value 前缀字符串
 	Partition   int32  // 消息发送的目标分区
 }
 
-// buildMessage 函数的可选参数类型, 为函数类型, 参数为 messageOption 结构体, 用于设置结构体字段值
+// `buildMessage` 函数的可选参数类型, 为函数类型, 参数为 messageOption 结构体, 用于设置结构体字段值
 type MessageOption = func(*messageOption)
 
 // # 设置消息 Key 前缀字符串
