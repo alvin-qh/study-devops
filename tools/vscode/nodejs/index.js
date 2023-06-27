@@ -1,4 +1,4 @@
-const math = require('./lib/math');
+const math = require("./lib/math");
 
 function main() {
     console.log(`* 20 + 10 is: ${math.add(20, 10)}`);

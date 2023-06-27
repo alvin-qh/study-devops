@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "exec": "node index.js",
-    "test": "./node_modules/.bin/mocha ./test/**/*.js"
+    "test": "npx mocha ./test/**/*.js"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^7.1.1"
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
   },
   "author": "Alvin",
   "license": "ISC"
