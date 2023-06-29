@@ -173,3 +173,51 @@ DROP ROLE IF EXISTS role_name;
 1
 2
 删除组role只会删除组的role本身，组的成员并不会被删除
+
+
+Summary: in this tutorial, you will learn how to use the PostgreSQL list user command to show all users in a PostgreSQL database server.
+
+Listing users using the psql tool
+First, connect to the PostgreSQL database server using the postgres user:
+
+$ psql -U postgres
+It will prompt you for a password:
+
+Password:
+Code language: Shell Session (shell)
+Once you enter the password for the postgres user, you will see the following PostgreSQL command prompt:
+
+postgres=#
+Code language: Shell Session (shell)
+Second, use the \du to list all user accounts (or roles) in the current PostgreSQL database server:
+
+postgres=# \du
+Code language: Shell Session (shell)
+
+If you want to show more information, you can use the \du+ command:
+
+postgres=#\du+
+Code language: Shell Session (shell)
+The \du+ command adds an additional column called description.
+
+Listing users using SQL statement
+The following statement returns all users in the current database server by querying data from the pg_catalog.pg_user catalog:
+
+SELECT usename AS role_name,
+  CASE
+     WHEN usesuper AND usecreatedb THEN
+	   CAST('superuser, create database' AS pg_catalog.text)
+     WHEN usesuper THEN
+	    CAST('superuser' AS pg_catalog.text)
+     WHEN usecreatedb THEN
+	    CAST('create database' AS pg_catalog.text)
+     ELSE
+	    CAST('' AS pg_catalog.text)
+  END role_attributes
+FROM pg_catalog.pg_user
+ORDER BY role_name desc;
+Code language: SQL (Structured Query Language) (sql)
+
+Summary
+Use \du or \du+ psql command to list all users in the current database server.
+Use the SELECT statement to query the user information from the pg_catalog.pg_user catalog.
