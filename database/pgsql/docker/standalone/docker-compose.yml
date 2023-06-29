@@ -1,8 +1,9 @@
 version: "3.9"
 
 services:
-  percona:
+  postgres:
     image: postgres
+    hostname: postgres
     container_name: postgres
     restart: always
     privileged: true

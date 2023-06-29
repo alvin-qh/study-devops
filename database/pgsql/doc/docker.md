@@ -1,31 +1,59 @@
 # Docker Image
 
-start a postgres instance
-$ docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres
-The default postgres user and database are created in the entrypoint with initdb.
+- [Docker Image](#docker-image)
+  - [1. 使用 Docker 镜像](#1-使用-docker-镜像)
+    - [1.1. 下载镜像](#11-下载镜像)
+    - [1.2. 启动容器](#12-启动容器)
+    - [1.3. 使用 psql 命令解释器](#13-使用-psql-命令解释器)
+    - [1.4. 使用 docker-compose (或 docker stack deploy)](#14-使用-docker-compose-或-docker-stack-deploy)
+  - [2. 环境变量](#2-环境变量)
+  - [3. 使用密码文件](#3-使用密码文件)
+  - [4. 数据库初始化脚本](#4-数据库初始化脚本)
+  - [5. 数据库配置文件](#5-数据库配置文件)
+  - [6. 本地化](#6-本地化)
+  - [7. 使用环境变量](#7-使用环境变量)
 
-The postgres database is a default database meant for use by users, utilities and third party applications.
+## 1. 使用 Docker 镜像
 
-postgresql.org/docs
+### 1.1. 下载镜像
 
-... or via psql
-$ docker run -it --rm --network some-network postgres psql -h some-postgres -U postgres
+```bash
+docker pull postgres:<tag>
+```
+
+### 1.2. 启动容器
+
+```bash
+docker run \
+  --name some-postgres \
+  -e POSTGRES_PASSWORD=mysecretpassword \
+  -d postgres
+```
+
+- 默认的用户和数据库会通过容器入口进行初始化
+
+### 1.3. 使用 psql 命令解释器
+
+```bash
+docker run -it --rm --network some-network postgres psql -h some-postgres -U postgres
+
 psql (14.3)
 Type "help" for help.
 
-postgres=# SELECT 1;
+postgres=# SELECT 1
  ?column?
 ----------
         1
 (1 row)
-... via docker-compose or docker stack deploy
-Example docker-compose.yml for postgres:
+```
 
+### 1.4. 使用 docker-compose (或 docker stack deploy)
+
+```yml
 # Use postgres/example user/password credentials
-version: '3.1'
 
+version: '3.9'
 services:
-
   db:
     image: postgres
     restart: always
@@ -37,153 +65,140 @@ services:
     restart: always
     ports:
       - 8080:8080
-Try in PWD
+```
 
-Run docker stack deploy -c stack.yml postgres (or docker-compose -f stack.yml up), wait for it to initialize completely, and visit http://swarm-ip:8080, http://localhost:8080, or http://host-ip:8080 (as appropriate).
+通过 `docker stack deploy -c stack.yml postgres` (或者 `docker-compose -f stack.yml up`) 来启动容器, 通过访问 <http://localhost:8080> 访问 adminer
 
-How to extend this image
-There are many ways to extend the postgres image. Without trying to support every possible use case, here are just a few that we have found useful.
+## 2. 环境变量
 
-Environment Variables
-The PostgreSQL image uses several environment variables which are easy to miss. The only variable required is POSTGRES_PASSWORD, the rest are optional.
+PostgreSQL 镜像通过一系列环境变量对容器进行配置, 但除了 `POSTGRES_PASSWORD` 环境变量外, 其余都是可选项
 
-Warning: the Docker specific variables will only have an effect if you start the container with a data directory that is empty; any pre-existing database will be left untouched on container startup.
+- `POSTGRES_PASSWORD`: 该环境变量为必备项, 用于设置超级用户的密码; 默认的超级用户通过 `POSTGRES_USER` 环境变量来指定;
 
-POSTGRES_PASSWORD
-This environment variable is required for you to use the PostgreSQL image. It must not be empty or undefined. This environment variable sets the superuser password for PostgreSQL. The default superuser is defined by the POSTGRES_USER environment variable.
+- `POSTGRES_USER`: 可选项, 用于设置数据库默认的超级用户, 如果此环境变量缺省, 则超级用户为 `postgres`;
 
-Note 1: The PostgreSQL image sets up trust authentication locally so you may notice a password is not required when connecting from localhost (inside the same container). However, a password will be required if connecting from a different host/container.
+- `POSTGRES_DB`: 可选项, 设置登录用户默认访问的数据库, 如果此环境变量缺省, 则登录用户默认数据库为 `postgres`;
 
-Note 2: This variable defines the superuser password in the PostgreSQL instance, as set by the initdb script during initial container startup. It has no effect on the PGPASSWORD environment variable that may be used by the psql client at runtime, as described at https://www.postgresql.org/docs/14/libpq-envars.html. PGPASSWORD, if used, will be specified as a separate environment variable.
+- `POSTGRES_INITDB_ARGS`: 可选项, 用于在初始化数据库时设置额外的参数, 例如为数据库添加数据页校验:
 
-POSTGRES_USER
-This optional environment variable is used in conjunction with POSTGRES_PASSWORD to set a user and its password. This variable will create the specified user with superuser power and a database with the same name. If it is not specified, then the default user of postgres will be used.
+  ```bash
+  docker run \
+  --name some-postgres \
+  -e POSTGRES_PASSWORD=mysecretpassword \
+  -e POSTGRES_INITDB_ARGS="--data-checksums"
+  -d postgres
+  ```
 
-Be aware that if this parameter is specified, PostgreSQL will still show The files belonging to this database system will be owned by user "postgres" during initialization. This refers to the Linux system user (from /etc/passwd in the image) that the postgres daemon runs as, and as such is unrelated to the POSTGRES_USER option. See the section titled "Arbitrary --user Notes" for more details.
+- `POSTGRES_INITDB_WALDIR`: 可选项, 用于指定数据库事务日志的存储位置. 默认情况下, 数据库的事务日志和数据库数据文件在同一处存储;
 
-POSTGRES_DB
-This optional environment variable can be used to define a different name for the default database that is created when the image is first started. If it is not specified, then the value of POSTGRES_USER will be used.
+- `POSTGRES_HOST_AUTH_METHOD`, 可选项, 用于指定用户验证方式. 默认为 `scram-sha-256` 方式, 也可以为 `md5`;
 
-POSTGRES_INITDB_ARGS
-This optional environment variable can be used to send arguments to postgres initdb. The value is a space separated string of arguments as postgres initdb would expect them. This is useful for adding functionality like data page checksums: -e POSTGRES_INITDB_ARGS="--data-checksums".
+  如果将 `POSTGRES_HOST_AUTH_METHOD` 环境变量设置为 `trust`, 则 `POSTGRES_PASSWORD` 环境变量可以不用设置;
 
-POSTGRES_INITDB_WALDIR
-This optional environment variable can be used to define another location for the Postgres transaction log. By default the transaction log is stored in a subdirectory of the main Postgres data folder (PGDATA). Sometimes it can be desireable to store the transaction log in a different directory which may be backed by storage with different performance or reliability characteristics.
+  如果设置了 `POSTGRES_HOST_AUTH_METHOD` 环境变量 (例如 `-e POSTGRES_INITDB_ARGS=scram-sha-256`), 则需要同时指定 `POSTGRES_INITDB_ARGS` 环境变量 (即 `-e POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256`)
 
-Note: on PostgreSQL 9.x, this variable is POSTGRES_INITDB_XLOGDIR (reflecting the changed name of the --xlogdir flag to --waldir in PostgreSQL 10+).
+- `PGDATA`: 可选项, 用于指定数据库文件的存储路径, 默认为 `/var/lib/postgresql/data`, 例如:
 
-POSTGRES_HOST_AUTH_METHOD
-This optional variable can be used to control the auth-method for host connections for all databases, all users, and all addresses. If unspecified then scram-sha-256 password authentication is used (in 14+; md5 in older releases). On an uninitialized database, this will populate pg_hba.conf via this approximate line:
+  ```bash
+  docker run -d \
+    --name some-postgres \
+    -e POSTGRES_PASSWORD=mysecretpassword \
+    -e PGDATA=/var/lib/postgresql/data/pgdata \
+    -v /custom/mount:/var/lib/postgresql/data \
+    postgres
+  ```
 
-echo "host all all all $POSTGRES_HOST_AUTH_METHOD" >> pg_hba.conf
-See the PostgreSQL documentation on pg_hba.conf for more information about possible values and their meanings.
+上述环境变量并不是 Docker 专用, 使用 PostgreSQL 二级制程序时也能适用
 
-Note 1: It is not recommended to use trust since it allows anyone to connect without a password, even if one is set (like via POSTGRES_PASSWORD). For more information see the PostgreSQL documentation on Trust Authentication.
+## 3. 使用密码文件
 
-Note 2: If you set POSTGRES_HOST_AUTH_METHOD to trust, then POSTGRES_PASSWORD is not required.
+某些环境变量可以通过在变量名后增加 `_FILE` 后缀来从文件中读取变量值, 例如 `POSTGRES_PASSWORD_FILE` 环境变量
 
-Note 3: If you set this to an alternative value (such as scram-sha-256), you might need additional POSTGRES_INITDB_ARGS for the database to initialize correctly (such as POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256).
+特别的, 可以通过 Docker Secrets 来保证这些环境变量文件的安全性, 即通过 `/run/secrets/<secret_name>` 文件, 例如:
 
-PGDATA
-Important Note: when mounting a volume to /var/lib/posgresql, the /var/lib/postgresql/data path is a local volume from the container runtime, thus data is not persisted on the mounted volume.
+```bash
+docker run
+  --name some-postgres
+  -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres-passwd
+  -d postgres
+```
 
-This optional variable can be used to define another location - like a subdirectory - for the database files. The default is /var/lib/postgresql/data. If the data volume you're using is a filesystem mountpoint (like with GCE persistent disks), or remote folder that cannot be chowned to the postgres user (like some NFS mounts), or contains folders/files (e.g. lost+found), Postgres initdb requires a subdirectory to be created within the mountpoint to contain the data.
+目前, 仅 `POSTGRES_INITDB_ARGS`, `POSTGRES_PASSWORD`, `POSTGRES_USER` 和 `POSTGRES_DB` 这几个环境变量支持从文件中取值
 
-For example:
+## 4. 数据库初始化脚本
 
-$ docker run -d \
-	--name some-postgres \
-	-e POSTGRES_PASSWORD=mysecretpassword \
-	-e PGDATA=/var/lib/postgresql/data/pgdata \
-	-v /custom/mount:/var/lib/postgresql/data \
-	postgres
-This is an environment variable that is not Docker specific. Because the variable is used by the postgres server binary (see the PostgreSQL docs), the entrypoint script takes it into account.
+当容器第一次启动时, 容器的 `/docker-entrypoint-initdb.d` 路径下的所有 `*.sql` 和 `*.sh` 脚本会被执行, 用于对数据库的初始化, 将初始化脚本挂载到此路径下即可, 例如:
 
-Docker Secrets
-As an alternative to passing sensitive information via environment variables, _FILE may be appended to some of the previously listed environment variables, causing the initialization script to load the values for those variables from files present in the container. In particular, this can be used to load passwords from Docker secrets stored in /run/secrets/<secret_name> files. For example:
+假设为容器挂载了 `/docker-entrypoint-initdb.d/init-user-db.sh` 文件, 内容如下
 
-$ docker run --name some-postgres -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres-passwd -d postgres
-Currently, this is only supported for POSTGRES_INITDB_ARGS, POSTGRES_PASSWORD, POSTGRES_USER, and POSTGRES_DB.
-
-Initialization scripts
-If you would like to do additional initialization in an image derived from this one, add one or more *.sql, *.sql.gz, or *.sh scripts under /docker-entrypoint-initdb.d (creating the directory if necessary). After the entrypoint calls initdb to create the default postgres user and database, it will run any *.sql files, run any executable *.sh scripts, and source any non-executable *.sh scripts found in that directory to do further initialization before starting the service.
-
-Warning: scripts in /docker-entrypoint-initdb.d are only run if you start the container with a data directory that is empty; any pre-existing database will be left untouched on container startup. One common problem is that if one of your /docker-entrypoint-initdb.d scripts fails (which will cause the entrypoint script to exit) and your orchestrator restarts the container with the already initialized data directory, it will not continue on with your scripts.
-
-For example, to add an additional user and database, add the following to /docker-entrypoint-initdb.d/init-user-db.sh:
-
-#!/bin/bash
+```bash
+#!/usr/bin/env bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-	CREATE USER docker;
-	CREATE DATABASE docker;
-	GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
+  CREATE USER docker;
+  CREATE DATABASE docker;
+  GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
 EOSQL
-These initialization files will be executed in sorted name order as defined by the current locale, which defaults to en_US.utf8. Any *.sql files will be executed by POSTGRES_USER, which defaults to the postgres superuser. It is recommended that any psql commands that are run inside of a *.sh script be executed as POSTGRES_USER by using the --username "$POSTGRES_USER" flag. This user will be able to connect without a password due to the presence of trust authentication for Unix socket connections made inside the container.
+```
 
-Additionally, as of docker-library/postgres#253, these initialization scripts are run as the postgres user (or as the "semi-arbitrary user" specified with the --user flag to docker run; see the section titled "Arbitrary --user Notes" for more details). Also, as of docker-library/postgres#440, the temporary daemon started for these initialization scripts listens only on the Unix socket, so any psql usage should drop the hostname portion (see docker-library/postgres#474 (comment) for example).
+## 5. 数据库配置文件
 
-Database Configuration
-There are many ways to set PostgreSQL server configuration. For information on what is available to configure, see the PostgreSQL docs for the specific version of PostgreSQL that you are running. Here are a few options for setting configuration:
+对于配置项较为复杂的情况, 可以为容器挂载数据库的配置文件
 
-Use a custom config file. Create a config file and get it into the container. If you need a starting place for your config file you can use the sample provided by PostgreSQL which is available in the container at /usr/share/postgresql/postgresql.conf.sample (/usr/local/share/postgresql/postgresql.conf.sample in Alpine variants).
+1. 获取默认配置文件
 
-Important note: you must set listen_addresses = '*'so that other containers will be able to access postgres.
-$ # get the default config
-$ docker run -i --rm postgres cat /usr/share/postgresql/postgresql.conf.sample > my-postgres.conf
+   ```bash
+   docker run -i --rm postgres cat /usr/share/postgresql/postgresql.conf.sample > postgres.conf
+   ```
 
-$ # customize the config
+   则在宿主机当前路径下, 会创建 `postgres.conf` 配置文件, 其中配置项为默认配置
 
-$ # run postgres with custom config
-$ docker run -d --name some-postgres -v "$PWD/my-postgres.conf":/etc/postgresql/postgresql.conf -e POSTGRES_PASSWORD=mysecretpassword postgres -c 'config_file=/etc/postgresql/postgresql.conf'
-Set options directly on the run line. The entrypoint script is made so that any options passed to the docker command will be passed along to the postgres server daemon. From the PostgreSQL docs we see that any option available in a .conf file can be set via -c.
+2. 修改配置文件, 并挂载到容器中
 
-$ docker run -d --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword postgres -c shared_buffers=256MB -c max_connections=200
-Locale Customization
-You can extend the Debian-based images with a simple Dockerfile to set a different locale. The following example will set the default locale to de_DE.utf8:
+   ```bash
+   docker run -d \
+     --name some-postgres \
+     -v "$PWD/postgres.conf":/etc/postgresql/postgresql.conf:ro \
+     -e POSTGRES_PASSWORD=mysecretpassword postgres \
+     -c 'config_file=/etc/postgresql/postgresql.conf' \
+     -c shared_buffers=256MB \
+     -c max_connections=200
+   ```
 
+   - `-c` 参数可以在命令行中覆盖配置文件中的配置项
+
+## 6. 本地化
+
+如果需要修改镜像的本地化设置, 可以以 postgres 镜像为基础, 重新打包镜像, 例如
+
+```dockerfile
 FROM postgres:14.3
 RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8
 ENV LANG de_DE.utf8
-Since database initialization only happens on container startup, this allows us to set the language before it is created.
+```
 
-Also of note, Alpine-based variants starting with Postgres 15 support ICU locales. Previous Postgres versions based on alpine do not support locales; see "Character sets and locale" in the musl documentation for more details.
+从 PostgreSQL 15 开始, 可以设置 ICU Locales, 通过 `POSTGRES_INITDB_ARGS` 环境变量在初始化数据库文件时 (即第一次启动容器时) 设置本地化
 
-You can set locales in the Alpine-based images with POSTGRES_INITDB_ARGS to set a different locale. The following example will set the default locale for a newly initialized database to de_DE.utf8:
+```bash
+docker run -d \
+  -e LANG=de_DE.utf8 \
+  -e POSTGRES_INITDB_ARGS="--locale-provider=icu --icu-locale=de-DE" \
+  -e POSTGRES_PASSWORD=mysecretpassword
+  postgres:15-alpine
+```
 
-$ docker run -d -e LANG=de_DE.utf8 -e POSTGRES_INITDB_ARGS="--locale-provider=icu --icu-locale=de-DE" -e POSTGRES_PASSWORD=mysecretpassword postgres:15-alpine
-Additional Extensions
-When using the default (Debian-based) variants, installing additional extensions (such as PostGIS) should be as simple as installing the relevant packages (see github.com/postgis/docker-postgis for a concrete example).
+## 7. 使用环境变量
 
-When using the Alpine variants, any postgres extension not listed in postgres-contrib will need to be compiled in your own image (again, see github.com/postgis/docker-postgis for a concrete example).
+对于 docker-compose 来说, 可以有几种方式使用环境变量
 
-Arbitrary --user Notes
-As of docker-library/postgres#253, this image supports running as a (mostly) arbitrary user via --user on docker run. As of docker-library/postgres#1018, this is also the case for the Alpine variants.
+- 通过 `docker-compose.yml` 文件的 `services.*.environment` 进行设置
+- 通过 `docker-compose.yml` 文件的 `services.*.env_file` 进行设置
+- 通过 `docker-compose.yml` 文件同一目录下的 `.env` 文件进行设置
+- 通过 `docker-compose` 命令的 `--env-file` 参数设置
 
-The main caveat to note is that postgres doesn't care what UID it runs as (as long as the owner of /var/lib/postgresql/data matches), but initdb does care (and needs the user to exist in /etc/passwd):
+注意, 只有后两种方式才能在 `docker-compose.yml` 文件中通过 `${NAME}` 语法来引用环境变量的值, 最后一种方式的命令如下:
 
-$ docker run -it --rm --user www-data -e POSTGRES_PASSWORD=mysecretpassword postgres
-The files belonging to this database system will be owned by user "www-data".
-...
-
-$ docker run -it --rm --user 1000:1000 -e POSTGRES_PASSWORD=mysecretpassword postgres
-initdb: could not look up effective user ID 1000: user does not exist
-The three easiest ways to get around this:
-
-allow the image to use the nss_wrapper library to "fake" /etc/passwd contents for you (see docker-library/postgres#448 for more details)
-
-bind-mount /etc/passwd read-only from the host (if the UID you desire is a valid user on your host):
-
-$ docker run -it --rm --user "$(id -u):$(id -g)" -v /etc/passwd:/etc/passwd:ro -e POSTGRES_PASSWORD=mysecretpassword postgres
-The files belonging to this database system will be owned by user "jsmith".
-...
-initialize the target directory separately from the final runtime (with a chown in between):
-
-...
-
-
-
+```bash
 docker-compose --env-file ../env/pgsql.env up
-
-ocker exec -it postgres psql -U postgres
+```
