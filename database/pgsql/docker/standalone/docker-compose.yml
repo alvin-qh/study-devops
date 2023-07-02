@@ -7,6 +7,9 @@ services:
     container_name: postgres
     restart: always
     privileged: true
+    # 为启动命令增加参数, 指定 postgresql.conf 配置文件的实际存储位置
+    command: >
+      -c "config_file=/etc/postgresql/postgresql.conf"
     ulimits:
       nproc: 65535
       nofile:
@@ -24,22 +27,26 @@ services:
           memory: 100M
     env_file:
       - ../env/pgsql.env
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=123456
-      - POSTGRES_DB=postgres
     ports:
       - 1486:1486
     volumes:
-      - ../conf/postgres.conf:/etc/postgresql/postgresql.conf:ro
+      # 映射配置文件
+      - ./conf/postgres.conf:/etc/postgresql/postgresql.conf
+      # 映射用于 WAL 日志归档的脚本文件
+      - ./script/archive.sh:/etc/postgresql/archive.sh
+      # 映射初始化脚本
       - ./script/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
+      # 映射数据库数据存储路径
       - pgsql_data:/var/lib/postgresql/data
+      # 映射 WAL 归档路径
+      - pgsql_archive:/var/lib/postgresql/archive
     networks:
       - pgsql_network
     healthcheck:
       test:
         [
           "CMD-SHELL",
+          # 检查 pgsql 的健康状态
           "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"
         ]
       interval: 30s
@@ -48,5 +55,6 @@ services:
       start_period: 30s
 volumes:
   pgsql_data:
+  pgsql_archive:
 networks:
   pgsql_network:
