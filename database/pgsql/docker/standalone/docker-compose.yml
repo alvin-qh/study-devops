@@ -28,7 +28,7 @@ services:
     env_file:
       - ../env/pgsql.env
     ports:
-      - 1486:1486
+      - 5432:5432
     volumes:
       # 映射配置文件
       - ./conf/postgres.conf:/etc/postgresql/postgresql.conf
