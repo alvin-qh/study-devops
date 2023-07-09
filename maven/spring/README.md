@@ -2,17 +2,26 @@
 
 - [Spring Boot](#spring-boot)
   - [1. Spring Boot 插件](#1-spring-boot-插件)
+    - [1.1. 基本使用](#11-基本使用)
+    - [1.2. 启用远程调试](#12-启用远程调试)
   - [2. 依赖](#2-依赖)
+    - [2.1. 引入 Spring Boot BOM](#21-引入-spring-boot-bom)
+    - [2.2. 基于 BOM 引入相关依赖](#22-基于-bom-引入相关依赖)
   - [3. Lombok 支持](#3-lombok-支持)
     - [3.1. 引入依赖](#31-引入依赖)
+    - [3.2. 增加注解处理器](#32-增加注解处理器)
+  - [备注](#备注)
+    - [1. 基于 VSCode 设置远程调试](#1-基于-vscode-设置远程调试)
 
 ## 1. Spring Boot 插件
 
-[`spring-boot-maven-plugin`](`https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/maven-plugin/reference/html/`)
+参见 <https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/maven-plugin/reference/html/> 文档
 
-Springboot 提供了一个完整的插件 `spring-boot-maven-plugin`, 一站式的解决运行, 调试和打包功能
+Springboot 提供了一个完整的插件 `spring-boot-maven-plugin`, 一站式的解决运行, 调试和打包需求
 
-该插件引入了 `spring-boot` 指令和若干的 `goal`s, 用于完成不同的操作
+### 1.1. 基本使用
+
+`spring-boot-maven-plugin` 插件引入了 `spring-boot` 指令和若干的 `goal`s, 用于完成不同的操作
 
 ```xml
 <plugin>
@@ -61,9 +70,45 @@ Springboot 提供了一个完整的插件 `spring-boot-maven-plugin`, 一站式�
 - `spring-boot:start` 在新进程执行程序并转入后台
 - `spring-boot:stop` 停止通过 `spring-boot:start` 启动的程序
 
+### 1.2. 启用远程调试
+
+可以为 `spring-boot-maven-plugin` 插件添加一个特殊的 `execution` 来启动服务的远程调试功能
+
+```xml
+<plugin>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-maven-plugin</artifactId>
+  <configuration>
+    <mainClass>alvin.study.maven.Application</mainClass>
+  </configuration>
+  <executions>
+    <execution>
+      <id>debug</id>
+      <goals>
+        <goal>run</goal>
+      </goals>
+      <phase>none</phase>
+      <configuration>
+        <jvmArguments>
+          -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+        </jvmArguments>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+```
+
+这里设置了一个 `id` 为 `debug` 的 `execution`, 并和 `run` 这个 `goal` 进行绑定, 且不关联任何 `phase`, 可以通过如下命令启用:
+
+```bash
+mvn spring-boot:run@debug
+```
+
 ## 2. 依赖
 
-可以引入 springboot 的 bom 文件, 这样就无需为每个依赖引入指定版本号
+### 2.1. 引入 Spring Boot BOM
+
+可以引入 Spring Boot 的 BOM 文件, 这样就无需为每个依赖引入指定版本号
 
 ```xml
 <dependencyManagement>
@@ -79,13 +124,22 @@ Springboot 提供了一个完整的插件 `spring-boot-maven-plugin`, 一站式�
 <dependencyManagement>
 ```
 
-之后就可以引入 springboot 相关插件
+### 2.2. 基于 BOM 引入相关依赖
+
+直接引入其它 Spring Boot 相关依赖, 且无需声明依赖的版本号
 
 ```xml
 <dependencies>
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <scope>runtime</scope>
+    <optional>true</optional>
   </dependency>
 
   <dependency>
@@ -102,13 +156,6 @@ Springboot 提供了一个完整的插件 `spring-boot-maven-plugin`, 一站式�
         <artifactId>*</artifactId>
       </exclusion>
     </exclusions>
-  </dependency>
-
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-devtools</artifactId>
-    <scope>runtime</scope>
-    <optional>true</optional>
   </dependency>
 
   <dependency>
@@ -139,20 +186,6 @@ spring:
 
 ### 3.1. 引入依赖
 
-定义依赖版本
-
-```xml
-<dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>${version.lombok}</version>
-    </dependency>
-  </dependencies>
-<dependencyManagement>
-```
-
 引入依赖
 
 ```xml
@@ -164,7 +197,9 @@ spring:
 </dependencies>
 ```
 
-在编译插件中增加 annotation processor 处理器
+### 3.2. 增加注解处理器
+
+在编译插件中增加 Annotation Processor (注解处理器)
 
 ```xml
 <plugin>
@@ -183,3 +218,27 @@ spring:
   </configuration>
 </plugin>
 ```
+
+## 备注
+
+### 1. 基于 VSCode 设置远程调试
+
+1. 在侧边工具栏点击 "Run and Debug" 按钮, 点击其中的 "create a launch.json file" 链接, 在弹出的窗口中, 选择 Java 作为调试语言;
+
+2. 在生成的 `launch.json` 文件中, 为 `configurations` 字段增加配置如下:
+
+```json
+{
+  "type": "java",
+  "name": "Attach to Remote Program",
+  "request": "attach",
+  "hostName": "localhost",
+  "port": "5005"
+}
+```
+
+其中远程配置的相关配置和 [启用远程调试](#12-启用远程调试) 章节中启用远程调试使用的配置必须一致
+
+> VSCode 具备自动生成配置模板的功能, 所以只需通过代码提示并选择对应的项, 即可生成配置模板
+
+回到 "Run and Debug" 界面, 选择最上方的 "RUN AND DEBUG" 下拉框, 选中 "Attach to Remote Program" 并点击绿色运行按钮, 即可连接到远程进行调试
