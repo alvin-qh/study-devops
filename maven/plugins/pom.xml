@@ -27,8 +27,6 @@
     <jdbc.user>dev</jdbc.user>
     <jdbc.password>password</jdbc.password>
 
-    <failsOnError />
-
     <version.junit>5.9.1</version.junit>
     <version.guava>31.1-jre</version.guava>
     <version.spotbugs>4.7.3</version.spotbugs>
