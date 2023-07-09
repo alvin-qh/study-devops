@@ -30,19 +30,19 @@
     <version.junit>5.9.1</version.junit>
     <version.guava>31.1-jre</version.guava>
     <version.spotbugs>4.7.3</version.spotbugs>
-    <version.h2>2.1.214</version.h2>
-    <version.flyway>9.19.1</version.flyway>
+    <version.h2>2.1.220</version.h2>
 
     <version.maven-compiler>3.11.0</version.maven-compiler>
-    <version.maven-surefire>3.1.0</version.maven-surefire>
+    <version.maven-surefire>3.1.2</version.maven-surefire>
     <version.maven-checkstyle>3.3.0</version.maven-checkstyle>
-    <version.maven-site>4.0.0-M8</version.maven-site>
-    <version.maven-pi-report>3.4.4</version.maven-pi-report>
+    <version.maven-site>3.12.1</version.maven-site>
+    <version.maven-pi-report>3.4.5</version.maven-pi-report>
     <version.maven-jxr>3.3.0</version.maven-jxr>
     <version.maven-spotbugs>4.7.3.4</version.maven-spotbugs>
-    <version.maven-flyway>${version.flyway}</version.maven-flyway>
+    <version.maven-flyway>9.20.0</version.maven-flyway>
     <version.maven-build-number>3.1.0</version.maven-build-number>
     <version.maven-resources>3.3.1</version.maven-resources>
+    <version.wrapper-resources>3.2.0</version.wrapper-resources>
   </properties>
 
   <dependencyManagement>
@@ -62,13 +62,6 @@
         <artifactId>h2</artifactId>
         <version>${version.h2}</version>
       </dependency>
-
-      <!-- Flyway 依赖 -->
-      <dependency>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-core</artifactId>
-        <version>${version.flyway}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -76,10 +69,6 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -160,6 +149,13 @@
           <artifactId>maven-jxr-plugin</artifactId>
           <version>${version.maven-jxr}</version>
         </plugin>
+
+        <!-- mvnw 插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-wrapper-plugin</artifactId>
+          <version>${version.wrapper-resources}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -221,9 +217,9 @@
         </dependencies>
         <configuration>
           <encoding>UTF-8</encoding>
-          <effort>Max</effort>
-          <threshold>Low</threshold>
-          <xmlOutput>true</xmlOutput>
+          <effort>More</effort>
+          <threshold>High</threshold>
+          <xmlOutput>false</xmlOutput>
         </configuration>
         <!--
         <executions>
@@ -278,6 +274,10 @@
           <!-- git 版本号长度 -->
           <shortRevisionLength>8</shortRevisionLength>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-wrapper-plugin</artifactId>
       </plugin>
     </plugins>
 

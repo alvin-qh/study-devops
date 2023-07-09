@@ -23,6 +23,10 @@
   - [4. 代码库版本插件](#4-代码库版本插件)
     - [4.1. 配置插件](#41-配置插件)
     - [4.2. 使用插件](#42-使用插件)
+  - [5. Wrapper 插件](#5-wrapper-插件)
+  - [6. Update 插件](#6-update-插件)
+    - [6.1. 检查项目依赖的更新版本](#61-检查项目依赖的更新版本)
+    - [6.2. 检查 pom.xml 中插件的更新版本](#62-检查-pomxml-中插件的更新版本)
 
 ## 1. Checkstyle 插件
 
@@ -41,6 +45,7 @@
   <groupId>org.apache.maven.plugins</groupId>
   <artifactId>maven-checkstyle-plugin</artifactId>
   <version>${version.maven-checkstyle}</version>
+  <!-- 指定特殊的 Checkstyle 库版本, 如果希望使用插件绑定的版本, 则可以省略这部分 -->
   <dependencies>
     <dependency>
       <groupId>com.puppycrawl.tools</groupId>
@@ -191,7 +196,7 @@ mvn site
 
 ## 2. SpotBugs 插件
 
-[`spotbugs-maven-plugin`](https://spotbugs.github.io/spotbugs-maven-plugin/index.html)
+参见 <https://spotbugs.github.io/spotbugs-maven-plugin/examples/violationChecking.html> 文档
 
 SpotBugs 用于取代已过时的 FindBugs 插件, 目标是对代码进行静态检查, 找出代码中的隐含缺陷和安全缺陷
 
@@ -214,10 +219,21 @@ SpotBugs 用于取代已过时的 FindBugs 插件, 目标是对代码进行静�
     </dependency>
   </dependencies>
   <configuration>
+    <xmlOutput>false</xmlOutput>
+    <!-- <xmlOutputDirectory>target</xmlOutputDirectory> -->
+    <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+    <!-- <includeFilterFile>spotbugs-include.xml</includeFilterFile> -->
+    <!-- 要添加的检查规则 -->
+    <!-- <visitors>FindDeadLocalStores,UnreadFields</visitors> -->
+    <!-- 要排除的检查规则 -->
+    <omitVisitors>FindDeadLocalStores,UnreadFields</omitVisitors>
+    <!-- 指定要分析的包名 -->
+    <!-- <onlyAnalyze>com.github.spotbugs.spotbugs.*</onlyAnalyze> -->
+    <!-- 设置检查的力度, 包括 Min, Less, More 和 Max -->
+    <effort>More</effort>
+    <!-- 设置告警阈值, 包括 Default, Low, Medium 和 High -->
+    <threshold>High</threshold>
     <encoding>UTF-8</encoding>
-    <consoleOutput>true</consoleOutput>
-    <failsOnError>true</failsOnError>
-    <linkXRef>true</linkXRef>
   </configuration>
   <!--
   <executions>
@@ -463,3 +479,108 @@ mvn clean compile
 ```
 
 此时可以在构建结果 `target/classes` 中找到 `version.properties` 文件, 内容为已替换过的版本信息
+
+## 5. Wrapper 插件
+
+参考 <https://maven.apache.org/wrapper/> 文档
+
+Wrapper 插件可以在当前路径下建立一个 Maven 的代理命令, 名称为 `mvnw`, 在当前目录中, 该代理命令将会代理全局按照的 Maven
+
+```xml
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-wrapper-plugin</artifactId>
+  <version>${version.wrapper-resources}</version>
+</plugin>
+```
+
+随后即可通过如下命令在当前路径产生 Maven Wrapper 代理相关文件
+
+通过当前 Maven 版本生成 Wrapper 相关文件
+
+```bash
+mvn -N wrapper:wrapper
+```
+
+通过指定的 Maven 版本生成 Wrapper 相关文件
+
+```bash
+mvn -N wrapper:wrapper -Dmaven=3.5.2
+```
+
+此时应该在当前目录下生成如下目录和文件
+
+```text
+.
+├── .mvn      <dir>
+├── mvnw
+└── mvnw.cmd
+```
+
+其中, `.mvn` 里面存放 Maven 相关的 `jar` 文件和配置文件; `mvnw` 为 Linux 或 Unix 下执行的 Shell Script 文件; `mvnw.cmd` 为 Windows 下执行的 Shell Script 文件
+
+如果 `./mvnw` 命令无法正常执行, 尝试执行如下命令
+
+```bash
+mvn clean install
+```
+
+## 6. Update 插件
+
+Update 插件可以检测 `pom.xml` 文件中相关依赖 (dependencies) 和插件 (plugin) 的更新版本
+
+### 6.1. 检查项目依赖的更新版本
+
+```bash
+mvn versions:display-dependency-updates
+
+...
+[INFO] --- versions:2.16.0:display-dependency-updates (default-cli) @ <project-name> ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   com.h2database:h2 ................................. 2.1.220 -> 2.2.220
+[INFO]   org.junit.jupiter:junit-jupiter .................. 5.9.1 -> 5.10.0-RC1
+[INFO]   org.junit.jupiter:junit-jupiter-api .............. 5.9.1 -> 5.10.0-RC1
+[INFO]   org.junit.jupiter:junit-jupiter-engine ........... 5.9.1 -> 5.10.0-RC1
+[INFO]   org.junit.jupiter:junit-jupiter-migrationsupport ...
+[INFO]                                                      5.9.1 -> 5.10.0-RC1
+[INFO]   org.junit.jupiter:junit-jupiter-params ........... 5.9.1 -> 5.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-commons ........ 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-console ........ 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-engine ......... 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-jfr ............ 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-launcher ....... 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-reporting ...... 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-runner ......... 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-suite .......... 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-suite-api ...... 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-suite-commons ...
+[INFO]                                                      1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-suite-engine ... 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.platform:junit-platform-testkit ........ 1.9.1 -> 1.10.0-RC1
+[INFO]   org.junit.vintage:junit-vintage-engine ........... 5.9.1 -> 5.10.0-RC1
+[INFO]
+[INFO] The following dependencies in Dependencies have newer versions:
+[INFO]   com.h2database:h2 ................................. 2.1.220 -> 2.2.220
+[INFO]   org.junit.jupiter:junit-jupiter .................. 5.9.1 -> 5.10.0-RC1
+[INFO]
+[INFO] No dependencies in Plugin Dependencies have newer versions.
+```
+
+### 6.2. 检查 pom.xml 中插件的更新版本
+
+```bash
+mvn versions:display-plugin-updates
+
+[INFO] ------------------< alvin.study:study-maven-plugins >-------------------
+[INFO] Building study-maven-plugins 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- versions:2.16.0:display-plugin-updates (default-cli) @ study-maven-plugins ---
+[INFO]
+[INFO] The following plugin updates are available:
+[INFO]   maven-site-plugin .............................. 3.12.1 -> 4.0.0-M8
+[INFO]
+[INFO] All plugins have a version specified.
+[INFO]
+```
