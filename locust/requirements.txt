@@ -1,0 +1,5 @@
+locust
+wtforms
+autopep8
+mypy
+gunicorn

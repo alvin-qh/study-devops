@@ -1,0 +1,11 @@
+autopep8
+
+kazoo
+confluent-kafka
+requests
+fastavro
+jsonschema
+
+pytest
+# rerun failures tests, eg: pytest --reruns 5 --reruns-delay 1
+pytest-rerunfailures

@@ -1,0 +1,210 @@
+version: "3.9"
+services:
+  # 配置 MySQL 数据库, 用于存储 Grafana 的运行数据以及测试 mysqld-exporter 组件
+  percona:
+    image: percona/percona-server
+    hostname: percona
+    container_name: percona
+    restart: always
+    privileged: true
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    env_file:
+      - ../env/percona.env
+    volumes:
+      - ../conf/percona.cnf:/etc/my.cnf.d/percona.cnf:ro # 设置 MySQL 配置文件
+      - ../sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚步
+      - ./percona_log:/var/log/mysql
+      - percona_data:/var/lib/mysql
+    networks:
+      - prometheus_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -uhealth | grep -q 'alive' || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  # 配置 Prometheus 监控
+  prometheus:
+    image: prom/prometheus
+    hostname: prometheus
+    container_name: prometheus
+    restart: always
+    privileged: true
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:9090/metrics &> /dev/null 2>&1 || exit 1"
+        ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    ports:
+      - 9090:9090
+    volumes:
+      - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../conf/targets:/etc/prometheus/targets:ro
+      - prometheus_data:/prometheus
+    networks:
+      - prometheus_network
+    extra_hosts:
+      # 为容器添加域名映射 (即修改 /etc/hosts 文件), 相当于命令行的 --add-host 参数
+      # host-gateway 表示宿主机 ip 地址
+      - host.docker.internal:host-gateway
+  # 配置 Grafana 仪表盘
+  grafana:
+    image: grafana/grafana-oss
+    hostname: grafana
+    container_name: grafana
+    restart: always
+    privileged: true
+    env_file:
+      - ../env/grafana.env
+    depends_on:
+      percona:
+        condition: service_started
+      prometheus:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:3000/metrics &> /dev/null 2>&1 || exit 1"
+        ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 65536
+    #     hard: 65536
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - prometheus_network
+  # 用于监控宿主机的组件
+  node-exporter:
+    image: prom/node-exporter
+    hostname: node_exporter
+    container_name: node_exporter
+    restart: unless-stopped
+    privileged: true
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - /:/host:ro
+    networks:
+      - prometheus_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:9100/metrics &> /dev/null 2>&1 || exit 1"
+        ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  # 用于 MySQL 的组件
+  mysqld-exporter:
+    image: prom/mysqld-exporter
+    hostname: mysqld_exporter
+    container_name: mysqld_exporter
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - DATA_SOURCE_NAME=mysqld_exporter:mysqld_exporter@(percona:3306)/
+    networks:
+      - prometheus_network
+    depends_on:
+      percona:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:9104/metrics &> /dev/null 2>&1 || exit 1"
+        ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  # 用于监控容器状态的组件
+  cadvisor:
+    image: google/cadvisor
+    hostname: cadvisor
+    container_name: cadvisor
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - prometheus_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- localhost:8080/metrics &> /dev/null 2>&1 || exit 1"
+        ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+volumes:
+  prometheus_data:
+  grafana_data:
+  percona_data:
+networks:
+  prometheus_network:

@@ -1,0 +1,10 @@
+[
+  {
+    "targets": [
+      "mysqld_exporter:9104"
+    ],
+    "labels": {
+      "instance": "Percona Docker"
+    }
+  }
+]

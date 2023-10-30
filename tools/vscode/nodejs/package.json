@@ -1,0 +1,16 @@
+{
+  "name": "vscode-with-nodejs",
+  "version": "1.0.0",
+  "description": "The demo of using nodejs with vscode",
+  "main": "index.js",
+  "scripts": {
+    "exec": "node index.js",
+    "test": "npx mocha ./test/**/*.js"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
+  },
+  "author": "Alvin",
+  "license": "ISC"
+}

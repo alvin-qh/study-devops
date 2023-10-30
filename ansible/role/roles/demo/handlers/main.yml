@@ -1,0 +1,6 @@
+# 用来响应任务 notify 的 handler
+
+# 响应 roles/demo/tasks/main.yml 的任务 "6. Handlers. [task/main.yml]: Notify when task complete" 的 notify
+- name: "6. Handler. [demo/handlers/main.yml]: Execute handler when task notified"
+  debug:
+    msg: The handler is working

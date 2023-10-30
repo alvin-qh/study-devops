@@ -1,0 +1,10 @@
+[
+  {
+    "targets": [
+      "node_exporter:9100"
+    ],
+    "labels": {
+      "instance": "Local Host"
+    }
+  }
+]

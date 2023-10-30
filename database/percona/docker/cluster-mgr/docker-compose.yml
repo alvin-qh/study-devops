@@ -1,0 +1,127 @@
+version: "3.9"
+
+services:
+  mgr-01:
+    image: percona/percona-server
+    container_name: mgr-01
+    hostname: mgr_01
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/mgr.env
+    volumes:
+      - ./conf/mgr-01.cnf:/etc/my.cnf.d/cluster.cnf:ro
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
+      - ./log:/var/log/mysql
+      - mgr-01-data:/var/lib/mysql
+    networks:
+      - mgr-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'group_replication_primary_member'\" | grep -q group_replication_primary_member"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  mgr-02:
+    image: percona/percona-server
+    container_name: mgr-02
+    hostname: mgr_02
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/mgr.env
+    volumes:
+      - ./conf/mgr-02.cnf:/etc/my.cnf.d/cluster.cnf:ro
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
+      - ./log:/var/log/mysql
+      - mgr-02-data:/var/lib/mysql
+    networks:
+      - mgr-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'group_replication_primary_member'\" | grep -q group_replication_primary_member"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10scd
+  mgr-03:
+    image: percona/percona-server
+    container_name: mgr-03
+    hostname: mgr_03
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/mgr.env
+    volumes:
+      - ./conf/mgr-03.cnf:/etc/my.cnf.d/cluster.cnf:ro
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
+      - ./log:/var/log/mysql
+      - mgr-03-data:/var/lib/mysql
+    networks:
+      - mgr-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'group_replication_primary_member'\" | grep -q group_replication_primary_member"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  haproxy:
+    image: haproxy
+    container_name: haproxy
+    hostname: haproxy
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    volumes:
+      - ./conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - mgr-network
+    ports:
+      - 3306:3306
+      - 10800:1080
+volumes:
+  mgr-01-data:
+  mgr-02-data:
+  mgr-03-data:
+networks:
+  mgr-network:
+
+

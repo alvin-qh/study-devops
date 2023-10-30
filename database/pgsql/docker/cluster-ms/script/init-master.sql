@@ -1,0 +1,2 @@
+-- 创建用于同步的用户和密码
+CREATE ROLE replica LOGIN REPLICATION ENCRYPTED PASSWORD 'replica';

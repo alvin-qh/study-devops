@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  neo4j:
+    image: neo4j
+    container_name: neo4j
+    volumes:
+      - neo4j_data:/data
+      - neo4j_log:/logs
+      - ./conf:/var/lib/neo4j/conf   # conf, import and plugins need to create manually
+      - ./import:/var/lib/neo4j/import
+      - ./plugins:/plugins
+    environment:
+      - NEO4J_AUTH=neo4j/neo4j_
+      - NEO4J_dbms_security_auth_enabled=false
+    restart: always
+    networks:
+      - neo4j_network
+    ports:
+      - 7474:7474
+      - 7687:7687
+      - 7473:7473
+networks:
+  neo4j_network:
+volumes:
+  neo4j_data:
+  neo4j_log:

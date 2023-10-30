@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>alvin.study</groupId>
+  <artifactId>kafka</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>${project.artifactId}</name>
+
+  <!-- 项目属性 -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+
+    <!-- 定义依赖版本 -->
+    <version.kafka-client>3.4.0</version.kafka-client>
+    <version.kafka-avro>7.4.0</version.kafka-avro>
+    <version.log4j2>2.20.0</version.log4j2>
+    <version.guava>32.0.1-jre</version.guava>
+    <version.lombok>1.18.26</version.lombok>
+    <version.jackson>2.14.1</version.jackson>
+
+    <version.junit>5.9.1</version.junit>
+    <version.assertj>3.24.1</version.assertj>
+
+    <!-- 定义插件版本 -->
+    <version.maven-compiler>3.11.0</version.maven-compiler>
+    <version.maven-surefire>3.1.2</version.maven-surefire>
+    <version.maven-resources>3.3.1</version.maven-resources>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- JUnit BOM -->
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${version.junit}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- Jackson BOM -->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${version.jackson}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <repositories>
+    <!-- 设置 Confluent Maven 地址 -->
+    <repository>
+      <id>confluent</id>
+      <url>https://packages.confluent.io/maven/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <!-- Kafka Client 依赖 -->
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>${version.kafka-client}</version>
+    </dependency>
+
+    <!-- Guava 依赖 -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${version.guava}</version>
+    </dependency>
+
+    <!-- Lombok 依赖 -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${version.lombok}</version>
+    </dependency>
+
+    <!-- Jackson 依赖 -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+
+    <!-- Kafka Avro Serialize 依赖 -->
+    <dependency>
+      <groupId>io.confluent</groupId>
+      <artifactId>kafka-avro-serializer</artifactId>
+      <version>${version.kafka-avro}</version>
+    </dependency>
+
+    <!-- JUnit 5 依赖 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- AssertJ 断言库 -->
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${version.assertj}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Log4j2 for slf4j -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${version.log4j2}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- 资源处理插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${version.maven-resources}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <!-- 配置编译插件 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.maven-compiler}</version>
+        <configuration>
+          <source>17</source>
+          <target>17</target>
+          <compilerArgs>
+            <!-- 编译时保留参数名 -->
+            <arg>-parameters</arg>
+          </compilerArgs>
+          <!-- 编译期注解生成代码配置 -->
+          <annotationProcessorPaths>
+            <path>
+              <!-- 支持 lombok 代码生成 -->
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${version.lombok}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+      <!-- 测试插件 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.maven-surefire}</version>
+        <configuration>
+          <argLine>--enable-preview</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

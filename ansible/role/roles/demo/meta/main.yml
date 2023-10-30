@@ -1,0 +1,10 @@
+# 定义当前 role 和其它 role 的依赖关系
+# 当前 role 的 tasks/main.yml 执行前，所依赖 role 的 tasks/main.yml 会被优先执行
+dependencies:
+  # 定义所依赖的 role
+  - role: common
+    vars:
+      common_param: Common # 为所依赖的 role 设置参数值
+
+  # 定义所依赖的 role
+  - role: setup

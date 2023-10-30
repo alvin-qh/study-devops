@@ -1,0 +1,5 @@
+# 当前 role 被 demo role 依赖，依赖定义在 roles/demo/meta/main.yml 中
+# common_param 参数也是在定义依赖时传递
+- name: 'P. Common role. [common/tasks/main.yml]: Show task param'
+  debug:
+    msg: 'Param common_param={{ common_param }}'

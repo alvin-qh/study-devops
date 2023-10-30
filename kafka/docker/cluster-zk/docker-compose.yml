@@ -1,0 +1,245 @@
+version: "3.9"
+
+services:
+  zk01:
+    image: zookeeper
+    container_name: zk01
+    hostname: zk01
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/zk.env
+    environment:
+      - ZOO_MY_ID=1
+    volumes:
+      - ./logs/zk01:/logs
+      - zk01_data:/data
+      - zk01_datalog:/datalog
+    networks:
+      - kf_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 128M
+        reservations:
+          memory: 64M
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "echo stat | nc localhost 2181 | grep -q Zxid || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  zk02:
+    image: zookeeper
+    container_name: zk02
+    hostname: zk02
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/zk.env
+    environment:
+      - ZOO_MY_ID=2
+    volumes:
+      - ./logs/zk02:/logs
+      - zk02_data:/data
+      - zk02_datalog:/datalog
+    networks:
+      - kf_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 128M
+        reservations:
+          memory: 64M
+    depends_on:
+      - zk01
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "echo stat | nc localhost 2181 | grep -q Zxid || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  zk03:
+    image: zookeeper
+    container_name: zk03
+    hostname: zk03
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/zk.env
+    environment:
+      - ZOO_MY_ID=3
+    volumes:
+      - ./logs/zk03:/logs
+      - zk03_data:/data
+      - zk03_datalog:/datalog
+    networks:
+      - kf_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 128M
+        reservations:
+          memory: 64M
+    depends_on:
+      - zk02
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "echo stat | nc localhost 2181 | grep -q Zxid || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  zk_exporter:
+    image: dabealu/zookeeper-exporter
+    container_name: zk_exporter
+    hostname: zk_exporter
+    privileged: true
+    restart: always
+    command:
+      - --listen=0.0.0.0:9141
+      - --zk-hosts=zk01:2181,zk02:2181,zk03:2181
+      - --timeout=5
+    networks:
+      - kf_network
+    ports:
+      # 在宿主机通过 curl -fs http://localhost:9141/metrics 可查看结果
+      - 9141:9141
+  kf01:
+    image: bitnami/kafka
+    container_name: kf01
+    hostname: kf01
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf01:9092,EXTERNAL://localhost:19092
+    volumes:
+      - kf01_data:/bitnami/kafka
+    networks:
+      - kf_network
+    ports:
+      - 19092:19092
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
+    depends_on:
+      - zk01
+      - zk02
+      - zk03
+  kf02:
+    image: bitnami/kafka
+    container_name: kf02
+    hostname: kf02
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      - KAFKA_CFG_BROKER_ID=2
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf02:9092,EXTERNAL://localhost:19093
+    volumes:
+      - kf02_data:/bitnami/kafka
+    networks:
+      - kf_network
+    ports:
+      - 19093:19092
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
+    depends_on:
+      - kf01
+  kf03:
+    image: bitnami/kafka
+    container_name: kf03
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      - KAFKA_CFG_BROKER_ID=3
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf03:9092,EXTERNAL://localhost:19094
+    volumes:
+      - kf03_data:/bitnami/kafka
+    networks:
+      - kf_network
+    ports:
+      - 19094:19092
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
+    depends_on:
+      - kf02
+  kf_exporter:
+    image: bitnami/kafka-exporter
+    container_name: kf_exporter
+    hostname: kf_exporter
+    privileged: true
+    restart: always
+    command:
+      - --kafka.server=kf01:9092
+      - --kafka.server=kf02:9092
+      - --kafka.server=kf03:9092
+      - --web.listen-address=:9308
+    networks:
+      - kf_network
+    ports:
+      # 在宿主机通过 curl -fs http://localhost:9308/metrics 可查看结果
+      - 9308:9308
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 32M
+        reservations:
+          memory: 16M
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "timeout 5s bash -c ':>/dev/tcp/localhost/9308' || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+networks:
+  kf_network:
+volumes:
+  zk01_data:
+  zk01_datalog:
+  zk02_data:
+  zk02_datalog:
+  zk03_data:
+  zk03_datalog:
+  kf01_data:
+  kf02_data:
+  kf03_data:

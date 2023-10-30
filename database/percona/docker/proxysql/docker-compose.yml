@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  # 主服务容器配置
+  percona-master:
+    image: percona/percona-server
+    container_name: percona-master
+    hostname: percona_master
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/percona.env
+    volumes:
+      - ./conf/master.cnf:/etc/my.cnf.d/master.cnf:ro # 设置 MySQL 配置文件
+      - ./sql/master_initialize.sql:/docker-entrypoint-initdb.d/master_initialize.sql:ro # 设置数据库初始化脚本
+      - ./log:/var/log/mysql
+      - percona_master_data:/var/lib/mysql
+    networks:
+      - proxysql_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -uhealth | grep -q 'alive'"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  # 从服务容器配置
+  percona-slave:
+    image: percona/percona-server
+    container_name: percona-slave
+    hostname: percona_slave
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    depends_on:
+      percona-master:
+        condition: service_started
+    env_file:
+      - ./env/percona.env
+    volumes:
+      - ./conf/slave.cnf:/etc/my.cnf.d/slave.cnf:ro # 设置 MySQL 配置文件
+      - ./log:/var/log/mysql
+      - percona_slave_data:/var/lib/mysql
+    networks:
+      - proxysql_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -uhealth | grep -q 'alive'"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  # ProxySQL 容器配置, 用于支持读写分离
+  proxysql:
+    image: proxysql/proxysql
+    container_name: proxysql
+    hostname: proxysql
+    restart: always
+    ports:
+      - 3306:3306
+      - 6032:6032
+    volumes:
+      - ./conf/proxysql.cnf:/etc/proxysql.cnf:ro
+      - proxysql_data:/var/lib/proxysql
+    networks:
+      - proxysql_network
+networks:
+  proxysql_network:
+volumes:
+  percona_master_data:
+  percona_slave_data:
+  proxysql_data:

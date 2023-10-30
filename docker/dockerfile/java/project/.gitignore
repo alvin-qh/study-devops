@@ -1,0 +1,14 @@
+.gradle
+
+bin
+build
+out
+dataSources
+
+/data
+/logs
+
+node_modules
+log
+resources/static
+resources/templates

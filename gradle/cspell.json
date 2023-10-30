@@ -1,0 +1,22 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "ajoberstar",
+        "Bootloader",
+        "buildscript",
+        "checkstyle",
+        "classpath",
+        "Dorg",
+        "grgit",
+        "hamcrest",
+        "Jacoco",
+        "javac",
+        "loadfile",
+        "Pcommand",
+        "println",
+        "testlib",
+        "TOTALCOUNT"
+    ],
+    "flagWords": []
+}

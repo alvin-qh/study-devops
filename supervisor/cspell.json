@@ -1,0 +1,25 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "autorestart",
+        "gevent",
+        "iface",
+        "inet",
+        "killasgroup",
+        "logfile",
+        "loglevel",
+        "maintail",
+        "maxbytes",
+        "numprocs",
+        "nums",
+        "serv",
+        "startretries",
+        "startsecs",
+        "stopasgroup",
+        "supervisorctl",
+        "supervisord",
+        "Znode"
+    ],
+    "flagWords": []
+}
