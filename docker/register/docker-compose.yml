@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  registry:
+    image: registry
+    container_name: registry
+    hostname: registry
+    privileged: true
+    restart: always
+    environment:
+      - REGISTRY_STORAGE_DELETE_ENABLED=true
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+      # - REGISTRY_HTTP_TLS_CERTIFICATE=/etc/cert.d/ca.crt
+      # - REGISTRY_HTTP_TLS_KEY=/etc/cert.d/ca.key
+      # - REGISTRY_HTTP_ADDR=0.0.0.0:5000
+    volumes:
+      - ./auth:/auth
+      - ./cert:/etc/cert.d
+      - registry_data:/var/lib/registry
+    networks:
+      - registry_network
+    ports:
+      - 55055:5000
+networks:
+  registry_network:
+volumes:
+  registry_data:

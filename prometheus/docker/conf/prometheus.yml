@@ -1,0 +1,47 @@
+global:
+  scrape_interval: 15s # 拉取一次采样点数据的时间, 默认 1min
+  evaluation_interval: 15s # 评估一次规则的时间, 默认 1min
+  scrape_timeout: 10s # 拉取超时, 默认 10s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+
+rule_files:
+
+scrape_configs: # 信息采集配置
+  # 监控 prometheus 自身, 仪表盘 id=3662
+  - job_name: prometheus
+    static_configs: # 通过静态配置服务发现
+      - targets: # 服务地址
+          - localhost:9090
+        labels: # 数据标签
+          instance: prometheus
+
+  # 监控宿主机, 仪表盘 id=1860
+  - job_name: node-exporter
+    file_sd_configs: # 使用配置文件进行服务发现
+      - refresh_interval: 1m # 服务发现文件刷新周期
+        files: # 设置服务发现配置文件列表
+          - targets/node_exporter_sd.json
+
+  # 监控 MySQL 数据库, 仪表盘 id=14031
+  - job_name: mysqld-exporter
+    file_sd_configs:
+      - refresh_interval: 1m
+        files:
+          - targets/mysqld_exporter_sd.json
+
+  # 监控容器, 仪表盘 id=179
+  - job_name: cadvisor
+    file_sd_configs:
+      - refresh_interval: 1m
+        files:
+          - targets/cadvisor_sd.json
+
+  # 自定义监控
+  - job_name: custom-node-exporter
+    file_sd_configs:
+      - refresh_interval: 1m
+        files:
+          - targets/custom_exporter_sd.json

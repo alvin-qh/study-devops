@@ -1,0 +1,40 @@
+# 配置 SpringBoot server
+server:
+  port: 8080
+  servlet:
+    context-path: "/"
+    encoding:
+      charset: 'UTF-8'
+      enabled: true
+      force: true
+  # 启用 Http2
+  http2:
+    enabled: true
+  # 启用压缩
+  compression:
+    enabled: true
+  # 内置 Tomcat 配置
+  # 参考 https://www.baeldung.com/spring-boot-configure-tomcat
+  tomcat:
+    uri-encoding: UTF-8
+    threads:
+      max: 256
+      min-spare: 10
+    max-connections: 10000
+    accept-count: 1000
+    max-swallow-size: 2MB
+    max-http-form-post-size: 5MB
+    mbeanregistry:
+      enabled: true
+    connection-timeout: 10s
+  max-http-header-size: 8KB
+# 配置 SpringBoot
+spring:
+  application:
+    name: 'study-maven'
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  profiles:
+    active: 'dev'

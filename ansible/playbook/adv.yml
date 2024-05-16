@@ -1,0 +1,38 @@
+# 前置任务和后置任务
+- name: Test task execute order
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G1
+
+  # 在所有任务之前执行
+  pre_tasks:
+    - name: pre-task executing
+      shell: /usr/bin/true
+
+  # 在所有任务之后执行
+  post_tasks:
+    - name: post-task executing
+      shell: /usr/bin/true
+
+  # 执行任务
+  tasks:
+    - name: main task executing
+      shell: /usr/bin/true
+
+# 导入外部剧本
+- name: Import external playbooks
+  tags: G2
+  import_playbook: ./import/ext_playbook.yml # 导入外部剧本
+
+# 导入外部任务
+- name: Import external tasks
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G3
+  tasks:
+    - name: Task import from external
+      import_tasks: ./import/ext_task.yml # 导入外部任务

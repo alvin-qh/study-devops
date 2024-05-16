@@ -1,0 +1,54 @@
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqld]
+skip-external-locking
+
+init_connect = 'SET NAMES utf8mb4'
+collation-server = utf8mb4_unicode_ci
+
+character-set-server = utf8mb4
+character-set-client-handshake = FALSE
+
+bind-address = 0.0.0.0
+port = 3306
+
+general_log = ON
+general_log_file = /var/log/mysql/slave_mysqld.log
+
+slow_query_log = ON
+long_query_time = 10.000000
+slow_query_log_file = /var/log/mysql/slave_slow_query.log
+
+thread_handling = pool-of-threads # 启动线程池
+default_time_zone = +00:00
+
+net_read_timeout = 28800
+net_write_timeout = 28800
+
+default_authentication_plugin = mysql_native_password # 使用本地密码方式登录
+
+server-id = 2 # 设置节点 id
+
+gtid_mode = ON                # 使用 gtid 进行同步
+enforce_gtid_consistency = ON
+
+log_bin = mysql-bin
+read_only = ON # 启动只读模式
+
+sync_binlog = 1000
+innodb_flush_log_at_trx_commit = 2
+
+# 配置从库多线程并行复制
+slave_parallel_type = LOGICAL_CLOCK
+slave_parallel_workers = 2          # 并行的工作线程数, 一般等于 CPU 核心数即可
+master_info_repository = TABLE      # 开启 MTS 功能后，会频繁更新 master.info, 设置为 TABLE 减小开销
+relay_log_info_repository = TABLE
+relay_log_recovery = ON             # slave IO线程 Crash, 如果 relay‐log 损坏,
+                                    # 则自动放弃所有未执行的 relay‐log，重新从 Master 上获取日志,
+                                    # 保证 relay‐log 的完整性
+slave_preserve_commit_order = ON    # 保证提交的顺序性
+log_slave_updates = ON

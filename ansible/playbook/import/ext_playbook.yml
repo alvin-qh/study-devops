@@ -1,0 +1,10 @@
+# 外部剧本，可以被其他剧本导入
+
+# 外部剧本无需指定 name 属性，由导入方设置
+- hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tasks: 
+    - name: Task from external playbook
+      shell: /usr/bin/true

@@ -1,0 +1,101 @@
+version: "3.9"
+
+services:
+  pg-master:
+    image: postgres
+    hostname: pg-master
+    container_name: pg-master
+    restart: always
+    privileged: true
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 100M
+    env_file:
+      - ../env/pgsql.env
+    ports:
+      - 11486:1486
+    volumes:
+      - ./conf/master.conf:/etc/postgresql/postgresql.conf
+      - ./conf/hba.conf:/etc/postgresql/pg_hba.conf
+      - ./script/init-master.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
+      - pg-master_data:/var/lib/postgresql/data
+    networks:
+      - pgsql_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  pg-slave:
+    image: postgres
+    hostname: pg-slave
+    container_name: pg-slave
+    restart: always
+    privileged: true
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 100M
+    env_file:
+      - ../env/pgsql.env
+    ports:
+      - 21486:1486
+    volumes:
+      - ./conf/slave.conf:/etc/postgresql/postgresql.conf
+      - ./script/init-slave.sh:/docker-entrypoint-initdb.d/initialize.sh:ro
+      # slave 复制 master 的步骤
+      # 1. 先配置 pg-slave_data => /var/lib/postgresql/backup, pg-slave_backup => /var/lib/postgresql/data
+      # 2. 启动 pg-slave 容器, 执行 pg_basebackup -h pg-master -U replica -R -P -v -C --slot=slave -D /var/lib/postgresql/backup
+      # 3. 关闭 pg-slave 容器, 修改挂载 pg-slave_data => /var/lib/postgresql/data, 即将恢复备份的目录挂载为 /var/lib/postgresql/data 目录
+      # 4. 删除 pg-slave_backup 卷: docker volume rm -f cluster-ms_pg-slave_backup
+      # 5. 启动 pg-slave 容器
+      - pg-slave_data:/var/lib/postgresql/backup
+      - pg-slave_backup:/var/lib/postgresql/data
+    networks:
+      - pgsql_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+volumes:
+  pg-master_data:
+  pg-slave_data:
+  pg-slave_backup:
+networks:
+  pgsql_network:

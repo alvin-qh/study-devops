@@ -1,0 +1,4 @@
+global:
+  version:
+    name: "@name@"
+    value: "@value@"

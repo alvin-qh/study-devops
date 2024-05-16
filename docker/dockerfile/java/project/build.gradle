@@ -1,0 +1,60 @@
+apply from: "gradle/depends.gradle"
+
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+    mavenCentral()
+  }
+}
+
+allprojects {
+  apply plugin: "java"
+
+  sourceCompatibility = 17
+  targetCompatibility = 17
+
+  ext {
+    out = services.get(org.gradle.internal.logging.text.StyledTextOutputFactory).create("dockerjava")
+  }
+
+  group = "alvin.study"
+  version = "1.0.0-RELEASE"
+
+  repositories {
+    maven {
+      url "https://maven.aliyun.com/nexus/content/groups/public"
+    }
+    mavenCentral()
+  }
+
+  sourceSets {
+    //noinspection GroovyAssignabilityCheck
+    main {
+      output.resourcesDir = java.classesDirectory
+    }
+  }
+
+  test {
+    useJUnitPlatform()
+  }
+}
+
+subprojects {
+  tasks.withType(JavaCompile) {
+      options.encoding = "UTF-8"
+  }
+
+  dependencies {
+    annotationProcessor annotations.main.common
+    testAnnotationProcessor annotations.test.common
+
+    compileOnly compiles.main.common
+    testCompileOnly compiles.test.common
+
+    implementation libs.main.common
+    testImplementation libs.test.common,
+        libs.test.guava
+  }
+}

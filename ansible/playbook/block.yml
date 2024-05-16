@@ -1,0 +1,101 @@
+# 子任务组
+
+# 在一个任务中设置子任务组
+- name: Group task with blocks
+  hosts:
+    - group_debian1
+    - group_centos1
+  user: alvin
+  connection: ssh
+  tags: G1
+  tasks:
+    - name: Run task on Debian server
+      block: #　任务组的任务是一个整体
+        - name: Step 1
+          debug:
+            msg: Debian step 1 executed
+        - name: Step 2
+          debug:
+            msg: Debian step 2 executed
+        - name: Step 3
+          debug:
+            msg: Debian step 3 executed
+      when: ansible_distribution == "Debian" # 任务条件，也约束整个任务组
+      ignore_errors: True
+
+    - name: Run task on CentOS server
+      block:
+        - name: Step 1
+          debug:
+            msg: CentOS step 1 executed
+        - name: Step 2
+          debug:
+            msg: CentOS step 2 executed
+        - name: Step 3
+          debug:
+            msg: CentOS step 3 executed
+      when: ansible_distribution == "CentOS"
+      ignore_errors: True
+
+# 处理 block 中出现的错误
+- name: Error handle with blocks
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  tags: G2
+  tasks:
+    - name: Run task with error handle
+      block:
+        - name: Normal step 1
+          debug:
+            msg: I execute normally
+
+        # 该子任务会出现错误
+        - name: Normal step 2
+          command: /usr/bin/false
+          register: error_result
+
+        # 由于前一个任务错误，该任务无法被执行
+        - name: Normal step 3
+          debug:
+            msg: I never execute, cause ERROR
+
+      # 处理 block 中的错误
+      rescue:
+        - name: Error rescue
+          debug:
+            msg: I caught an error, cmd = {{ error_result.cmd }}
+
+      always:
+        - name: Always run
+          debug:
+            msg: This always executes
+
+      when: ansible_distribution == "Debian"
+
+# 当任务发生错误后，停止所有主机后续任务执行
+- name: Error aborting in block1
+  hosts:
+    - group_debian1
+    - group_centos1
+  user: alvin
+  connection: ssh
+  tags: G3
+  tasks:
+    - meta: clear_host_errors
+
+    - name: Aborting on error
+      block:
+        - name: Task 1 (CentOS)
+          shell: /usr/bin/false
+          when: ansible_distribution == "CentOS"
+
+        - name: Task 1 (Debian)
+          shell: /usr/bin/true
+          when: ansible_distribution == "Debian"
+
+        # 由于发生错误，导致无法继续执行该任务
+        - name: Task 2 (Never executed, cause "Task 1 (CentOS)" error)
+          shell: /usr/bin/true
+
+      any_errors_fatal: True

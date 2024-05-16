@@ -1,0 +1,4 @@
+elasticsearch
+pytest
+autopep8
+mypy
