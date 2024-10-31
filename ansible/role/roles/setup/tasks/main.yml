@@ -1,0 +1,11 @@
+# 当前 role 被 demo role 依赖，依赖定义在 roles/demo/meta/main.yml 中
+- name: 'P. Setup role. [setup/tasks/main.yml]: Setup facts variables'
+  set_fact: # 设置 name, url 变量值，在 demo role 中使用
+    database:
+      name: mysql
+      url: mysql://localhost:3306/test-db
+
+# 显示前一个任务设置的变量值
+- name: 'P. Setup role. [setup/tasks/main.yml]: Check facts variables is set'
+  debug:
+    msg: 'database={{ database }}'

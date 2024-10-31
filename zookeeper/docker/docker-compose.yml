@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  # Zookper 集群
+  zk01:
+    image: zookeeper
+    ports:
+      - 2181:2181
+    container_name: zk01
+    networks:
+      - zk_network
+    privileged: true
+    restart: always
+    volumes:
+      - zk_data1:/data
+      - zk_logs1:/logs
+      - zk_datalog1:/datalog
+    env_file:
+      - config.env
+    environment:
+      - ZOO_MY_ID=1 # 当前实例的 ID
+  zk02:
+    image: zookeeper
+    ports:
+      - 2182:2181
+    container_name: zk02
+    networks:
+      - zk_network
+    privileged: true
+    restart: always
+    volumes:
+      - zk_data2:/data
+      - zk_logs2:/logs
+      - zk_datalog2:/datalog
+    env_file:
+      - config.env
+    environment:
+      - ZOO_MY_ID=2
+volumes:
+  zk_data1:
+  zk_logs1:
+  zk_datalog1:
+  zk_data2:
+  zk_logs2:
+  zk_datalog2:
+networks:
+  zk_network:

@@ -1,0 +1,7 @@
+apply from: "others.gradle" // 导入另一个 gradle 文件
+
+task showName {
+  doLast {
+    println "My name is ${user.name}" // 使用引入的 gradle 文件中定义的变量
+  }
+}

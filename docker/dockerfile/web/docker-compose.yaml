@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  nginx:
+    image: study/web:1.0
+    container_name: web
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs:/logs
+    ports:
+      - "80:80"
+    restart: always

@@ -1,0 +1,10 @@
+[
+  {
+    "targets": [
+      "nginx_exporter:9113"
+    ],
+    "labels": {
+      "instance": "nginx_exporter"
+    }
+  }
+]

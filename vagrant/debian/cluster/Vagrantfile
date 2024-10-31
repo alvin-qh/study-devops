@@ -1,0 +1,38 @@
+# 创建 Debian 虚拟机集群
+
+Vagrant.configure("2") do |config|
+  # 启动 2 台服务器
+  (0..2).each do |i|
+    config.vm.define "debian#{i + 1}" do |machine| # 定义名为 "debianN" 的虚拟机
+      machine.vm.provider "virtualbox" do |vb| # 设定 virtualbox 配置
+        vb.name = "debian#{i + 1}" # 虚拟机名称
+        vb.memory = 256 # 内存大小
+        vb.cpus = 1 # cpu 数量
+      end
+
+      machine.vm.hostname = "debian#{i + 1}" # 虚拟机 hostname
+      machine.vm.box = "debian_buster" # 所使用的 vagrantbox 名称
+
+      # 网络配置
+      machine.vm.network "forwarded_port", guest: 80, host: 8080 + i # 端口转发配置
+      machine.vm.network "private_network", ip: "192.168.100.#{i + 2}" # 私有网络，固定 IP
+      machine.vm.network "private_network", type: "dhcp" # 私有网络，dhcp 分配
+
+      # 设置共享目录
+      # config.vm.synced_folder ".", "/vagrant"
+
+      # 创建虚拟机时执行的脚本
+      machine.vm.provision "shell", inline: <<-SHELL
+        cp /vagrant/sshd_config /etc/ssh/
+        systemctl restart sshd
+
+        cp /vagrant/sources.list /etc/apt/
+        cp /vagrant/sudoers /etc/
+        chmod -R 440 /etc/sudoers
+
+        useradd -d /home/alvin -m -s /bin/bash -G sudo alvin
+        (echo 'kkmouse'; echo 'kkmouse') | passwd alvin
+      SHELL
+    end
+  end
+end

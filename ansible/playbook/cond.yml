@@ -1,0 +1,124 @@
+# 使用条件决定任务是否执行
+
+# 'when' 条件
+- name: Basic conditionals with when
+  hosts:
+    - group_debian1
+    - group_centos1
+  user: alvin
+  connection: ssh
+  tags: G1
+  tasks:
+    # 判断是否为 debian 系统，是则执行 shell 命令
+    - name: Run uname on "Debian"
+      shell: uname -sa
+      register: debian_uname # 将模块执行结果存入变量
+      when: ansible_facts.distribution == "Debian" # 判断变量值是否为
+
+    # 判断是否为 centos 系统，是则执行 shell 命令
+    - name: Run uname on "CentOS"
+      shell: uname -sa
+      register: centos_uname
+      when: ansible_facts.distribution == "CentOS" # check target server is 'CentOS' system
+
+    # 显示结果
+    - name: Show result
+      debug:
+        msg:
+          - "Debian: {{ debian_uname.stdout | default('None') }}"
+          - "CentOS: {{ centos_uname.stdout | default('None') }}"
+
+# 可以通过 and 和 or 组合多个条件，或者通过 not 否定某个条件
+- name: Conditionals based on ansible_facts
+  hosts:
+    - group_debian1
+    - group_centos1
+  user: alvin
+  connection: ssh
+  tags: G2
+  tasks:
+    - name: Run uname on "Debian" version 10
+      shell: uname -sa
+      register: debian10_uname
+      when: ansible_facts.distribution == "Debian" and (ansible_facts.distribution_major_version | int) >= 10
+
+    - name: Run uname on "Debian" version 9
+      shell: uname -sa
+      register: debian9_uname
+      when: ansible_facts.distribution == "Debian" and (ansible_facts.distribution_major_version | int) < 10
+
+    - name: Run uname on "CentOS" version 8
+      shell: uname -sa
+      register: centos8_uname
+      when: ansible_facts.distribution == "CentOS" and (ansible_facts.distribution_major_version | int) >= 8
+
+    - name: Run uname on "CentOS" version 7
+      shell: uname -sa
+      register: centos7_uname
+      when: ansible_facts.distribution == "CentOS" and (ansible_facts.distribution_major_version | int) < 8
+
+    - name: Show result
+      debug:
+        msg:
+          - "Debian >= 10: {{ debian10_uname.stdout | default('None') }}"
+          - "Debian < 10: {{ centos8_uname.stdout | default('None') }}"
+          - "CentOS >= 8: {{ debian9_uname.stdout | default('None') }}"
+          - "CentOS < 8: {{ centos7_uname.stdout | default('None') }}"
+
+# 使用前一个任务注册的变量作为条件变量
+- name: Conditions based on registered variables
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G3
+  tasks:
+    - name: Get "uname -sa" result as register variable
+      shell: uname -sa
+      register: uname_result # 注册变量，保存 uname 命令的结果
+
+    - name: Show register variable
+      debug:
+        msg: "{{ uname_result }}"
+      when: uname_result is defined # 判断 uname_result 是否定义
+
+    - name: Show "stdout" property of register variable
+      debug:
+        msg: "{{ uname_result.stdout }}"
+      when: (uname_result.stdout | length) > 0 # 判断 uname_result 是否包含输出内容
+
+    - name: Do operation on register variable
+      debug:
+        msg: "Find 'Debian': {{ uname_result.stdout.find('Debian') >= 0 }}"
+      when: ("Debian" in uname_result.stdout) # 判断 Debian 字符串是否包含在输出内容中
+
+# 将前一个任务的执行结果作为条件变量
+- name: Condition base on module operation result
+  hosts: group_debian1
+  user: alvin
+  connection: ssh
+  gather_facts: False
+  tags: G4
+  vars:
+    cmd: "{{ lookup('env', 'CMD') }}" # 获取 CMD 环境变量，设置为 cmd 变量
+  tasks:
+    - name: Get "{{ cmd }}" result as register variable
+      command: "{{ cmd }}" # 以 cmd 变量值作为远程命令
+      register: cmd_result # 任务结果保存在变量中
+      when: cmd != "" # 判断 cmd 变量是否为空
+      ignore_errors: true # 忽略错误，继续下一个任务
+
+    - name: Get "{{ cmd }}" operation was skipped
+      debug:
+        msg: "{{ cmd_result }}"
+      when: cmd_result is skipped # 判断前一个任务是否 skipped
+
+    - name: Show "{{ cmd }}" result if it run failed
+      debug:
+        msg: "{{ cmd_result.msg }}"
+      when: cmd_result is failed # 判断前一个任务是否 failed
+
+    - name: Show "{{ cmd }}" result if it run succeeded
+      debug:
+        msg: "{{ cmd_result.stdout_lines }}"
+      when: cmd_result is succeeded and cmd_result.stdout_lines is defined # 判断前一个任务是否 succeeded

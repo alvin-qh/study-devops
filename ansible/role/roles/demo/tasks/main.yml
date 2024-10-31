@@ -1,0 +1,80 @@
+# 定义 Role 的任务
+# 当前任务的执行依赖于 common, setup 这两个 role，在 roles/demo/meta/main.yml 中定义了这些依赖关系
+
+# 输出 main_param 和 database 变量值
+- name: "1. Main task. [demo/tasks/main.yml]: Show parameters and variables"
+  debug:
+    msg:
+      - Parameter main_param={{ main_param }} # main_param 变量定义在 role.yml 文件中
+      - Facts database={{ database.name }} and url={{ database.url }} # database 变量定义在 roles/setup/tasks/main.yml 文件中
+
+# Test "vars/main.yml", output variables value
+# 输出变量值 a 和 b 变量值
+- name: "2. Load variables. [demo/tasks/main.yml]: Load variables"
+  debug:
+    msg: a={{ a }}, b={{ b }} # a, b 变量定义在 roles/demo/vars/main.yml 文件中
+
+# 处理 templates/db.conf.t 模板，生成配置文件发送到远程主机上
+- name: "3. Template. [demo/tasks/main.yml]: Template transfer"
+  template:
+    src: db.conf.t # 模板文件定义在 roles/demo/templates/db.conf.t 中，模板中所需变量定义在  roles/setup/tasks/main.yml 文件中
+    dest: ~/db.conf # 生成的文件发送到远程主机 ~/db.conf 文件
+
+# 一组任务，显示 x, y 变量的默认值并改变变量值
+- block:
+    # 显示 x, y 变量默认值
+    - name: "4. Defaults. [demo/tasks/main.yml]: Show default variables"
+      debug:
+        msg: x={{ x }}, y={{ y }} # x, y 变量定义在 roles/demo/defaults/main.yml 文件中
+
+    # 改变 x, y 变量的值
+    - name: "4. Defaults. [demo/tasks/main.yml]: Set variable values"
+      set_fact:
+        x: -100
+        y: -200
+
+    # 显示 x, y 变量改变后的值
+    - name: "4. Defaults. [demo/tasks/main.yml]: Show default variables again"
+      debug:
+        msg: x={{ x }}, y={{ y }}
+
+# 一组任务，将 show_me.sh 脚本传输到远程主机并执行
+- block:
+    # 将 show_me.sh 脚本传输到远程主机
+    - name: "5. Files. [demo/tasks/main.yml]: File operator"
+      copy:
+        src: show_me.sh # show_me.sh 脚本定义在 roles/demo/files/show_me.sh 文件中
+        dest: ~/show_me.sh
+        force: True
+
+    # 在远程主机上执行脚本
+    - name: "5. Files. [demo/tasks/main.yml]: Execute shell command"
+      script: show_me.sh
+      args:
+        chdir: /home/alvin/
+      register: cmd_result # 注册变量存储脚本执行结果
+
+    # 显示脚本执行结果
+    - name: "5. Files. [demo/tasks/main.yml]: Show shell command execute result"
+      debug:
+        msg: "{{ cmd_result.stdout }}"
+
+# 任务执行后，调用 handler 处理 notify
+- name: "6. Handlers. [demo/tasks/main.yml]: Notify when task complete"
+  shell: /usr/bin/true
+  changed_when: True # 令任务执行状态为 changed
+  notify: # 呼叫 handler 处理通知，handler 定义在 roles/demo/handlers/main.yml 文件中
+    - "6. Handler. [demo/handlers/main.yml]: Execute handler when task notified"
+
+# 调用自定义任务
+- block:
+    # 调用自定义模块 hello，传入参数并保存输出结果
+    - name: "7. User define module. [demo/tasks/main.yml]: Execute user define module"
+      hello: # 调用自定义 hello 模块，该模块定义在 roles/demo/library/hello.py 文件中
+        name: Alvin # 设置模块参数
+      register: hello_result # 注册变量存储模块调用结果
+
+    # 显示模块执行结果
+    - name: "7. User define module. [demo/tasks/main.yml]: Show module result"
+      debug:
+        msg: "{{ hello_result }}"

@@ -1,0 +1,65 @@
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqld]
+skip-external-locking
+
+init_connect = 'SET NAMES utf8mb4'
+collation-server = utf8mb4_unicode_ci
+
+character-set-server = utf8mb4
+character-set-client-handshake = FALSE
+
+bind-address = 0.0.0.0
+port = 3306
+
+general_log = ON
+general_log_file = /var/log/mysql/master_mysqld.log
+
+slow_query_log = ON
+long_query_time = 10.000000
+slow_query_log_file = /var/log/mysql/master_slow_query.log
+
+thread_handling = pool-of-threads # 启动线程池
+default_time_zone = +00:00
+
+net_read_timeout = 28800
+net_write_timeout = 28800
+
+default_authentication_plugin = mysql_native_password # 使用本地密码方式登录
+
+skip_name_resolve = 0
+
+server-id = 1 # 设置节点 id
+
+log-bin = mysql-bin   # 开启 binlog
+binlog_format = ROW   # binlog 格式
+
+log_replica_updates = ON # 从库 binlog 才会记录主库同步的操作日志
+skip_replica_start = ON  # 跳过 slave 复制线程
+
+gtid_mode = ON                # 为 binlog 启动 gtid
+enforce_gtid_consistency = ON
+
+relay-log = relay-bin
+sync_binlog = 1000
+innodb_flush_log_at_trx_commit = 2
+
+# binlog_ignore_db = sys
+# binlog_ignore_db = mysql
+# binlog_ignore_db = information_schema
+# binlog_ignore_db = performance_schema
+
+# expire_logs_days = 7
+# max_binlog_size = 100m
+# binlog_cache_size = 4m
+# max_binlog_cache_size = 32m
+
+# 安装半同步增强插件 相当于执行 INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so';
+# plugin_load = "rpl_semi_sync_source=semisync_source.so"
+
+# 启动 Master 的半同步增强
+# rpl_semi_sync_source_enabled = 1

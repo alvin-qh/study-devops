@@ -1,0 +1,10 @@
+[
+  {
+    "targets": [
+      "host.docker.internal:8123"
+    ],
+    "labels": {
+      "instance": "Custom Python Exporter"
+    }
+  }
+]

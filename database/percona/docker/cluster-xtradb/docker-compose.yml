@@ -1,0 +1,127 @@
+version: "3.9"
+
+services:
+  pxc-01:
+    image: percona/percona-xtradb-cluster
+    container_name: pxc-01
+    hostname: pxc_01
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/pxc.env
+    volumes:
+      - ./conf/pxc-01.cnf:/etc/my.cnf.d/cluster.cnf:ro # 设置 MySQL 配置文件
+      - ./sql/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro # 设置数据库初始化脚本
+      - ./log:/var/log/mysql
+      - pxc-01-data:/var/lib/mysql
+    networks:
+      - pxc-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk 'NR>1 {print $$2}' | grep -q 'Synced'"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  pxc-02:
+    image: percona/percona-xtradb-cluster
+    container_name: pxc-02
+    hostname: pxc_02
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/pxc.env
+    environment:
+      - CLUSTER_JOIN=pxc_01
+    volumes:
+      - ./conf/pxc-02.cnf:/etc/my.cnf.d/cluster.cnf:ro # 设置 MySQL 配置文件
+      - ./log:/var/log/mysql
+      - pxc-02-data:/var/lib/mysql
+    networks:
+      - pxc-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk 'NR>1 {print $$2}' | grep -q 'Synced'"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  pxc-03:
+    image: percona/percona-xtradb-cluster
+    container_name: pxc-03
+    hostname: pxc_03
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 128M
+    env_file:
+      - ./env/pxc.env
+    environment:
+      - CLUSTER_JOIN=pxc_01
+    volumes:
+      - ./conf/pxc-03.cnf:/etc/my.cnf.d/cluster.cnf:ro # 设置 MySQL 配置文件
+      - ./log:/var/log/mysql
+      - pxc-03-data:/var/lib/mysql
+    networks:
+      - pxc-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysql -uhealth -e \"SHOW STATUS LIKE 'wsrep_local_state_comment'\" | awk 'NR>1 {print $$2}' | grep -q 'Synced'"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+  haproxy:
+    image: haproxy
+    container_name: haproxy
+    hostname: haproxy
+    restart: always
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+    volumes:
+      - ./conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - pxc-network
+    ports:
+      - 3306:3306
+      - 10800:1080
+volumes:
+  pxc-01-data:
+  pxc-02-data:
+  pxc-03-data:
+networks:
+  pxc-network:

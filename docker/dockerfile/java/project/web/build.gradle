@@ -1,0 +1,33 @@
+plugins {
+  id "org.springframework.boot" version "${VER_SPRING_BOOT}"
+  id "io.spring.dependency-management" version "${VER_GRADLE_SPRING_DEPENDENCY_MANAGEMENT}"
+}
+
+dependencies {
+  annotationProcessor annotations.main.spring
+
+  compileOnly compiles.main.spring
+
+  implementation libs.main.springBoot,
+    libs.main.db.h2
+
+  testImplementation libs.test.common,
+    libs.test.springBoot
+
+  runtimeOnly libs.main.db.migration
+}
+
+bootJar {
+  archiveBaseName = project.group
+  archiveVersion = project.version
+  archiveFileName = "${project.group}.docker-java.${project.version}.jar"
+
+  manifest {
+      attributes "Implementation-Title": "Docker Java Demo"
+      attributes "Implementation-Version": "1.0-RELEASE"
+  }
+
+  exclude "META-INF/*.DSA"
+  exclude "META-INF/*.SF"
+  exclude "META-INF/*.RSA"
+}

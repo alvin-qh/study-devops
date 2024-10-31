@@ -1,0 +1,171 @@
+version: "3.9"
+
+services:
+  kf01:
+    image: bitnami/kafka
+    container_name: kf01
+    hostname: kf01
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      # 定义节点 ID, 用于集群标识, 参见 KAFKA_CFG_CONTROLLER_QUORUM_VOTERS 设置
+      - KAFKA_CFG_NODE_ID=1
+      # 定义对外发布的监听器, 内网为 kf01:9092, 外网为 localhost:19092
+      # 注意, 外网监听器使用的是当前 docker 容器对外映射的端口
+      # 当客户端连接上 Broker 后, 服务端会将这两个地址发布给客户端, 客户端由此得知集群的连接方式
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf01:9092,EXTERNAL://localhost:19092
+    volumes:
+      - kf01_data:/bitnami/kafka
+    networks:
+      - kf_network
+    ports:
+      - 19092:19092
+      # 映射 JMX 端口
+      # - 9999:9999
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-metadata-quorum.sh --bootstrap-server localhost:9092 describe --status | grep ClusterId | awk '{print $$2}' | grep -q BqeKWXR-QCGwzec3IpAmFQ || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  kf02:
+    image: bitnami/kafka
+    container_name: kf02
+    hostname: kf02
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      - KAFKA_CFG_NODE_ID=2
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf02:9092,EXTERNAL://localhost:19093
+    volumes:
+      - kf02_data:/bitnami/kafka
+    networks:
+      - kf_network
+    ports:
+      - 19093:19092
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-metadata-quorum.sh --bootstrap-server localhost:9092 describe --status | grep ClusterId | awk '{print $$2}' | grep -q BqeKWXR-QCGwzec3IpAmFQ || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  kf03:
+    image: bitnami/kafka
+    container_name: kf03
+    hostname: kf03
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/kf.env
+    environment:
+      - KAFKA_CFG_NODE_ID=3
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kf03:9092,EXTERNAL://localhost:19094
+    volumes:
+      - kf03_data:/bitnami/kafka
+    networks:
+      - kf_network
+    ports:
+      - 19094:19092
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          memory: 256M
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-metadata-quorum.sh --bootstrap-server localhost:9092 describe --status | grep ClusterId | awk '{print $$2}' | grep -q BqeKWXR-QCGwzec3IpAmFQ || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  kf_exporter:
+    image: bitnami/kafka-exporter
+    container_name: kf_exporter
+    hostname: kf_exporter
+    privileged: true
+    restart: always
+    command:
+      - --kafka.server=kf01:9092
+      - --kafka.server=kf02:9092
+      - --kafka.server=kf03:9092
+      - --web.listen-address=:9308
+    networks:
+      - kf_network
+    ports:
+      - 9308:9308
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 32M
+        reservations:
+          memory: 16M
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "timeout 5s bash -c ':>/dev/tcp/localhost/9308' || exit 1"
+        ]
+      interval: 1m
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  schemaregistry:
+    image: bitnami/schema-registry
+    container_name: kf_schema_registry
+    hostname: kf_schema_registry
+    privileged: true
+    restart: always
+    env_file:
+      - ./env/registry.env
+    depends_on:
+      - kf01
+      - kf02
+    networks:
+      - kf_network
+    ports:
+      - 18081:8081
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          memory: 128M
+networks:
+  kf_network:
+volumes:
+  kf01_data:
+  kf02_data:
+  kf03_data:
